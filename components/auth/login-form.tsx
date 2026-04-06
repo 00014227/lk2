@@ -1,0 +1,56 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { loginWithPassword } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export function LoginForm() {
+  const router = useRouter();
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await loginWithPassword(password);
+      router.replace("/dashboard");
+    } catch {
+      setError("Неверный пароль. Обратитесь к вашему менеджеру TransAsia.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      <div className="space-y-2">
+        <label className="text-sm font-semibold text-slate-700" htmlFor="password">
+          Пароль портала
+        </label>
+        <Input
+          id="password"
+          type="password"
+          placeholder="Введите пароль"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          disabled={loading}
+        />
+      </div>
+      {error ? (
+        <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>
+      ) : null}
+      <Button className="w-full" size="lg" type="submit" disabled={loading}>
+        {loading ? "Проверка..." : "Войти в панель"}
+      </Button>
+      <p className="text-sm leading-6 text-muted-foreground">
+        Не знаете пароль? Свяжитесь с менеджером TransAsia.
+      </p>
+    </form>
+  );
+}

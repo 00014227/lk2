@@ -1,0 +1,148 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+:root {
+  --background: #eef2ec;
+  --foreground: #102330;
+  --card: rgba(255, 255, 255, 0.9);
+  --card-foreground: #102330;
+  --muted: #dce5dc;
+  --muted-foreground: #54707d;
+  --border: rgba(16, 35, 48, 0.1);
+  --input: rgba(255, 255, 255, 0.92);
+  --primary: #0f766e;
+  --primary-foreground: #f8fcfb;
+  --secondary: #d8e7df;
+  --secondary-foreground: #163546;
+  --accent: #f59e0b;
+  --accent-foreground: #1c1505;
+  --destructive: #b93827;
+  --ring: rgba(15, 118, 110, 0.35);
+  --radius: 1.25rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-space-grotesk);
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 24%),
+    linear-gradient(180deg, #f5f7f4 0%, #eaf0ea 100%);
+  color: var(--foreground);
+  font-family: var(--font-manrope), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 1.5rem;
+  z-index: 0;
+  font-family: var(--font-manrope), sans-serif;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 1rem;
+  box-shadow: 0 18px 50px rgba(16, 35, 48, 0.18);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+}
+
+.vehicle-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 24px rgba(16, 35, 48, 0.2);
+  color: white;
+}
+
+.vehicle-marker::before {
+  content: " ";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+}
+
+.vehicle-marker--moving {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+}
+
+.vehicle-marker--delayed {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+}
+
+.vehicle-marker--arriving {
+  background: linear-gradient(135deg, #1d4ed8, #38bdf8);
+}
+
+.marker-popup {
+  min-width: 220px;
+  padding: 1rem;
+}
+
+.marker-popup dt {
+  margin-bottom: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64808f;
+}
+
+.marker-popup dd {
+  margin-bottom: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #11212d;
+}
+
+.marker-popup dd:last-child {
+  margin-bottom: 0;
+}
