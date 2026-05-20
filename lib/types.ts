@@ -23,6 +23,9 @@ export interface Shipment {
   cargoType: string;
   weight: string;
   progress: number;
+  currentLocation: string;
+  departureDate: string;
+  distance: string;
 }
 
 export interface Vehicle {

@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { X, Gauge, MapPinned, Phone, ShieldCheck, Truck, UserRound, Weight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useGPSProgress } from "@/hooks/use-gps-progress";
 import type { Shipment } from "@/lib/types";
 
 const ShipmentRouteMap = dynamic(() => import("@/components/map/shipment-route-map"), {
@@ -41,7 +42,6 @@ interface Props {
 }
 
 export function ShipmentModal({ shipment, onClose }: Props) {
-  // Close on Escape
   useEffect(() => {
     if (!shipment) return;
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -50,6 +50,11 @@ export function ShipmentModal({ shipment, onClose }: Props) {
   }, [shipment, onClose]);
 
   if (!shipment) return null;
+  return <ShipmentModalContent shipment={shipment} onClose={onClose} />;
+}
+
+function ShipmentModalContent({ shipment, onClose }: { shipment: Shipment; onClose: () => void }) {
+  const progress = useGPSProgress(shipment);
 
   return (
     /* Backdrop */
@@ -77,6 +82,7 @@ export function ShipmentModal({ shipment, onClose }: Props) {
             key={shipment.id}
             origin={shipment.origin}
             destination={shipment.destination}
+            vehicleId={shipment.vehicleId || undefined}
           />
           {/* Route label overlay */}
           <div className="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
@@ -105,9 +111,9 @@ export function ShipmentModal({ shipment, onClose }: Props) {
               <p className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
                 Прогресс маршрута
               </p>
-              <span className="text-sm font-bold text-primary">{shipment.progress}%</span>
+              <span className="text-sm font-bold text-primary">{progress}%</span>
             </div>
-            <Progress className="mt-2" value={shipment.progress} />
+            <Progress className="mt-2" value={progress} />
           </div>
 
           {/* Details */}

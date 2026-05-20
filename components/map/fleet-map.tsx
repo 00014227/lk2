@@ -46,6 +46,7 @@ async function fetchRoute(waypoints: [number, number][]): Promise<[number, numbe
 function getMarkerVariant(status: string) {
   if (status === "Задерживается" || status === "Таможенный контроль") return "vehicle-marker--delayed";
   if (status === "Прибывает") return "vehicle-marker--arriving";
+  if (status === "На границе") return "vehicle-marker--border";
   return "vehicle-marker--moving";
 }
 
@@ -81,7 +82,8 @@ export default function FleetMap() {
   const dispatch = useAppDispatch();
   const { vehicles, shipments, selectedVehicleId, selectedShipmentId } = useAppSelector((s) => s.dashboard);
 
-  const [routeCoords, setRouteCoords] = useState<[number, number][] | null>(null);
+  const [traveledCoords, setTraveledCoords] = useState<[number, number][] | null>(null);
+  const [remainingCoords, setRemainingCoords] = useState<[number, number][] | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
   const [pinCoords, setPinCoords] = useState<{
     origin: [number, number] | null;
@@ -91,7 +93,8 @@ export default function FleetMap() {
   const deselect = useCallback(() => {
     dispatch(selectVehicle(null));
     dispatch(selectShipment(null));
-    setRouteCoords(null);
+    setTraveledCoords(null);
+    setRemainingCoords(null);
     setRouteLoading(false);
     setPinCoords({ origin: null, dest: null });
   }, [dispatch]);
@@ -99,7 +102,8 @@ export default function FleetMap() {
   // Draw route whenever a shipment is selected (from table or vehicle click)
   useEffect(() => {
     if (!selectedShipmentId) {
-      setRouteCoords(null);
+      setTraveledCoords(null);
+      setRemainingCoords(null);
       setRouteLoading(false);
       setPinCoords({ origin: null, dest: null });
       return;
@@ -108,12 +112,12 @@ export default function FleetMap() {
     const shipment = shipments.find((s) => s.id === selectedShipmentId);
     if (!shipment) return;
 
-    // Include vehicle position as waypoint if one is currently tracking this shipment
     const vehicle = vehicles.find((v) => v.shipmentId === selectedShipmentId);
 
     let cancelled = false;
     setRouteLoading(true);
-    setRouteCoords(null);
+    setTraveledCoords(null);
+    setRemainingCoords(null);
     setPinCoords({ origin: null, dest: null });
 
     Promise.all([
@@ -124,21 +128,26 @@ export default function FleetMap() {
 
       setPinCoords({ origin: originCoords, dest: destCoords });
 
-      const waypoints: [number, number][] = [
-        ...(originCoords ? [originCoords] : []),
-        ...(vehicle ? [vehicle.position] : []),
-        ...(destCoords ? [destCoords] : []),
-      ];
-
-      if (waypoints.length < 2) {
+      if (!originCoords || !destCoords) {
         setRouteLoading(false);
         return;
       }
 
-      const road = await fetchRoute(waypoints);
-      if (cancelled) return;
+      if (vehicle) {
+        const [traveled, remaining] = await Promise.all([
+          fetchRoute([originCoords, vehicle.position]),
+          fetchRoute([vehicle.position, destCoords]),
+        ]);
+        if (cancelled) return;
+        setTraveledCoords(traveled ?? [originCoords, vehicle.position]);
+        setRemainingCoords(remaining ?? [vehicle.position, destCoords]);
+      } else {
+        const road = await fetchRoute([originCoords, destCoords]);
+        if (cancelled) return;
+        setRemainingCoords(road ?? [originCoords, destCoords]);
+      }
+
       setRouteLoading(false);
-      setRouteCoords(road ?? waypoints);
     });
 
     return () => {
@@ -177,18 +186,20 @@ export default function FleetMap() {
           <MapClickHandler onDeselect={deselect} />
 
           {/* ── Road route ──────────────────────────────────────────────── */}
-          {routeCoords && (
+          {traveledCoords && traveledCoords.length >= 2 && (
             <>
-              <Polyline
-                positions={routeCoords}
-                pathOptions={{ color: "#0d9488", weight: 8, opacity: 0.12 }}
-              />
-              <Polyline
-                positions={routeCoords}
-                pathOptions={{ color: "#0d9488", weight: 3.5, opacity: 0.9 }}
-              />
-              <FitRoute coords={routeCoords} />
+              <Polyline positions={traveledCoords} pathOptions={{ color: "#0d9488", weight: 8, opacity: 0.18 }} />
+              <Polyline positions={traveledCoords} pathOptions={{ color: "#0d9488", weight: 3.5, opacity: 1 }} />
             </>
+          )}
+          {remainingCoords && remainingCoords.length >= 2 && (
+            <>
+              <Polyline positions={remainingCoords} pathOptions={{ color: "#94a3b8", weight: 8, opacity: 0.12 }} />
+              <Polyline positions={remainingCoords} pathOptions={{ color: "#94a3b8", weight: 3.5, opacity: 0.7 }} />
+            </>
+          )}
+          {(traveledCoords || remainingCoords) && (
+            <FitRoute coords={[...(traveledCoords ?? []), ...(remainingCoords ?? [])]} />
           )}
 
           {/* ── Origin dot ──────────────────────────────────────────────── */}
@@ -311,6 +322,7 @@ export default function FleetMap() {
           <div className="mt-4 space-y-3">
             {[
               { label: "В пути", className: "vehicle-marker--moving" },
+              { label: "На границе", className: "vehicle-marker--border" },
               { label: "Задержка / таможня", className: "vehicle-marker--delayed" },
               { label: "Прибывает", className: "vehicle-marker--arriving" },
             ].map((item) => (

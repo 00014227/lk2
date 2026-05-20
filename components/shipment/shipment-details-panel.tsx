@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Gauge, MapPinned, Phone, ShieldCheck, Truck, UserRound, Weight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useGPSProgress } from "@/hooks/use-gps-progress";
 import type { Shipment } from "@/lib/types";
 
 const ShipmentRouteMap = dynamic(() => import("@/components/map/shipment-route-map"), {
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export function ShipmentDetailsPanel({ shipment }: Props) {
+  const progress = useGPSProgress(shipment);
   return (
     <div className="flex flex-col gap-0">
       {/* ── Map ──────────────────────────────────────────────────────── */}
@@ -36,6 +38,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           key={shipment.id}
           origin={shipment.origin}
           destination={shipment.destination}
+          vehicleId={shipment.vehicleId || undefined}
         />
       </div>
 
@@ -59,9 +62,9 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           <p className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
             Прогресс маршрута
           </p>
-          <span className="text-sm font-bold text-primary">{shipment.progress}%</span>
+          <span className="text-sm font-bold text-primary">{progress}%</span>
         </div>
-        <Progress className="mt-2" value={shipment.progress} />
+        <Progress className="mt-2" value={progress} />
         <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
           <span>{shipment.origin}</span>
           <span>{shipment.destination}</span>

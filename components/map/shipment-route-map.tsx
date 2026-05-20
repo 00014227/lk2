@@ -5,6 +5,10 @@ import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from
 import L from "leaflet";
 import { geocodeCity } from "@/lib/city-coords";
 
+const ORANGE = "#E9642A";
+const GRAY   = "#94a3b8";
+const TEAL   = "#0d9488";
+
 async function fetchRoute(waypoints: [number, number][]): Promise<[number, number][] | null> {
   if (waypoints.length < 2) return null;
   const coords = waypoints.map(([lat, lng]) => `${lng},${lat}`).join(";");
@@ -24,7 +28,6 @@ async function fetchRoute(waypoints: [number, number][]): Promise<[number, numbe
   }
 }
 
-// Calls invalidateSize on mount and whenever coords change, then fits bounds
 function AutoFit({ coords }: { coords: [number, number][] }) {
   const map = useMap();
   useEffect(() => {
@@ -42,19 +45,39 @@ function AutoFit({ coords }: { coords: [number, number][] }) {
 interface Props {
   origin: string;
   destination: string;
+  vehicleId?: string;
 }
 
-export default function ShipmentRouteMap({ origin, destination }: Props) {
-  const [routeCoords, setRouteCoords] = useState<[number, number][] | null>(null);
+export default function ShipmentRouteMap({ origin, destination, vehicleId }: Props) {
+  const [traveledCoords, setTraveledCoords] = useState<[number, number][] | null>(null);
+  const [remainingCoords, setRemainingCoords] = useState<[number, number][] | null>(null);
+  const [vehiclePos, setVehiclePos] = useState<[number, number] | null>(null);
   const [pins, setPins] = useState<{
     origin: [number, number] | null;
     dest: [number, number] | null;
   }>({ origin: null, dest: null });
 
+  // Fetch vehicle GPS position
+  useEffect(() => {
+    if (!vehicleId) { setVehiclePos(null); return; }
+    let cancelled = false;
+    fetch(`/api/tracking/${vehicleId}/latest`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!cancelled && data?.latitude && data?.longitude) {
+          setVehiclePos([data.latitude, data.longitude]);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [vehicleId]);
+
+  // Fetch routes whenever origin/destination/vehiclePos change
   useEffect(() => {
     if (!origin || !destination) return;
     let cancelled = false;
-    setRouteCoords(null);
+    setTraveledCoords(null);
+    setRemainingCoords(null);
     setPins({ origin: null, dest: null });
 
     Promise.all([geocodeCity(origin), geocodeCity(destination)]).then(
@@ -62,20 +85,34 @@ export default function ShipmentRouteMap({ origin, destination }: Props) {
         if (cancelled) return;
         setPins({ origin: originCoords, dest: destCoords });
 
-        const waypoints: [number, number][] = [
-          ...(originCoords ? [originCoords] : []),
-          ...(destCoords ? [destCoords] : []),
-        ];
-        if (waypoints.length < 2) return;
+        if (!originCoords || !destCoords) return;
 
-        const road = await fetchRoute(waypoints);
-        if (cancelled) return;
-        setRouteCoords(road ?? waypoints);
+        if (vehiclePos) {
+          // Two separate routes: traveled (orange) + remaining (gray)
+          const [traveled, remaining] = await Promise.all([
+            fetchRoute([originCoords, vehiclePos]),
+            fetchRoute([vehiclePos, destCoords]),
+          ]);
+          if (cancelled) return;
+          setTraveledCoords(traveled ?? [originCoords, vehiclePos]);
+          setRemainingCoords(remaining ?? [vehiclePos, destCoords]);
+        } else {
+          // No GPS — draw full route in teal
+          const road = await fetchRoute([originCoords, destCoords]);
+          if (cancelled) return;
+          setRemainingCoords(road ?? [originCoords, destCoords]);
+        }
       },
     );
 
     return () => { cancelled = true; };
-  }, [origin, destination]);
+  }, [origin, destination, vehiclePos]);
+
+  // Bounds: combine all available coords
+  const allCoords: [number, number][] = [
+    ...(traveledCoords ?? []),
+    ...(remainingCoords ?? []),
+  ];
 
   return (
     <MapContainer
@@ -90,21 +127,43 @@ export default function ShipmentRouteMap({ origin, destination }: Props) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      {/* Always mounted — invalidates size on mount and re-fits when route loads */}
-      <AutoFit coords={routeCoords ?? []} />
+      <AutoFit coords={allCoords} />
 
-      {routeCoords && (
+      {/* Traveled path — orange */}
+      {traveledCoords && traveledCoords.length >= 2 && (
         <>
-          <Polyline positions={routeCoords} pathOptions={{ color: "#0d9488", weight: 6, opacity: 0.12 }} />
-          <Polyline positions={routeCoords} pathOptions={{ color: "#0d9488", weight: 3, opacity: 0.9 }} />
+          <Polyline positions={traveledCoords} pathOptions={{ color: ORANGE, weight: 6, opacity: 0.2 }} />
+          <Polyline positions={traveledCoords} pathOptions={{ color: ORANGE, weight: 3, opacity: 1 }} />
         </>
       )}
 
+      {/* Remaining path — gray when GPS available, teal when no GPS */}
+      {remainingCoords && remainingCoords.length >= 2 && (
+        <>
+          <Polyline positions={remainingCoords} pathOptions={{ color: vehiclePos ? GRAY : TEAL, weight: 6, opacity: 0.12 }} />
+          <Polyline positions={remainingCoords} pathOptions={{ color: vehiclePos ? GRAY : TEAL, weight: 3, opacity: 0.7 }} />
+        </>
+      )}
+
+      {/* Vehicle current position */}
+      {vehiclePos && (
+        <CircleMarker
+          center={vehiclePos}
+          radius={8}
+          pathOptions={{ color: "#fff", fillColor: ORANGE, fillOpacity: 1, weight: 2.5 }}
+        >
+          <Tooltip direction="top" offset={[0, -10]}>
+            <span className="text-xs font-semibold">Текущее положение</span>
+          </Tooltip>
+        </CircleMarker>
+      )}
+
+      {/* Origin pin */}
       {pins.origin && (
         <CircleMarker
           center={pins.origin}
           radius={7}
-          pathOptions={{ color: "#fff", fillColor: "#0d9488", fillOpacity: 1, weight: 2 }}
+          pathOptions={{ color: "#fff", fillColor: TEAL, fillOpacity: 1, weight: 2 }}
         >
           <Tooltip permanent direction="top" offset={[0, -10]}>
             <span className="text-xs font-semibold">{origin}</span>
@@ -112,6 +171,7 @@ export default function ShipmentRouteMap({ origin, destination }: Props) {
         </CircleMarker>
       )}
 
+      {/* Destination pin */}
       {pins.dest && (
         <CircleMarker
           center={pins.dest}
