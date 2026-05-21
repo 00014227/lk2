@@ -303,15 +303,15 @@ export function ShipmentTable() {
                     key={col.key}
                     className={cn(
                       "flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm font-medium transition hover:bg-secondary/60",
-                      col.required && "cursor-not-allowed opacity-50",
+                      ('required' in col && col.required) && "cursor-not-allowed opacity-50",
                     )}
                   >
                     <input
                       type="checkbox"
                       className="accent-primary"
                       checked={!hiddenCols.includes(col.key)}
-                      disabled={col.required}
-                      onChange={() => !col.required && toggleCol(col.key)}
+                      disabled={'required' in col && !!col.required}
+                      onChange={() => !('required' in col && col.required) && toggleCol(col.key)}
                     />
                     {col.label}
                   </label>
