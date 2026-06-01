@@ -39,6 +39,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           origin={shipment.origin}
           destination={shipment.destination}
           vehicleId={shipment.vehicleId || undefined}
+          departed={shipment.departed}
         />
       </div>
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import L from "leaflet";
-import { Loader2, MapPin, Truck, X } from "lucide-react";
+import { Layers, Loader2, MapPin, Package, Plane, Train, Truck, X } from "lucide-react";
 import {
   CircleMarker,
   MapContainer,
@@ -18,6 +18,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { selectShipment, selectVehicle } from "@/store/features/dashboard-slice";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { geocodeCity } from "@/lib/city-coords";
+import { fetchMapOrders } from "@/lib/api";
+import type { MapShipmentItem } from "@/lib/types";
 
 const CENTER: [number, number] = [42.4, 71.3];
 
@@ -77,10 +79,59 @@ function FitRoute({ coords }: { coords: [number, number][] }) {
   return null;
 }
 
+// ── Manual location marker ────────────────────────────────────────────────────
+const MANUAL_TYPE_CONFIG: Record<string, { bg: string; border: string; Icon: (p: { size: number; color: string }) => React.ReactElement }> = {
+  "Авто":            { bg: "#fff7ed", border: "#ea580c", Icon: (p) => <Truck  size={p.size} color={p.color} /> },
+  "Авиа":            { bg: "#f0f9ff", border: "#0284c7", Icon: (p) => <Plane  size={p.size} color={p.color} /> },
+  "Железнодорожная": { bg: "#faf5ff", border: "#7c3aed", Icon: (p) => <Train  size={p.size} color={p.color} /> },
+  "Мультимодальная": { bg: "#f0fdfa", border: "#0d9488", Icon: (p) => <Layers size={p.size} color={p.color} /> },
+};
+
+function manualStatusRing(status: string | null): string {
+  if (!status) return "#9ca3af";
+  const s = status.toLowerCase();
+  if (s.includes("доставлен") || s.includes("завершен")) return "#16a34a";
+  if (s.includes("таможн") || s.includes("границ")) return "#ea580c";
+  if (s.includes("задержк")) return "#dc2626";
+  return "#2563eb";
+}
+
+function buildManualIcon(transportationType: string | null, status: string | null) {
+  const cfg = transportationType ? MANUAL_TYPE_CONFIG[transportationType] : null;
+  const ring = manualStatusRing(status);
+  if (cfg) {
+    const svg = renderToStaticMarkup(<cfg.Icon size={13} color={cfg.border} />);
+    return L.divIcon({
+      className: "",
+      html: `<div style="width:30px;height:30px;border-radius:50%;background:${cfg.bg};border:2.5px solid ${ring};box-shadow:0 2px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center">${svg}</div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      popupAnchor: [0, -18],
+    });
+  }
+  const svg = renderToStaticMarkup(<Package size={13} color="#6b7280" />);
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:30px;height:30px;border-radius:50%;background:#f9fafb;border:2.5px solid ${ring};box-shadow:0 2px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center">${svg}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -18],
+  });
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
+
 export default function FleetMap() {
   const dispatch = useAppDispatch();
   const { vehicles, shipments, selectedVehicleId, selectedShipmentId } = useAppSelector((s) => s.dashboard);
+
+  const [manualOrders, setManualOrders] = useState<MapShipmentItem[]>([]);
+
+  useEffect(() => {
+    fetchMapOrders()
+      .then((data) => setManualOrders(data.filter((o) => o.lat !== null && o.lng !== null)))
+      .catch(() => {});
+  }, []);
 
   const [traveledCoords, setTraveledCoords] = useState<[number, number][] | null>(null);
   const [remainingCoords, setRemainingCoords] = useState<[number, number][] | null>(null);
@@ -228,6 +279,42 @@ export default function FleetMap() {
             </CircleMarker>
           )}
 
+          {/* ── Manual location markers ─────────────────────────────────── */}
+          {manualOrders.map((o) => (
+            <Marker
+              key={`manual-${o.id}`}
+              position={[o.lat!, o.lng!]}
+              icon={buildManualIcon(o.transportationType, o.status)}
+            >
+              <Popup>
+                <div className="marker-popup">
+                  <dl>
+                    <dt>Накладная</dt>
+                    <dd>{o.number}</dd>
+                    {(o.departure || o.destination) && (
+                      <>
+                        <dt>Маршрут</dt>
+                        <dd>{o.departure ?? "—"} → {o.destination ?? "—"}</dd>
+                      </>
+                    )}
+                    {o.status && (
+                      <>
+                        <dt>Статус</dt>
+                        <dd>{o.status}</dd>
+                      </>
+                    )}
+                    {o.currentLocation && (
+                      <>
+                        <dt>Местоположение</dt>
+                        <dd className="italic">{o.currentLocation}</dd>
+                      </>
+                    )}
+                  </dl>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
           {/* ── Vehicle markers ──────────────────────────────────────────── */}
           {markers.map(({ vehicle, shipment, icon, selected }) => (
             <Marker
@@ -342,6 +429,12 @@ export default function FleetMap() {
                 <div className="h-3 w-3 rounded-full border-2 border-white bg-amber-400 shadow" />
                 <span className="text-xs text-muted-foreground">Куда</span>
               </div>
+            </div>
+            <div className="mt-3 flex items-center gap-3 border-t border-border pt-3">
+              <svg width="18" height="18" viewBox="0 0 18 18">
+                <circle cx="9" cy="9" r="7" fill="#2563eb" fillOpacity="0.25" stroke="#2563eb" strokeWidth="2" strokeDasharray="4 3" />
+              </svg>
+              <span className="text-xs text-muted-foreground">Ручное местоположение</span>
             </div>
           </div>
         </div>

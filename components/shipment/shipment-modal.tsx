@@ -83,6 +83,7 @@ function ShipmentModalContent({ shipment, onClose }: { shipment: Shipment; onClo
             origin={shipment.origin}
             destination={shipment.destination}
             vehicleId={shipment.vehicleId || undefined}
+            departed={shipment.departed}
           />
           {/* Route label overlay */}
           <div className="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">

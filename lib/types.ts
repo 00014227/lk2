@@ -25,7 +25,20 @@ export interface Shipment {
   progress: number;
   currentLocation: string;
   departureDate: string;
+  departed: boolean;
   distance: string;
+}
+
+export interface MapShipmentItem {
+  id: string;
+  number: string;
+  status: string | null;
+  currentLocation: string | null;
+  departure: string | null;
+  destination: string | null;
+  transportationType: string | null;
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface Vehicle {

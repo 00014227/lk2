@@ -31,4 +31,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+import type { MapShipmentItem } from "./types";
+
+export async function fetchMapOrders(): Promise<MapShipmentItem[]> {
+  const res = await api.get<MapShipmentItem[]>("/orders/map");
+  return res.data;
+}
+
 export default api;

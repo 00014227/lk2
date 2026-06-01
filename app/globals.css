@@ -126,6 +126,10 @@ button {
   background: linear-gradient(135deg, #be123c, #f43f5e);
 }
 
+.vehicle-marker--pending {
+  background: linear-gradient(135deg, #64748b, #94a3b8);
+}
+
 .marker-popup {
   min-width: 220px;
   padding: 1rem;

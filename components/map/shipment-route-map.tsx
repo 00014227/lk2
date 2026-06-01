@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from "react-leaflet";
+import { useEffect, useMemo, useState } from "react";
+import { CircleMarker, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { geocodeCity } from "@/lib/city-coords";
 
-const ORANGE = "#E9642A";
-const GRAY   = "#94a3b8";
-const TEAL   = "#0d9488";
+const TEAL       = "#0d9488";
+const GRAY       = "#94a3b8";
+const LIGHT_GRAY = "#cbd5e1";
 
 async function fetchRoute(waypoints: [number, number][]): Promise<[number, number][] | null> {
   if (waypoints.length < 2) return null;
@@ -28,6 +28,24 @@ async function fetchRoute(waypoints: [number, number][]): Promise<[number, numbe
   }
 }
 
+function buildTruckIcon(variant: "pending" | "moving") {
+  const bg = variant === "pending" ? "#94a3b8" : "#0f766e";
+  return L.divIcon({
+    className: "",
+    html: `<div style="position:relative;width:42px;height:42px;border-radius:50%;background:${bg};border:2.5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+      <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
+        <path d="M15 18H9"/>
+        <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
+        <circle cx="17" cy="18" r="2"/>
+        <circle cx="7" cy="18" r="2"/>
+      </svg>
+    </div>`,
+    iconSize: [42, 42],
+    iconAnchor: [21, 21],
+  });
+}
+
 function AutoFit({ coords }: { coords: [number, number][] }) {
   const map = useMap();
   useEffect(() => {
@@ -46,9 +64,12 @@ interface Props {
   origin: string;
   destination: string;
   vehicleId?: string;
+  departed?: boolean;
 }
 
-export default function ShipmentRouteMap({ origin, destination, vehicleId }: Props) {
+export default function ShipmentRouteMap({ origin, destination, vehicleId, departed = false }: Props) {
+  const notDeparted = !departed;
+
   const [traveledCoords, setTraveledCoords] = useState<[number, number][] | null>(null);
   const [remainingCoords, setRemainingCoords] = useState<[number, number][] | null>(null);
   const [vehiclePos, setVehiclePos] = useState<[number, number] | null>(null);
@@ -57,9 +78,9 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId }: Pro
     dest: [number, number] | null;
   }>({ origin: null, dest: null });
 
-  // Fetch vehicle GPS position
+  // Fetch vehicle GPS — skip if not yet departed
   useEffect(() => {
-    if (!vehicleId) { setVehiclePos(null); return; }
+    if (!vehicleId || notDeparted) { setVehiclePos(null); return; }
     let cancelled = false;
     fetch(`/api/tracking/${vehicleId}/latest`)
       .then(r => r.ok ? r.json() : null)
@@ -70,9 +91,9 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId }: Pro
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [vehicleId]);
+  }, [vehicleId, notDeparted]);
 
-  // Fetch routes whenever origin/destination/vehiclePos change
+  // Fetch routes
   useEffect(() => {
     if (!origin || !destination) return;
     let cancelled = false;
@@ -84,11 +105,9 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId }: Pro
       async ([originCoords, destCoords]) => {
         if (cancelled) return;
         setPins({ origin: originCoords, dest: destCoords });
-
         if (!originCoords || !destCoords) return;
 
-        if (vehiclePos) {
-          // Two separate routes: traveled (orange) + remaining (gray)
+        if (!notDeparted && vehiclePos) {
           const [traveled, remaining] = await Promise.all([
             fetchRoute([originCoords, vehiclePos]),
             fetchRoute([vehiclePos, destCoords]),
@@ -97,7 +116,6 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId }: Pro
           setTraveledCoords(traveled ?? [originCoords, vehiclePos]);
           setRemainingCoords(remaining ?? [vehiclePos, destCoords]);
         } else {
-          // No GPS — draw full route in teal
           const road = await fetchRoute([originCoords, destCoords]);
           if (cancelled) return;
           setRemainingCoords(road ?? [originCoords, destCoords]);
@@ -106,13 +124,30 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId }: Pro
     );
 
     return () => { cancelled = true; };
-  }, [origin, destination, vehiclePos]);
+  }, [origin, destination, vehiclePos, notDeparted]);
 
-  // Bounds: combine all available coords
   const allCoords: [number, number][] = [
     ...(traveledCoords ?? []),
     ...(remainingCoords ?? []),
   ];
+
+  // First point of any route line — fallback when geocoding fails
+  const routeStart = traveledCoords?.[0] ?? remainingCoords?.[0] ?? null;
+  const originPos  = pins.origin ?? routeStart;
+
+  // Always show truck: GPS → origin pin → first route point
+  const markerPos = notDeparted ? originPos : (vehiclePos ?? originPos);
+  const routeColor = notDeparted ? LIGHT_GRAY : (vehiclePos ? GRAY : TEAL);
+  const truckTooltip = notDeparted
+    ? "Место отправления"
+    : vehiclePos
+      ? "Текущее положение"
+      : "GPS недоступен";
+
+  const truckIcon = useMemo(
+    () => buildTruckIcon(notDeparted ? "pending" : "moving"),
+    [notDeparted],
+  );
 
   return (
     <MapContainer
@@ -129,37 +164,33 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId }: Pro
 
       <AutoFit coords={allCoords} />
 
-      {/* Traveled path — orange */}
-      {traveledCoords && traveledCoords.length >= 2 && (
+      {/* Traveled path — teal */}
+      {!notDeparted && traveledCoords && traveledCoords.length >= 2 && (
         <>
-          <Polyline positions={traveledCoords} pathOptions={{ color: ORANGE, weight: 6, opacity: 0.2 }} />
-          <Polyline positions={traveledCoords} pathOptions={{ color: ORANGE, weight: 3, opacity: 1 }} />
+          <Polyline positions={traveledCoords} pathOptions={{ color: TEAL, weight: 6, opacity: 0.2 }} />
+          <Polyline positions={traveledCoords} pathOptions={{ color: TEAL, weight: 3, opacity: 1 }} />
         </>
       )}
 
-      {/* Remaining path — gray when GPS available, teal when no GPS */}
+      {/* Remaining / full route */}
       {remainingCoords && remainingCoords.length >= 2 && (
         <>
-          <Polyline positions={remainingCoords} pathOptions={{ color: vehiclePos ? GRAY : TEAL, weight: 6, opacity: 0.12 }} />
-          <Polyline positions={remainingCoords} pathOptions={{ color: vehiclePos ? GRAY : TEAL, weight: 3, opacity: 0.7 }} />
+          <Polyline positions={remainingCoords} pathOptions={{ color: routeColor, weight: 6, opacity: 0.2 }} />
+          <Polyline positions={remainingCoords} pathOptions={{ color: routeColor, weight: 3, opacity: 0.85 }} />
         </>
       )}
 
-      {/* Vehicle current position */}
-      {vehiclePos && (
-        <CircleMarker
-          center={vehiclePos}
-          radius={8}
-          pathOptions={{ color: "#fff", fillColor: ORANGE, fillOpacity: 1, weight: 2.5 }}
-        >
-          <Tooltip direction="top" offset={[0, -10]}>
-            <span className="text-xs font-semibold">Текущее положение</span>
+      {/* Truck marker */}
+      {markerPos && (
+        <Marker position={markerPos} icon={truckIcon}>
+          <Tooltip direction="top" offset={[0, -22]}>
+            <span className="text-xs font-semibold">{truckTooltip}</span>
           </Tooltip>
-        </CircleMarker>
+        </Marker>
       )}
 
-      {/* Origin pin */}
-      {pins.origin && (
+      {/* Origin pin — only when in transit */}
+      {pins.origin && !notDeparted && (
         <CircleMarker
           center={pins.origin}
           radius={7}
@@ -176,7 +207,7 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId }: Pro
         <CircleMarker
           center={pins.dest}
           radius={7}
-          pathOptions={{ color: "#fff", fillColor: "#f59e0b", fillOpacity: 1, weight: 2 }}
+          pathOptions={{ color: "#fff", fillColor: TEAL, fillOpacity: 1, weight: 2 }}
         >
           <Tooltip permanent direction="top" offset={[0, -10]}>
             <span className="text-xs font-semibold">{destination}</span>
