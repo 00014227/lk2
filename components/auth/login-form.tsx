@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import { loginWithPassword } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +53,19 @@ export function LoginForm() {
       <p className="text-sm leading-6 text-muted-foreground">
         Не знаете пароль? Свяжитесь с менеджером TransAsia.
       </p>
+
+      <div className="relative flex items-center py-1">
+        <div className="flex-1 border-t border-border" />
+        <span className="mx-3 text-xs text-muted-foreground">или</span>
+        <div className="flex-1 border-t border-border" />
+      </div>
+
+      <Link href="/track">
+        <Button variant="outline" className="w-full gap-2" type="button">
+          <Search className="h-4 w-4" />
+          Отследить перевозку без входа
+        </Button>
+      </Link>
     </form>
   );
 }

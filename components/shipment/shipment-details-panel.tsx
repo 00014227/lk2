@@ -1,11 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Gauge, MapPinned, Phone, ShieldCheck, Truck, UserRound, Weight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Container, Gauge, MapPinned, Phone, ShieldCheck, Truck, UserRound, Weight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useGPSProgress } from "@/hooks/use-gps-progress";
-import type { Shipment } from "@/lib/types";
+import { fetchRailwayEvents } from "@/lib/api";
+import type { RailwayEvent, Shipment } from "@/lib/types";
+import { RailwayTimeline } from "./railway-timeline";
 
 const ShipmentRouteMap = dynamic(() => import("@/components/map/shipment-route-map"), {
   ssr: false,
@@ -30,6 +33,16 @@ interface Props {
 
 export function ShipmentDetailsPanel({ shipment }: Props) {
   const progress = useGPSProgress(shipment);
+  const isRailway = shipment.transportationType === "Железнодорожная";
+  const [railwayEvents, setRailwayEvents] = useState<RailwayEvent[]>([]);
+
+  useEffect(() => {
+    if (!isRailway) return;
+    fetchRailwayEvents(shipment.id)
+      .then(setRailwayEvents)
+      .catch(() => {});
+  }, [shipment.id, isRailway]);
+
   return (
     <div className="flex flex-col gap-0">
       {/* ── Map ──────────────────────────────────────────────────────── */}
@@ -75,7 +88,9 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
       {/* ── Details grid ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-px bg-border">
         {[
-          { icon: Truck, label: "Транспорт", value: shipment.vehicleNumber },
+          isRailway
+            ? { icon: Container, label: "Контейнер", value: shipment.vehicleNumber }
+            : { icon: Truck, label: "Транспорт", value: shipment.vehicleNumber },
           { icon: Gauge, label: "ETA", value: shipment.estimatedArrival },
           { icon: UserRound, label: "Водитель", value: shipment.driverName },
           { icon: Phone, label: "Телефон", value: shipment.driverPhone },
@@ -95,6 +110,13 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           </div>
         ))}
       </div>
+
+      {/* ── Railway timeline ─────────────────────────────────────────── */}
+      {isRailway && (
+        <div className="border-t border-border bg-white">
+          <RailwayTimeline events={railwayEvents} />
+        </div>
+      )}
 
       {/* ── Date ─────────────────────────────────────────────────────── */}
       <div className="rounded-b-[28px] bg-white px-5 py-3 text-xs text-muted-foreground">

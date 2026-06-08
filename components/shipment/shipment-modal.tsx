@@ -1,12 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect } from "react";
-import { X, Gauge, MapPinned, Phone, ShieldCheck, Truck, UserRound, Weight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Container, Gauge, MapPinned, Phone, ShieldCheck, Truck, UserRound, Weight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useGPSProgress } from "@/hooks/use-gps-progress";
-import type { Shipment } from "@/lib/types";
+import { fetchRailwayEvents } from "@/lib/api";
+import type { RailwayEvent, Shipment } from "@/lib/types";
+import { RailwayTimeline } from "./railway-timeline";
 
 const ShipmentRouteMap = dynamic(() => import("@/components/map/shipment-route-map"), {
   ssr: false,
@@ -25,8 +27,7 @@ function getStatusVariant(status: string) {
   return "neutral";
 }
 
-const DETAILS = [
-  { icon: Truck,      label: "Транспорт",  key: "vehicleNumber"    },
+const BASE_DETAILS = [
   { icon: Gauge,      label: "ETA",        key: "estimatedArrival" },
   { icon: UserRound,  label: "Водитель",   key: "driverName"       },
   { icon: Phone,      label: "Телефон",    key: "driverPhone"      },
@@ -55,6 +56,15 @@ export function ShipmentModal({ shipment, onClose }: Props) {
 
 function ShipmentModalContent({ shipment, onClose }: { shipment: Shipment; onClose: () => void }) {
   const progress = useGPSProgress(shipment);
+  const isRailway = shipment.transportationType === "Железнодорожная";
+  const [railwayEvents, setRailwayEvents] = useState<RailwayEvent[]>([]);
+
+  useEffect(() => {
+    if (!isRailway) return;
+    fetchRailwayEvents(shipment.id)
+      .then(setRailwayEvents)
+      .catch(() => {});
+  }, [shipment.id, isRailway]);
 
   return (
     /* Backdrop */
@@ -119,7 +129,21 @@ function ShipmentModalContent({ shipment, onClose }: { shipment: Shipment; onClo
 
           {/* Details */}
           <div className="flex flex-col gap-px bg-border">
-            {DETAILS.map(({ icon: Icon, label, key }) => (
+            {/* Container / Transport row */}
+            <div className="bg-white px-6 py-3">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                {isRailway
+                  ? <Container className="h-3.5 w-3.5 shrink-0" />
+                  : <Truck className="h-3.5 w-3.5 shrink-0" />}
+                <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">
+                  {isRailway ? "Контейнер" : "Транспорт"}
+                </p>
+              </div>
+              <p className="mt-1 text-sm font-semibold text-slate-900">
+                {shipment.vehicleNumber || "—"}
+              </p>
+            </div>
+            {BASE_DETAILS.map(({ icon: Icon, label, key }) => (
               <div className="bg-white px-6 py-3" key={label}>
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -131,6 +155,13 @@ function ShipmentModalContent({ shipment, onClose }: { shipment: Shipment; onClo
               </div>
             ))}
           </div>
+
+          {/* Railway timeline */}
+          {isRailway && (
+            <div className="border-t border-border bg-white">
+              <RailwayTimeline events={railwayEvents} />
+            </div>
+          )}
 
           {/* Date */}
           <div className="mt-auto border-t border-border px-6 py-4 text-xs text-muted-foreground">

@@ -27,6 +27,19 @@ export interface Shipment {
   departureDate: string;
   departed: boolean;
   distance: string;
+  transportationType: string | null;
+}
+
+export interface RailwayEvent {
+  id: number;
+  trackingDate: string;
+  containerNumber: string | null;
+  status: string | null;
+  stationName: string | null;
+  stationType: string | null;
+  distanceRemaining: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface MapShipmentItem {

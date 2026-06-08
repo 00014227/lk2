@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   GripVertical,
+  Plus,
   Search,
   Settings2,
   Eye,
@@ -17,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { Shipment, ShipmentStatus } from "@/lib/types";
+import { CreateShipmentSheet } from "./create-shipment-sheet";
 
 const PAGE_SIZE = 10;
 
@@ -28,6 +30,12 @@ const ALL_STATUSES: ShipmentStatus[] = [
   "Прибывает",
   "Доставлен",
 ];
+
+const TRANSPORT_TYPES = ["Авто", "Железнодорожная", "Авиа", "Море", "Мультимодальная"] as const;
+const TRANSPORT_LABELS: Record<string, string> = {
+  "Железнодорожная": "ЖД",
+  "Мультимодальная": "Мультимодал",
+};
 
 const ALL_COLUMNS = [
   { key: "id",               label: "Номер заказа", required: true },
@@ -128,6 +136,8 @@ export function ShipmentTable() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ShipmentStatus | "">("");
   const [companyFilter, setCompanyFilter] = useState("");
+  const [transportFilter, setTransportFilter] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
   const [page, setPage] = useState(1);
 
   const companies = useMemo(
@@ -142,6 +152,7 @@ export function ShipmentTable() {
       if (hiddenSet.has(s.id)) return false;
       if (statusFilter && s.status !== statusFilter) return false;
       if (companyFilter && s.customerName !== companyFilter) return false;
+      if (transportFilter && s.transportationType !== transportFilter) return false;
       if (q)
         return (
           s.id.toLowerCase().includes(q) ||
@@ -152,7 +163,7 @@ export function ShipmentTable() {
         );
       return true;
     });
-  }, [shipments, search, statusFilter, companyFilter, hiddenRows]);
+  }, [shipments, search, statusFilter, companyFilter, transportFilter, hiddenRows]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -216,7 +227,7 @@ export function ShipmentTable() {
     resetPage();
   }
 
-  const hasActiveFilters = search || statusFilter || companyFilter;
+  const hasActiveFilters = search || statusFilter || companyFilter || transportFilter;
 
   return (
     <div className="flex flex-col gap-0">
@@ -260,7 +271,7 @@ export function ShipmentTable() {
           {hasActiveFilters && (
             <button
               className="text-xs font-semibold text-primary hover:underline"
-              onClick={() => { setSearch(""); setStatusFilter(""); setCompanyFilter(""); resetPage(); }}
+              onClick={() => { setSearch(""); setStatusFilter(""); setCompanyFilter(""); setTransportFilter(""); resetPage(); }}
               type="button"
             >
               Сбросить
@@ -278,6 +289,16 @@ export function ShipmentTable() {
               Скрыто: {hiddenRows.length} — восстановить
             </button>
           )}
+
+          {/* Create shipment button */}
+          <Button
+            size="sm"
+            className="h-9 gap-1.5 rounded-xl text-xs"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Создать заявку
+          </Button>
 
           {/* Column settings */}
           <div className="relative ml-auto" ref={pickerRef}>
@@ -348,6 +369,37 @@ export function ShipmentTable() {
               type="button"
             >
               {s}
+            </button>
+          ))}
+        </div>
+
+        {/* Transport type pills */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+              transportFilter === ""
+                ? "border-slate-700 bg-slate-700 text-white"
+                : "border-border bg-white text-slate-600 hover:border-slate-400",
+            )}
+            onClick={() => { setTransportFilter(""); resetPage(); }}
+            type="button"
+          >
+            Все типы
+          </button>
+          {TRANSPORT_TYPES.map((t) => (
+            <button
+              key={t}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+                transportFilter === t
+                  ? "border-slate-700 bg-slate-700 text-white"
+                  : "border-border bg-white text-slate-600 hover:border-slate-400",
+              )}
+              onClick={() => { setTransportFilter(t); resetPage(); }}
+              type="button"
+            >
+              {TRANSPORT_LABELS[t] ?? t}
             </button>
           ))}
         </div>
@@ -477,6 +529,8 @@ export function ShipmentTable() {
           </Button>
         </div>
       </div>
+
+      <CreateShipmentSheet open={createOpen} onClose={() => setCreateOpen(false)} />
     </div>
   );
 }
