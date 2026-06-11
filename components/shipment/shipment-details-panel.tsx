@@ -6,9 +6,12 @@ import { Container, Gauge, MapPinned, Phone, ShieldCheck, Truck, UserRound, Weig
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useGPSProgress } from "@/hooks/use-gps-progress";
-import { fetchRailwayEvents } from "@/lib/api";
-import type { RailwayEvent, Shipment } from "@/lib/types";
+import { fetchRailwayEvents, fetchShipmentSegments, fetchPublicTracking } from "@/lib/api";
+import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent, SeaPosition, Shipment, ShipmentSegment } from "@/lib/types";
+import { AirTimeline } from "./air-timeline";
 import { RailwayTimeline } from "./railway-timeline";
+import { MultimodalProgress } from "./multimodal-progress";
+import { VesselCard } from "./vessel-card";
 
 const ShipmentRouteMap = dynamic(() => import("@/components/map/shipment-route-map"), {
   ssr: false,
@@ -34,14 +37,41 @@ interface Props {
 export function ShipmentDetailsPanel({ shipment }: Props) {
   const progress = useGPSProgress(shipment);
   const isRailway = shipment.transportationType === "Железнодорожная";
+  const isMultimodal = shipment.transportationType?.includes("Мультимодальн") ?? false;
+  const isAir = shipment.transportationType?.includes("Авиа") ?? false;
+  const isSea = shipment.transportationType?.includes("Мор") ?? false;
   const [railwayEvents, setRailwayEvents] = useState<RailwayEvent[]>([]);
+  const [segments, setSegments] = useState<ShipmentSegment[]>([]);
+  const [airEvents, setAirEvents] = useState<AirEvent[]>([]);
+  const [seaPositions, setSeaPositions] = useState<SeaPosition[]>([]);
+  const [containerRoute, setContainerRoute] = useState<ContainerRoute | null>(null);
+  const [airRoute, setAirRoute] = useState<AirRoute | null>(null);
 
   useEffect(() => {
-    if (!isRailway) return;
+    if (!isRailway && !isMultimodal) return;
     fetchRailwayEvents(shipment.id)
       .then(setRailwayEvents)
       .catch(() => {});
-  }, [shipment.id, isRailway]);
+  }, [shipment.id, isRailway, isMultimodal]);
+
+  useEffect(() => {
+    if (!isMultimodal) return;
+    fetchShipmentSegments(shipment.id)
+      .then(setSegments)
+      .catch(() => {});
+  }, [shipment.id, isMultimodal]);
+
+  useEffect(() => {
+    if (!isAir && !isSea && !isMultimodal) return;
+    fetchPublicTracking(shipment.id)
+      .then((data) => {
+        setAirEvents(data.aviationEvents);
+        setSeaPositions(data.seaPositions);
+        if (data.containerRoute) setContainerRoute(data.containerRoute);
+        if (data.airRoute) setAirRoute(data.airRoute);
+      })
+      .catch(() => {});
+  }, [shipment.id, isAir, isSea, isMultimodal]);
 
   return (
     <div className="flex flex-col gap-0">
@@ -53,6 +83,9 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           destination={shipment.destination}
           vehicleId={shipment.vehicleId || undefined}
           departed={shipment.departed}
+          airEvents={airEvents.length ? airEvents : undefined}
+          airRoute={airRoute}
+          seaRoute={containerRoute}
         />
       </div>
 
@@ -85,6 +118,13 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
         </div>
       </div>
 
+      {/* ── Multimodal segments ──────────────────────────────────────── */}
+      {isMultimodal && segments.length > 0 && (
+        <div className="border-b border-border bg-white">
+          <MultimodalProgress segments={segments} />
+        </div>
+      )}
+
       {/* ── Details grid ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-px bg-border">
         {[
@@ -112,9 +152,23 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
       </div>
 
       {/* ── Railway timeline ─────────────────────────────────────────── */}
-      {isRailway && (
+      {(isRailway || isMultimodal) && railwayEvents.length > 0 && (
         <div className="border-t border-border bg-white">
           <RailwayTimeline events={railwayEvents} />
+        </div>
+      )}
+
+      {/* ── Air timeline ─────────────────────────────────────────────── */}
+      {(isAir || isMultimodal) && (
+        <div className="border-t border-border bg-white">
+          <AirTimeline events={airEvents} />
+        </div>
+      )}
+
+      {/* ── Vessel card ───────────────────────────────────────────────── */}
+      {(isSea || isMultimodal) && (
+        <div className="border-t border-border bg-white">
+          <VesselCard positions={seaPositions} />
         </div>
       )}
 

@@ -31,7 +31,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-import type { MapShipmentItem, RailwayEvent } from "./types";
+import type { MapShipmentItem, RailwayEvent, AirEvent, SeaPosition, AirRoute } from "./types";
 
 export interface ContainerEntry { qty: string; type: string; }
 
@@ -72,8 +72,28 @@ export async function createShipmentRequest(
 export async function fetchPublicTracking(number: string): Promise<{
   shipment: import("./types").Shipment;
   railwayEvents: import("./types").RailwayEvent[];
+  segments: import("./types").ShipmentSegment[];
+  aviationEvents: AirEvent[];
+  seaPositions: SeaPosition[];
+  containerRoute: import("./types").ContainerRoute | null;
+  airRoute: AirRoute | null;
 }> {
   const res = await axios.get(`/api/orders/public/track/${encodeURIComponent(number)}`);
+  return { segments: [], aviationEvents: [], seaPositions: [], containerRoute: null, airRoute: null, ...res.data };
+}
+
+export async function triggerAirSync(orderNumber: string): Promise<{ stored: number; source: string }> {
+  const res = await axios.post(`/api/orders/public/track/${encodeURIComponent(orderNumber)}/sync-air`);
+  return res.data;
+}
+
+export async function triggerVesselSync(orderNumber: string): Promise<{ stored: boolean; vessel: string | null }> {
+  const res = await axios.post(`/api/orders/public/track/${encodeURIComponent(orderNumber)}/sync-vessel`);
+  return res.data;
+}
+
+export async function fetchShipmentSegments(orderNumber: string): Promise<import("./types").ShipmentSegment[]> {
+  const res = await api.get<import("./types").ShipmentSegment[]>(`/orders/my/${encodeURIComponent(orderNumber)}/segments`);
   return res.data;
 }
 

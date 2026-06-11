@@ -17,8 +17,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { RailwayTimeline } from "@/components/shipment/railway-timeline";
+import { AirTimeline } from "@/components/shipment/air-timeline";
+import { VesselCard } from "@/components/shipment/vessel-card";
+import { MultimodalProgress } from "@/components/shipment/multimodal-progress";
 import { fetchPublicTracking } from "@/lib/api";
-import type { RailwayEvent, Shipment } from "@/lib/types";
+import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent, SeaPosition, Shipment, ShipmentSegment } from "@/lib/types";
 
 const ShipmentRouteMap = dynamic(
   () => import("@/components/map/shipment-route-map"),
@@ -55,6 +58,11 @@ export function PublicTrackPage() {
   const [result, setResult] = useState<{
     shipment: Shipment;
     railwayEvents: RailwayEvent[];
+    segments: ShipmentSegment[];
+    aviationEvents: AirEvent[];
+    seaPositions: SeaPosition[];
+    containerRoute: ContainerRoute | null;
+    airRoute: AirRoute | null;
   } | null>(null);
 
   async function handleSearch(e: React.FormEvent) {
@@ -152,6 +160,9 @@ export function PublicTrackPage() {
                   destination={result.shipment.destination}
                   vehicleId={result.shipment.vehicleId || undefined}
                   departed={result.shipment.departed}
+                  airEvents={result.aviationEvents.length ? result.aviationEvents : undefined}
+                  airRoute={result.airRoute}
+                  seaRoute={result.containerRoute}
                 />
                 {/* Route overlay */}
                 <div className="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
@@ -218,10 +229,31 @@ export function PublicTrackPage() {
                   )}
                 </div>
 
+                {/* Multimodal segments */}
+                {result.segments.length > 0 && (
+                  <div className="border-t border-border bg-white">
+                    <MultimodalProgress segments={result.segments} />
+                  </div>
+                )}
+
                 {/* Railway timeline */}
                 {result.railwayEvents.length > 0 && (
                   <div className="border-t border-border bg-white">
                     <RailwayTimeline events={result.railwayEvents} />
+                  </div>
+                )}
+
+                {/* Air timeline */}
+                {(result.shipment.transportationType?.includes("Авиа") || result.shipment.transportationType?.includes("Мультимодальн")) && (
+                  <div className="border-t border-border bg-white">
+                    <AirTimeline events={result.aviationEvents} />
+                  </div>
+                )}
+
+                {/* Vessel card */}
+                {(result.shipment.transportationType?.includes("Мор") || result.shipment.transportationType?.includes("Мультимодальн")) && (
+                  <div className="border-t border-border bg-white">
+                    <VesselCard positions={result.seaPositions} />
                   </div>
                 )}
 
