@@ -127,6 +127,7 @@ function ShipmentModalContent({ shipment, onClose }: { shipment: Shipment; onClo
             airEvents={airEvents.length ? airEvents : undefined}
             airRoute={airRoute}
             seaRoute={containerRoute}
+            railwayEvents={railwayEvents.length ? railwayEvents : undefined}
           />
           {/* Route label overlay */}
           <div className="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">

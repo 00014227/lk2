@@ -86,6 +86,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           airEvents={airEvents.length ? airEvents : undefined}
           airRoute={airRoute}
           seaRoute={containerRoute}
+          railwayEvents={railwayEvents.length ? railwayEvents : undefined}
         />
       </div>
 

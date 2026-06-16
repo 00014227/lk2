@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CircleMarker, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { geocodeCity } from "@/lib/city-coords";
-import type { AirEvent, AirRoute, ContainerRoute } from "@/lib/types";
+import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent } from "@/lib/types";
 
 const TEAL       = "#0d9488";
 const GRAY       = "#94a3b8";
@@ -62,6 +62,22 @@ function buildPlaneIcon() {
   });
 }
 
+function buildTrainIcon() {
+  return L.divIcon({
+    className: "",
+    html: `<div style="position:relative;width:42px;height:42px;border-radius:50%;background:#7c3aed;border:2.5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+      <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="3" width="16" height="13" rx="2"/>
+        <path d="M4 11h16"/><path d="M12 3v8"/>
+        <path d="m8 19-2 3"/><path d="m18 22-2-3"/>
+        <path d="M7 19h10"/>
+      </svg>
+    </div>`,
+    iconSize: [42, 42],
+    iconAnchor: [21, 21],
+  });
+}
+
 function buildShipIcon() {
   return L.divIcon({
     className: "",
@@ -93,6 +109,8 @@ function AutoFit({ coords }: { coords: [number, number][] }) {
   return null;
 }
 
+const RAIL_PURPLE = "#7c3aed";
+
 interface Props {
   origin: string;
   destination: string;
@@ -101,9 +119,10 @@ interface Props {
   airEvents?: AirEvent[];
   airRoute?: AirRoute | null;
   seaRoute?: ContainerRoute | null;
+  railwayEvents?: RailwayEvent[];
 }
 
-export default function ShipmentRouteMap({ origin, destination, vehicleId, departed = false, airEvents, airRoute, seaRoute }: Props) {
+export default function ShipmentRouteMap({ origin, destination, vehicleId, departed = false, airEvents, airRoute, seaRoute, railwayEvents }: Props) {
   const notDeparted = !departed;
 
   // ── Sea mode ──────────────────────────────────────────────────────────────
@@ -134,6 +153,26 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
 
   const shipIcon = useMemo(() => buildShipIcon(), []);
   const isSeaMode = seaCoords.length > 0;
+
+  // ── Railway mode ─────────────────────────────────────────────────────────
+  const railwayPos = useMemo<[number, number] | null>(() => {
+    if (!railwayEvents?.length) return null;
+    const latest = [...railwayEvents]
+      .sort((a, b) => new Date(b.trackingDate).getTime() - new Date(a.trackingDate).getTime())
+      .find((e) => e.latitude != null && e.longitude != null);
+    return latest ? [latest.latitude!, latest.longitude!] : null;
+  }, [railwayEvents]);
+
+  const railwayStationLabel = useMemo(() => {
+    if (!railwayEvents?.length) return null;
+    const latest = [...railwayEvents]
+      .sort((a, b) => new Date(b.trackingDate).getTime() - new Date(a.trackingDate).getTime())
+      .find((e) => e.latitude != null && e.longitude != null);
+    return latest?.stationName ?? null;
+  }, [railwayEvents]);
+
+  const trainIcon = useMemo(() => buildTrainIcon(), []);
+  const isRailwayMode = railwayPos != null;
 
   // ── Air mode ─────────────────────────────────────────────────────────────
   const airWaypoints = useMemo<{ pos: [number, number]; label: string }[]>(() => {
@@ -207,6 +246,7 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
 
   useEffect(() => {
     if (isAirMode || !origin || !destination) return;
+    // Always geocode for pins (used in railway mode too)
     let cancelled = false;
     setTraveledCoords(null);
     setRemainingCoords(null);
@@ -313,6 +353,45 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
               </Marker>
             );
           })()}
+        </>
+      ) : isRailwayMode ? (
+        <>
+          <AutoFit coords={[railwayPos!]} />
+          <Marker position={railwayPos!} icon={trainIcon}>
+            <Tooltip direction="top" offset={[0, -22]}>
+              <span className="text-xs font-semibold">
+                {railwayStationLabel ?? "Текущее положение"}
+              </span>
+            </Tooltip>
+          </Marker>
+          {pins.origin && (
+            <CircleMarker
+              center={pins.origin}
+              radius={7}
+              pathOptions={{ color: "#fff", fillColor: RAIL_PURPLE, fillOpacity: 1, weight: 2 }}
+            >
+              <Tooltip permanent direction="top" offset={[0, -10]}>
+                <span className="text-xs font-semibold">{origin}</span>
+              </Tooltip>
+            </CircleMarker>
+          )}
+          {pins.dest && (
+            <CircleMarker
+              center={pins.dest}
+              radius={7}
+              pathOptions={{ color: "#fff", fillColor: RAIL_PURPLE, fillOpacity: 1, weight: 2 }}
+            >
+              <Tooltip permanent direction="top" offset={[0, -10]}>
+                <span className="text-xs font-semibold">{destination}</span>
+              </Tooltip>
+            </CircleMarker>
+          )}
+          {pins.origin && pins.dest && (
+            <Polyline
+              positions={[pins.origin, railwayPos!, pins.dest]}
+              pathOptions={{ color: RAIL_PURPLE, weight: 3, opacity: 0.7, dashArray: "8 5" }}
+            />
+          )}
         </>
       ) : isAirMode ? (
         <>

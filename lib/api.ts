@@ -31,7 +31,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-import type { MapShipmentItem, RailwayEvent, AirEvent, SeaPosition, AirRoute } from "./types";
+import type { MapShipmentItem, RailwayEvent, AirEvent, SeaPosition, AirRoute, TariffEstimate, TariffLocation } from "./types";
 
 export interface ContainerEntry { qty: string; type: string; }
 
@@ -104,6 +104,34 @@ export async function fetchMapOrders(): Promise<MapShipmentItem[]> {
 
 export async function fetchRailwayEvents(orderNumber: string): Promise<RailwayEvent[]> {
   const res = await api.get<RailwayEvent[]>(`/orders/my/${encodeURIComponent(orderNumber)}/railway-tracking`);
+  return res.data;
+}
+
+// ── Tariff calculator ────────────────────────────────────────────────────────
+
+export async function searchTariffLocations(search: string): Promise<TariffLocation[]> {
+  const res = await api.get<TariffLocation[]>("/tariffs/locations", {
+    params: { search },
+  });
+  return res.data;
+}
+
+export interface TariffEstimateParams {
+  departure: string;
+  destination: string;
+  transportType?: string;
+  weightKg?: number;
+  volumeCbm?: number;
+  containers?: number;
+  date?: string;
+}
+
+export async function estimateTariff(
+  params: TariffEstimateParams,
+): Promise<{ estimates: TariffEstimate[] }> {
+  const res = await api.get<{ estimates: TariffEstimate[] }>("/tariffs/estimate", {
+    params,
+  });
   return res.data;
 }
 

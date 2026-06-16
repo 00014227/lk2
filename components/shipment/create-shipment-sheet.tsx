@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import * as RDialog from "@radix-ui/react-dialog";
 import {
+  Calculator,
   CheckCircle2,
   Loader2,
   Package,
@@ -23,8 +24,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { createShipmentRequest } from "@/lib/api";
+import { createShipmentRequest, estimateTariff, searchTariffLocations } from "@/lib/api";
 import type { ContainerEntry } from "@/lib/api";
+import type { TariffEstimate, TariffLocation } from "@/lib/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -73,6 +75,74 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
   );
 }
 
+// ── Tariff calculator helpers ────────────────────────────────────────────────
+
+const TRANSPORT_TO_TARIFF: Record<string, string> = {
+  "Авиа": "air",
+  "Море": "sea",
+  "Авто": "auto",
+  "Железнодорожная": "rail",
+};
+
+const BASIS_LABEL: Record<TariffEstimate["basis"], string> = {
+  kg: "за кг",
+  cbm: "за м³",
+  container: "за контейнер",
+};
+
+/** City input with suggestions pulled from the tariff location dictionary. */
+function LocationAutocomplete({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+}) {
+  const [suggestions, setSuggestions] = useState<TariffLocation[]>([]);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!value.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    const t = setTimeout(() => {
+      searchTariffLocations(value.trim())
+        .then(setSuggestions)
+        .catch(() => setSuggestions([]));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [value]);
+
+  return (
+    <div className="relative">
+      <Input
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+      />
+      {open && suggestions.length > 0 && (
+        <div className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-2xl border border-border bg-white py-1 shadow-lg">
+          {suggestions.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+              onMouseDown={(e) => { e.preventDefault(); onChange(s.name); setOpen(false); }}
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface DestEntry { addressType: string; country: string }
@@ -116,6 +186,12 @@ export function CreateShipmentSheet({ open, onClose }: Props) {
   // Step 2 — Container Count (dynamic list)
   const [containers, setContainers] = useState<ContainerEntry[]>([{ qty: "", type: "" }]);
 
+  // Step 2 — Tariff estimate
+  const [estOrigin, setEstOrigin] = useState("");
+  const [estDestination, setEstDestination] = useState("");
+  const [estimating, setEstimating] = useState(false);
+  const [estimates, setEstimates] = useState<TariffEstimate[] | null>(null);
+
   // Submission
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -133,6 +209,7 @@ export function CreateShipmentSheet({ open, onClose }: Props) {
         setGrossVolume(""); setGrossWeight(""); setChargeableWeight("");
         setCommodityType(""); setHsCode(""); setPackageCount(""); setPackageType(""); setCargoDescription("");
         setContainers([{ qty: "", type: "" }]);
+        setEstOrigin(""); setEstDestination(""); setEstimating(false); setEstimates(null);
         setLoading(false); setSuccess(false); setError(null);
       }, 300);
       return () => clearTimeout(t);
@@ -182,6 +259,28 @@ export function CreateShipmentSheet({ open, onClose }: Props) {
       setError("Не удалось отправить заявку. Попробуйте ещё раз.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleEstimate() {
+    if (!estOrigin.trim() || !estDestination.trim()) return;
+    setEstimating(true);
+    setEstimates(null);
+    try {
+      const containerQty = containers.reduce((sum, c) => sum + (Number(c.qty) || 0), 0);
+      const { estimates } = await estimateTariff({
+        departure: estOrigin.trim(),
+        destination: estDestination.trim(),
+        transportType: TRANSPORT_TO_TARIFF[transportType],
+        weightKg: Number(chargeableWeight) || Number(grossWeight) || undefined,
+        volumeCbm: Number(grossVolume) || undefined,
+        containers: containerQty || undefined,
+      });
+      setEstimates(estimates);
+    } catch {
+      setEstimates([]);
+    } finally {
+      setEstimating(false);
     }
   }
 
@@ -456,6 +555,89 @@ export function CreateShipmentSheet({ open, onClose }: Props) {
                       <FieldLabel>Short Cargo Description</FieldLabel>
                       <Input placeholder="Describe the cargo..." value={cargoDescription} onChange={(e) => setCargoDescription(e.target.value)} />
                     </div>
+                  </div>
+                </section>
+
+                {/* ── Tariff estimate ───────────────────────────────────── */}
+                <section>
+                  <SectionLabel>Оценка стоимости</SectionLabel>
+                  <div className="rounded-2xl border border-border bg-white p-4">
+                    <p className="mb-3 text-xs leading-5 text-muted-foreground">
+                      Укажите города из справочника тарифов для предварительного расчёта.
+                      Окончательную ставку подтверждает менеджер.
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <FieldLabel>Город отправления</FieldLabel>
+                        <LocationAutocomplete
+                          value={estOrigin}
+                          onChange={setEstOrigin}
+                          placeholder="напр. Ташкент"
+                        />
+                      </div>
+                      <div>
+                        <FieldLabel>Город назначения</FieldLabel>
+                        <LocationAutocomplete
+                          value={estDestination}
+                          onChange={setEstDestination}
+                          placeholder="напр. Стамбул"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="mt-3 w-full"
+                      onClick={handleEstimate}
+                      disabled={estimating || !estOrigin.trim() || !estDestination.trim()}
+                    >
+                      {estimating ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Calculator className="h-4 w-4" />
+                      )}
+                      Рассчитать стоимость
+                    </Button>
+
+                    {estimates !== null && (
+                      <div className="mt-3 flex flex-col gap-2">
+                        {estimates.length === 0 ? (
+                          <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                            Точная ставка по запросу — менеджер свяжется с вами.
+                          </p>
+                        ) : (
+                          estimates.map((est, i) => (
+                            <div
+                              key={i}
+                              className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-sm font-medium text-slate-700">
+                                  {est.departure} → {est.destination}
+                                </span>
+                                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                                  {est.transportType}
+                                </span>
+                              </div>
+                              <div className="mt-1 flex items-end justify-between gap-2">
+                                {est.sellTotal != null ? (
+                                  <p className="text-lg font-semibold text-slate-900">
+                                    ≈ {est.sellTotal.toLocaleString("ru-RU")} {est.currency}
+                                  </p>
+                                ) : (
+                                  <p className="text-sm text-muted-foreground">
+                                    Укажите вес / объём / контейнеры выше
+                                  </p>
+                                )}
+                                <span className="shrink-0 text-xs text-muted-foreground">
+                                  {est.sellRate.toLocaleString("ru-RU")} {est.currency} {BASIS_LABEL[est.basis]}
+                                </span>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
                 </section>
 
