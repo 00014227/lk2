@@ -109,6 +109,56 @@ function AutoFit({ coords }: { coords: [number, number][] }) {
   return null;
 }
 
+/**
+ * Lets the wheel scroll the page normally over the map, and zooms only when
+ * Ctrl/⌘ is held — the standard embedded-map behaviour that avoids the
+ * "scroll trap". A short hint is shown if the user scrolls without the modifier.
+ */
+function ScrollZoomGuard() {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    if (getComputedStyle(container).position === "static") {
+      container.style.position = "relative";
+    }
+
+    const isMac =
+      typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+    const hint = document.createElement("div");
+    hint.textContent = isMac ? "⌘ + прокрутка для масштаба" : "Ctrl + прокрутка для масштаба";
+    hint.style.cssText =
+      "position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;" +
+      "pointer-events:none;background:rgba(16,35,48,0.82);color:#fff;font-size:12px;" +
+      "font-weight:600;padding:6px 12px;border-radius:9999px;white-space:nowrap;" +
+      "opacity:0;transition:opacity .2s ease;";
+    container.appendChild(hint);
+
+    let hideTimer = 0;
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const pt = map.mouseEventToContainerPoint(e);
+        const latlng = map.containerPointToLatLng(pt);
+        map.setZoomAround(latlng, map.getZoom() + (e.deltaY < 0 ? 1 : -1));
+      } else {
+        hint.style.opacity = "1";
+        window.clearTimeout(hideTimer);
+        hideTimer = window.setTimeout(() => {
+          hint.style.opacity = "0";
+        }, 1400);
+      }
+    };
+    container.addEventListener("wheel", onWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", onWheel);
+      window.clearTimeout(hideTimer);
+      hint.remove();
+    };
+  }, [map]);
+  return null;
+}
+
 const RAIL_PURPLE = "#7c3aed";
 
 interface Props {
@@ -120,9 +170,11 @@ interface Props {
   airRoute?: AirRoute | null;
   seaRoute?: ContainerRoute | null;
   railwayEvents?: RailwayEvent[];
+  /** Enables mouse-wheel zoom and the +/- zoom buttons. Off by default. */
+  interactiveZoom?: boolean;
 }
 
-export default function ShipmentRouteMap({ origin, destination, vehicleId, departed = false, airEvents, airRoute, seaRoute, railwayEvents }: Props) {
+export default function ShipmentRouteMap({ origin, destination, vehicleId, departed = false, airEvents, airRoute, seaRoute, railwayEvents, interactiveZoom = false }: Props) {
   const notDeparted = !departed;
 
   // ── Sea mode ──────────────────────────────────────────────────────────────
@@ -302,13 +354,15 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
       center={[42.4, 71.3]}
       zoom={4}
       scrollWheelZoom={false}
-      zoomControl={false}
+      zoomControl={interactiveZoom}
       className="h-full w-full"
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+
+      {interactiveZoom && <ScrollZoomGuard />}
 
       {isSeaMode ? (
         <>

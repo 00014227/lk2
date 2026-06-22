@@ -11,7 +11,7 @@ import {
   Truck,
 } from "lucide-react";
 import { logout } from "@/lib/auth";
-import { fetchMyOrders, setActiveTab, selectShipment } from "@/store/features/dashboard-slice";
+import { fetchMyOrders, setActiveTab } from "@/store/features/dashboard-slice";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ShipmentModal } from "@/components/shipment/shipment-modal";
 import { ShipmentTable } from "@/components/shipment/shipment-table";
 
 const FleetMap = dynamic(() => import("@/components/map/fleet-map"), {
@@ -36,15 +35,13 @@ const FleetMap = dynamic(() => import("@/components/map/fleet-map"), {
 
 export function DashboardShell() {
   const dispatch = useAppDispatch();
-  const { activeTab, shipments, vehicles, selectedShipmentId, loading, error } = useAppSelector(
+  const { activeTab, shipments, vehicles, loading, error } = useAppSelector(
     (state) => state.dashboard,
   );
 
   useEffect(() => {
     dispatch(fetchMyOrders());
   }, [dispatch]);
-  const selectedShipment =
-    shipments.find((shipment) => shipment.id === selectedShipmentId) ?? null;
 
   const stats = [
     {
@@ -228,24 +225,17 @@ export function DashboardShell() {
               </CardContent>
             </Card>
           ) : (
-            <>
-              <Card className="overflow-hidden">
-                <CardHeader>
-                  <CardTitle>Мои отправления</CardTitle>
-                  <CardDescription>
-                    Выберите строку отправления, чтобы посмотреть маршрут и детали.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="px-0 pb-0">
-                  <ShipmentTable />
-                </CardContent>
-              </Card>
-
-              <ShipmentModal
-                shipment={selectedShipment}
-                onClose={() => dispatch(selectShipment(null))}
-              />
-            </>
+            <Card className="overflow-hidden">
+              <CardHeader>
+                <CardTitle>Мои отправления</CardTitle>
+                <CardDescription>
+                  Выберите строку отправления, чтобы посмотреть маршрут и детали.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-0 pb-0">
+                <ShipmentTable />
+              </CardContent>
+            </Card>
           )}
         </section>
       </main>
