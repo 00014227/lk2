@@ -12,6 +12,7 @@ import { AirTimeline } from "./air-timeline";
 import { RailwayTimeline } from "./railway-timeline";
 import { MultimodalProgress } from "./multimodal-progress";
 import { VesselCard } from "./vessel-card";
+import { ChatPanel } from "./chat-panel";
 
 const ShipmentRouteMap = dynamic(() => import("@/components/map/shipment-route-map"), {
   ssr: false,
@@ -217,6 +218,11 @@ function ShipmentModalContent({ shipment, onClose }: { shipment: Shipment; onClo
               <VesselCard positions={seaPositions} />
             </div>
           )}
+
+          {/* Chat with manager */}
+          <div className="border-t border-border bg-white">
+            <ChatPanel shipment={shipment} />
+          </div>
 
           {/* Date */}
           <div className="mt-auto border-t border-border px-6 py-4 text-xs text-muted-foreground">

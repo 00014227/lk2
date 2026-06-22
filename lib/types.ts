@@ -28,6 +28,20 @@ export interface Shipment {
   departed: boolean;
   distance: string;
   transportationType: string | null;
+  responsibleName?: string | null;
+  responsiblePhone?: string | null;
+  responsibleEmail?: string | null;
+  kamName?: string | null;
+  kamPhone?: string | null;
+  kamEmail?: string | null;
+}
+
+export interface OrderMessage {
+  id: string;
+  senderType: "client" | "manager" | string;
+  senderName: string | null;
+  body: string;
+  createdAt: string;
 }
 
 export interface RailwayEvent {
