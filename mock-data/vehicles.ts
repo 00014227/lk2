@@ -1,4 +1,4 @@
-import { Vehicle } from "@/lib/types";
+import { Vehicle } from "@entities/vehicle";
 
 export const vehicles: Vehicle[] = [
   {
