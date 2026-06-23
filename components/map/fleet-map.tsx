@@ -5,11 +5,9 @@ import L from "leaflet";
 import { Layers, Loader2, MapPin, Package, Plane, Train, Truck, X } from "lucide-react";
 import {
   CircleMarker,
-  MapContainer,
   Marker,
   Polyline,
   Popup,
-  TileLayer,
   Tooltip,
   useMap,
   useMapEvents,
@@ -18,31 +16,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { selectShipment, selectVehicle } from "@/store/features/dashboard-slice";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { geocodeCity } from "@/lib/city-coords";
+import { fetchRoute } from "@/lib/osrm";
 import { fetchMapOrders } from "@/lib/api";
 import type { MapShipmentItem } from "@/lib/types";
+import BaseMap from "./base-map";
 
 const CENTER: [number, number] = [42.4, 71.3];
-
-// ── OSRM road routing ─────────────────────────────────────────────────────────
-async function fetchRoute(waypoints: [number, number][]): Promise<[number, number][] | null> {
-  if (waypoints.length < 2) return null;
-  const coords = waypoints.map(([lat, lng]) => `${lng},${lat}`).join(";");
-  try {
-    const res = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`,
-      { signal: AbortSignal.timeout(10_000) },
-    );
-    if (!res.ok) return null;
-    const json = await res.json();
-    if (json.code !== "Ok" || !json.routes?.[0]) return null;
-    // GeoJSON uses [lng, lat] — swap to [lat, lng] for Leaflet
-    return (json.routes[0].geometry.coordinates as [number, number][]).map(
-      ([lng, lat]) => [lat, lng],
-    );
-  } catch {
-    return null;
-  }
-}
 
 // ── Marker icon ───────────────────────────────────────────────────────────────
 function getMarkerVariant(status: string) {
@@ -229,11 +208,7 @@ export default function FleetMap() {
   return (
     <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
       <div className="relative h-135 overflow-hidden rounded-[28px]">
-        <MapContainer center={CENTER} zoom={5} scrollWheelZoom className="h-full w-full">
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+        <BaseMap center={CENTER} zoom={5}>
           <MapClickHandler onDeselect={deselect} />
 
           {/* ── Road route ──────────────────────────────────────────────── */}
@@ -362,7 +337,7 @@ export default function FleetMap() {
               </Popup>
             </Marker>
           ))}
-        </MapContainer>
+        </BaseMap>
 
         {/* ── Route badge ──────────────────────────────────────────────── */}
         {activeShipment && (

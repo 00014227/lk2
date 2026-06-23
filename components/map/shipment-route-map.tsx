@@ -1,35 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CircleMarker, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from "react-leaflet";
+import { CircleMarker, Marker, Polyline, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { geocodeCity } from "@/lib/city-coords";
+import { fetchRoute } from "@/lib/osrm";
 import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent } from "@/lib/types";
+import BaseMap from "./base-map";
 
 const TEAL       = "#0d9488";
 const GRAY       = "#94a3b8";
 const LIGHT_GRAY = "#cbd5e1";
 const AIR_BLUE   = "#3b82f6";
 const SEA_BLUE   = "#0ea5e9";
-
-async function fetchRoute(waypoints: [number, number][]): Promise<[number, number][] | null> {
-  if (waypoints.length < 2) return null;
-  const coords = waypoints.map(([lat, lng]) => `${lng},${lat}`).join(";");
-  try {
-    const res = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`,
-      { signal: AbortSignal.timeout(10_000) },
-    );
-    if (!res.ok) return null;
-    const json = await res.json();
-    if (json.code !== "Ok" || !json.routes?.[0]) return null;
-    return (json.routes[0].geometry.coordinates as [number, number][]).map(
-      ([lng, lat]) => [lat, lng],
-    );
-  } catch {
-    return null;
-  }
-}
 
 function buildTruckIcon(variant: "pending" | "moving") {
   const bg = variant === "pending" ? "#94a3b8" : "#0f766e";
@@ -106,56 +89,6 @@ function AutoFit({ coords }: { coords: [number, number][] }) {
     }, 300);
     return () => clearTimeout(t);
   }, [map, coords]);
-  return null;
-}
-
-/**
- * Lets the wheel scroll the page normally over the map, and zooms only when
- * Ctrl/⌘ is held — the standard embedded-map behaviour that avoids the
- * "scroll trap". A short hint is shown if the user scrolls without the modifier.
- */
-function ScrollZoomGuard() {
-  const map = useMap();
-  useEffect(() => {
-    const container = map.getContainer();
-    if (getComputedStyle(container).position === "static") {
-      container.style.position = "relative";
-    }
-
-    const isMac =
-      typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
-    const hint = document.createElement("div");
-    hint.textContent = isMac ? "⌘ + прокрутка для масштаба" : "Ctrl + прокрутка для масштаба";
-    hint.style.cssText =
-      "position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;" +
-      "pointer-events:none;background:rgba(16,35,48,0.82);color:#fff;font-size:12px;" +
-      "font-weight:600;padding:6px 12px;border-radius:9999px;white-space:nowrap;" +
-      "opacity:0;transition:opacity .2s ease;";
-    container.appendChild(hint);
-
-    let hideTimer = 0;
-    const onWheel = (e: WheelEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        const pt = map.mouseEventToContainerPoint(e);
-        const latlng = map.containerPointToLatLng(pt);
-        map.setZoomAround(latlng, map.getZoom() + (e.deltaY < 0 ? 1 : -1));
-      } else {
-        hint.style.opacity = "1";
-        window.clearTimeout(hideTimer);
-        hideTimer = window.setTimeout(() => {
-          hint.style.opacity = "0";
-        }, 1400);
-      }
-    };
-    container.addEventListener("wheel", onWheel, { passive: false });
-
-    return () => {
-      container.removeEventListener("wheel", onWheel);
-      window.clearTimeout(hideTimer);
-      hint.remove();
-    };
-  }, [map]);
   return null;
 }
 
@@ -350,20 +283,7 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
   );
 
   return (
-    <MapContainer
-      center={[42.4, 71.3]}
-      zoom={4}
-      scrollWheelZoom={false}
-      zoomControl={interactiveZoom}
-      className="h-full w-full"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      {interactiveZoom && <ScrollZoomGuard />}
-
+    <BaseMap center={[42.4, 71.3]} zoom={4} zoomControl={interactiveZoom}>
       {isSeaMode ? (
         <>
           <AutoFit coords={seaCoords} />
@@ -535,6 +455,6 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
           )}
         </>
       )}
-    </MapContainer>
+    </BaseMap>
   );
 }
