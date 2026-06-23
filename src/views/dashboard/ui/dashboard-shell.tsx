@@ -11,7 +11,7 @@ import {
   Truck,
 } from "lucide-react";
 import { logout } from "@features/auth";
-import { useAppDispatch, useAppSelector } from "@app/store";
+import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import {
   fetchMyOrders,
   setActiveTab,

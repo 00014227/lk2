@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppSelector } from "@app/store";
+import { useAppSelector } from "@shared/lib/store-hooks";
 import { selectVehicles } from "@entities/vehicle";
-import { geocodeCity } from "@shared/lib/geo/city-coords";
+import { geocodeCity } from "@shared/lib/geo";
 import type { Shipment } from "@entities/shipment";
 
 function haversine(a: [number, number], b: [number, number]): number {

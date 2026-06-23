@@ -14,7 +14,7 @@ import {
   UserRound,
   Weight,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@app/store";
+import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { fetchMyOrders, selectOrdersLoading, selectOrdersError } from "@features/orders";
 import { selectShipments } from "@entities/shipment";
 import { Badge } from "@shared/ui/badge";

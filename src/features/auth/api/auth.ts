@@ -1,5 +1,5 @@
 import api, { clearToken, getToken, setToken } from "@shared/api";
-import { SESSION_KEY } from "@shared/config/storage-keys";
+import { SESSION_KEY } from "@shared/config";
 
 export function hasWindow() {
   return typeof window !== "undefined";

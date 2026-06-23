@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { CircleMarker, Marker, Polyline, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
-import { geocodeCity } from "@shared/lib/geo/city-coords";
-import { fetchRoute } from "@shared/lib/geo/osrm";
+import { geocodeCity } from "@shared/lib/geo";
+import { fetchRoute } from "@shared/lib/geo";
 import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent } from "@entities/tracking";
 import BaseMap from "@shared/ui/base-map";
 

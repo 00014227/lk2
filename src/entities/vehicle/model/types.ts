@@ -1,4 +1,4 @@
-import type { ShipmentStatus } from "@entities/shipment";
+import type { ShipmentStatus } from "@entities/shipment/@x/vehicle";
 
 export interface Vehicle {
   id: string;

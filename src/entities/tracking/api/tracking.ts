@@ -1,6 +1,6 @@
 import axios from "axios";
 import api from "@shared/api";
-import type { Shipment } from "@entities/shipment";
+import type { Shipment } from "@entities/shipment/@x/tracking";
 import type {
   AirEvent,
   AirRoute,

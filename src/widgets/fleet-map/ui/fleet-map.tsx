@@ -13,15 +13,15 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
-import { useAppDispatch, useAppSelector } from "@app/store";
+import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import {
   selectShipment,
   selectVehicle,
   selectSelectedShipmentId,
   selectSelectedVehicleId,
 } from "@features/orders";
-import { geocodeCity } from "@shared/lib/geo/city-coords";
-import { fetchRoute } from "@shared/lib/geo/osrm";
+import { geocodeCity } from "@shared/lib/geo";
+import { fetchRoute } from "@shared/lib/geo";
 import { fetchMapOrders, selectShipments } from "@entities/shipment";
 import { selectVehicles } from "@entities/vehicle";
 import type { MapShipmentItem } from "@entities/shipment";
