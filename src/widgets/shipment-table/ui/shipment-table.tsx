@@ -117,7 +117,11 @@ export function ShipmentTable() {
   const [hiddenRows, setHiddenRows] = useState<string[]>([]);
 
   useEffect(() => {
+    // Preferences are stored in localStorage (client-only). Loading them after
+    // mount keeps SSR output and the first client render identical (no hydration
+    // mismatch); hence the deliberate state sync inside the effect.
     const p = loadPrefs();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setColOrder(p.colOrder);
     setHiddenCols(p.hiddenCols);
     setHiddenRows(p.hiddenRows);

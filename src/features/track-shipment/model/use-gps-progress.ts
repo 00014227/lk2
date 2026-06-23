@@ -26,15 +26,12 @@ function haversine(a: [number, number], b: [number, number]): number {
  */
 export function useGPSProgress(shipment: Shipment): number {
   const vehicles = useAppSelector(selectVehicles);
-  const [progress, setProgress] = useState(shipment.progress);
+  // GPS-derived progress, tagged with the shipment id so a stale result from a
+  // previously-selected shipment is ignored until the new one resolves.
+  const [gps, setGps] = useState<{ id: string; value: number } | null>(null);
 
   useEffect(() => {
-    setProgress(shipment.progress);
-
-    if (shipment.status === "Доставлен") {
-      setProgress(100);
-      return;
-    }
+    if (shipment.status === "Доставлен") return;
 
     const vehicle = vehicles.find((v) => v.id === shipment.vehicleId);
     if (!vehicle) return;
@@ -48,7 +45,10 @@ export function useGPSProgress(shipment: Shipment): number {
       const total = haversine(originCoords, destCoords);
       if (total === 0) return;
       const traveled = haversine(originCoords, vehicle.position);
-      setProgress(Math.min(99, Math.max(1, Math.round((traveled / total) * 100))));
+      setGps({
+        id: shipment.id,
+        value: Math.min(99, Math.max(1, Math.round((traveled / total) * 100))),
+      });
     });
 
     return () => {
@@ -56,5 +56,6 @@ export function useGPSProgress(shipment: Shipment): number {
     };
   }, [shipment, vehicles]);
 
-  return progress;
+  if (shipment.status === "Доставлен") return 100;
+  return gps && gps.id === shipment.id ? gps.value : shipment.progress;
 }

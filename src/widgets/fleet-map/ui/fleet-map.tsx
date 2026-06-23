@@ -140,7 +140,10 @@ export default function FleetMap() {
 
   // Draw route whenever a shipment is selected (from table or vehicle click)
   useEffect(() => {
+    // Data-fetch-on-change effect: clear the previously-drawn route immediately
+    // when the selection changes/resets, then fetch the new one asynchronously.
     if (!selectedShipmentId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTraveledCoords(null);
       setRemainingCoords(null);
       setRouteLoading(false);

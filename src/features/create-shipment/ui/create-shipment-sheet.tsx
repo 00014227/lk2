@@ -105,12 +105,10 @@ function LocationAutocomplete({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!value.trim()) {
-      setSuggestions([]);
-      return;
-    }
+    const query = value.trim();
+    if (!query) return;
     const t = setTimeout(() => {
-      searchTariffLocations(value.trim())
+      searchTariffLocations(query)
         .then(setSuggestions)
         .catch(() => setSuggestions([]));
     }, 250);
@@ -126,7 +124,7 @@ function LocationAutocomplete({
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
       />
-      {open && suggestions.length > 0 && (
+      {open && value.trim() !== "" && suggestions.length > 0 && (
         <div className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-2xl border border-border bg-white py-1 shadow-lg">
           {suggestions.map((s) => (
             <button

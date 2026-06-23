@@ -175,7 +175,7 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
   }, [airEvents]);
 
   // Air route segments (from SeaRates API — preferred over event-based waypoints)
-  const airSegs = airRoute?.routeSegments ?? [];
+  const airSegs = useMemo(() => airRoute?.routeSegments ?? [], [airRoute]);
   const hasAirRoute = airSegs.length > 0;
 
   const airRouteCoords = useMemo<[number, number][]>(() => {
@@ -216,6 +216,9 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
   }>({ origin: null, dest: null });
 
   useEffect(() => {
+    // Data-fetch-on-change effect: reset the vehicle position when it no longer
+    // applies, then fetch the latest position asynchronously.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isAirMode || !vehicleId || notDeparted) { setVehiclePos(null); return; }
     let cancelled = false;
     fetch(`/api/tracking/${vehicleId}/latest`)
@@ -233,6 +236,8 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
     if (isAirMode || !origin || !destination) return;
     // Always geocode for pins (used in railway mode too)
     let cancelled = false;
+    // Clear the stale route before re-geocoding (data-fetch-on-change effect).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTraveledCoords(null);
     setRemainingCoords(null);
     setPins({ origin: null, dest: null });
