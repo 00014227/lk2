@@ -31,7 +31,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-import type { MapShipmentItem, RailwayEvent, AirEvent, SeaPosition, AirRoute, TariffEstimate, TariffLocation } from "./types";
+import type { MapShipmentItem, RailwayEvent, AirEvent, SeaPosition, AirRoute, TariffEstimate, TariffLocation, OrderMessage } from "./types";
 
 export interface ContainerEntry { qty: string; type: string; }
 
@@ -132,6 +132,26 @@ export async function estimateTariff(
   const res = await api.get<{ estimates: TariffEstimate[] }>("/tariffs/estimate", {
     params,
   });
+  return res.data;
+}
+
+// ── Order chat (client ↔ logist) ─────────────────────────────────────────────
+
+export async function fetchOrderMessages(orderNumber: string): Promise<OrderMessage[]> {
+  const res = await api.get<OrderMessage[]>(
+    `/orders/my/${encodeURIComponent(orderNumber)}/messages`,
+  );
+  return res.data;
+}
+
+export async function sendOrderMessage(
+  orderNumber: string,
+  body: string,
+): Promise<OrderMessage> {
+  const res = await api.post<OrderMessage>(
+    `/orders/my/${encodeURIComponent(orderNumber)}/messages`,
+    { body },
+  );
   return res.data;
 }
 

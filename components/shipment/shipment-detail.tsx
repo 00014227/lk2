@@ -22,6 +22,7 @@ import { useGPSProgress } from "@/hooks/use-gps-progress";
 import { useShipmentTracking } from "@/hooks/use-shipment-tracking";
 import type { Shipment } from "@/lib/types";
 import { TransportSegmentCards } from "./transport-segment-cards";
+import { FloatingChat } from "./floating-chat";
 
 const ShipmentRouteMap = dynamic(() => import("@/components/map/shipment-route-map"), {
   ssr: false,
@@ -255,6 +256,9 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
         {/* Footer */}
         <p className="text-xs text-muted-foreground">Создан: {shipment.createdDate}</p>
       </div>
+
+      {/* Floating chat with manager */}
+      <FloatingChat shipment={shipment} />
     </main>
   );
 }
