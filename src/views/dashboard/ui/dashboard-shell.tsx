@@ -35,7 +35,7 @@ import { ShipmentTable } from "@widgets/shipment-table";
 const FleetMap = dynamic(() => import("@widgets/fleet-map"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-[540px] items-center justify-center rounded-[28px] bg-slate-100 text-sm font-semibold text-slate-500">
+    <div className="flex h-135 items-center justify-center rounded-[28px] bg-slate-100 text-sm font-semibold text-slate-500">
       Загрузка карты транспорта...
     </div>
   ),
@@ -76,7 +76,7 @@ export function DashboardShell() {
 
   return (
     <>
-      <main className="mx-auto flex min-h-screen max-w-[1600px] flex-col gap-6 px-5 py-5 lg:px-8 lg:py-7">
+      <main className="mx-auto flex min-h-screen max-w-400 flex-col gap-6 px-5 py-5 lg:px-8 lg:py-7">
         <header className="grid gap-4 rounded-[34px] border border-white/70 bg-[#0d2a3b] p-6 text-white shadow-[0_24px_80px_rgba(16,35,48,0.18)] lg:grid-cols-[1.35fr_0.65fr] lg:p-8">
           <div className="space-y-5">
             <div className="flex items-center justify-between gap-4">

@@ -151,7 +151,7 @@ export function ChatPanel({ shipment }: { shipment: Shipment }) {
                   {!mine && m.senderName && (
                     <p className="mb-0.5 text-[11px] font-semibold text-primary">{m.senderName}</p>
                   )}
-                  <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                  <p className="whitespace-pre-wrap wrap-break-word">{m.body}</p>
                   <p className={mine ? "mt-1 text-right text-[10px] text-white/70" : "mt-1 text-right text-[10px] text-muted-foreground"}>
                     {new Date(m.createdAt).toLocaleString("ru-RU", {
                       day: "2-digit",

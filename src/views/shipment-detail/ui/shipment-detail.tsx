@@ -143,7 +143,7 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
   } = useShipmentTracking(shipment);
 
   return (
-    <main className="mx-auto min-h-screen max-w-[1600px] pb-12">
+    <main className="mx-auto min-h-screen max-w-400 pb-12">
       {/* ── Sticky header ─────────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 border-b border-border bg-white/95 px-5 py-4 backdrop-blur lg:px-8">
         <div className="flex items-center justify-between gap-4">
@@ -236,7 +236,7 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
         </section>
 
         {/* Map — full width */}
-        <section className="relative isolate h-[60vh] min-h-[420px] w-full overflow-hidden rounded-[28px] border border-white/70 shadow-[0_18px_60px_rgba(16,35,48,0.08)]">
+        <section className="relative isolate h-[60vh] min-h-105 w-full overflow-hidden rounded-[28px] border border-white/70 shadow-[0_18px_60px_rgba(16,35,48,0.08)]">
           <ShipmentRouteMap
             key={shipment.id}
             interactiveZoom
@@ -249,7 +249,7 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
             seaRoute={containerRoute}
             railwayEvents={railwayEvents.length ? railwayEvents : undefined}
           />
-          <div className="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
+          <div className="absolute bottom-4 left-1/2 z-1000 -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
             <span className="text-sm font-semibold text-slate-800">
               {shipment.origin} → {shipment.destination}
             </span>

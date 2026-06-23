@@ -424,7 +424,7 @@ export function ShipmentTable() {
                     key={key}
                     className={cn(
                       "select-none px-5 py-4",
-                      dragOver === key && "bg-primary/8 outline outline-2 -outline-offset-2 outline-primary/30",
+                      dragOver === key && "bg-primary/8 outline-2 -outline-offset-2 outline-primary/30",
                     )}
                     draggable
                     onDragStart={() => onDragStart(key)}

@@ -33,14 +33,14 @@ export function RailwayTimeline({ events }: Props) {
       </p>
       <div className="relative">
         {/* vertical line */}
-        <div className="absolute left-[11px] top-2 bottom-2 w-px bg-border" />
+        <div className="absolute left-2.75 top-2 bottom-2 w-px bg-border" />
 
         <div className="flex flex-col gap-0">
           {events.map((e, idx) => (
             <div key={e.id} className="relative flex gap-3">
               {/* dot */}
               <div
-                className={`relative z-10 mt-1 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full border-2 ${
+                className={`relative z-10 mt-1 flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full border-2 ${
                   idx === 0
                     ? "border-primary bg-primary"
                     : "border-border bg-white"

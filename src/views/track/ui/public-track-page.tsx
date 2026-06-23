@@ -89,7 +89,7 @@ export function PublicTrackPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(15,118,110,0.14),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.10),_transparent_28%),linear-gradient(180deg,_#f6f8f5_0%,_#eaf0ea_100%)]">
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.14),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(245,158,11,0.10),transparent_28%),linear-gradient(180deg,#f6f8f5_0%,#eaf0ea_100%)]">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="border-b border-border/50 bg-white/70 px-6 py-4 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between">

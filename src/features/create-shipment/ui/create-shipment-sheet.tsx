@@ -294,7 +294,7 @@ export function CreateShipmentSheet({ open, onClose }: Props) {
       >
         <RDialog.Portal>
           <RDialog.Overlay className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[2px]" />
-          <RDialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-[440px] -translate-x-1/2 -translate-y-1/2 rounded-[28px] border border-white/70 bg-white shadow-[0_24px_80px_rgba(16,35,48,0.24)] outline-none">
+          <RDialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-110 -translate-x-1/2 -translate-y-1/2 rounded-[28px] border border-white/70 bg-white shadow-[0_24px_80px_rgba(16,35,48,0.24)] outline-none">
             <RDialog.Close className="absolute right-5 top-5 rounded-full border border-border bg-white/90 p-2 text-slate-500 transition hover:text-slate-900">
               <X className="h-4 w-4" />
             </RDialog.Close>

@@ -69,7 +69,7 @@ export function MultimodalProgress({ segments }: MultimodalProgressProps) {
                   : "Авто"}
               </span>
               {seg.officeName && (
-                <span className="text-[9px] text-muted-foreground/70 max-w-[60px] text-center leading-tight">
+                <span className="text-[9px] text-muted-foreground/70 max-w-15 text-center leading-tight">
                   {seg.officeName}
                 </span>
               )}

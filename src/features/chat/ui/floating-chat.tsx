@@ -52,13 +52,13 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed bottom-6 right-6 z-[1100] flex flex-col items-end gap-3">
+    <div className="pointer-events-none fixed bottom-6 right-6 z-1100 flex flex-col items-end gap-3">
       {open && (
         <div
           role="dialog"
           aria-label="Чат с менеджером"
           className={cn(
-            "w-[calc(100vw-3rem)] max-w-[380px] origin-bottom-right overflow-hidden rounded-2xl border border-border bg-white shadow-[0_24px_80px_rgba(16,35,48,0.24)] transition-all duration-300 ease-out",
+            "w-[calc(100vw-3rem)] max-w-95 origin-bottom-right overflow-hidden rounded-2xl border border-border bg-white shadow-[0_24px_80px_rgba(16,35,48,0.24)] transition-all duration-300 ease-out",
             entered
               ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
               : "pointer-events-none translate-y-2 scale-95 opacity-0",
