@@ -21,9 +21,6 @@ import { Progress } from "@/components/ui/progress";
 import { useGPSProgress } from "@/hooks/use-gps-progress";
 import { useShipmentTracking } from "@/hooks/use-shipment-tracking";
 import type { Shipment } from "@/lib/types";
-import { AirTimeline } from "./air-timeline";
-import { RailwayTimeline } from "./railway-timeline";
-import { VesselCard } from "./vessel-card";
 import { TransportSegmentCards } from "./transport-segment-cards";
 
 const ShipmentRouteMap = dynamic(() => import("@/components/map/shipment-route-map"), {
@@ -133,9 +130,6 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
   const progress = useGPSProgress(shipment);
   const {
     isRailway,
-    isMultimodal,
-    isAir,
-    isSea,
     railwayEvents,
     segments,
     airEvents,
@@ -143,11 +137,6 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
     containerRoute,
     airRoute,
   } = useShipmentTracking(shipment);
-
-  const showRailway = (isRailway || isMultimodal) && railwayEvents.length > 0;
-  const showAir = (isAir || isMultimodal) && airEvents.length > 0;
-  const showSea = (isSea || isMultimodal) && seaPositions.length > 0;
-  const hasHistory = showRailway || showAir || showSea;
 
   return (
     <main className="mx-auto min-h-screen max-w-[1600px] pb-12">
@@ -203,7 +192,13 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
         {/* Transport legs */}
         <section>
           <h2 className="mb-3 font-display text-lg font-semibold">Транспортировка</h2>
-          <TransportSegmentCards segments={segments} shipment={shipment} />
+          <TransportSegmentCards
+            segments={segments}
+            shipment={shipment}
+            railwayEvents={railwayEvents}
+            airEvents={airEvents}
+            seaPositions={seaPositions}
+          />
         </section>
 
         {/* Details */}
@@ -256,27 +251,6 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
             </span>
           </div>
         </section>
-
-        {/* Movement history */}
-        {hasHistory && (
-          <section className="grid gap-4 lg:grid-cols-2">
-            {showRailway && (
-              <div className="overflow-hidden rounded-[28px] border border-white/70 bg-card">
-                <RailwayTimeline events={railwayEvents} />
-              </div>
-            )}
-            {showAir && (
-              <div className="overflow-hidden rounded-[28px] border border-white/70 bg-card">
-                <AirTimeline events={airEvents} />
-              </div>
-            )}
-            {showSea && (
-              <div className="overflow-hidden rounded-[28px] border border-white/70 bg-card">
-                <VesselCard positions={seaPositions} />
-              </div>
-            )}
-          </section>
-        )}
 
         {/* Footer */}
         <p className="text-xs text-muted-foreground">Создан: {shipment.createdDate}</p>

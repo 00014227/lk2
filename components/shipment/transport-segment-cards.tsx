@@ -1,8 +1,27 @@
 "use client";
 
-import { ArrowDown, ArrowRight, Check, Plane, Ship, Train, Truck } from "lucide-react";
+import { useLayoutEffect, useRef, useState } from "react";
+import {
+  ArrowDown,
+  ArrowRight,
+  Check,
+  ChevronDown,
+  Plane,
+  Ship,
+  Train,
+  Truck,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Shipment, ShipmentSegment } from "@/lib/types";
+import type {
+  AirEvent,
+  RailwayEvent,
+  SeaPosition,
+  Shipment,
+  ShipmentSegment,
+} from "@/lib/types";
+import { AirTimeline } from "./air-timeline";
+import { RailwayTimeline } from "./railway-timeline";
+import { VesselCard } from "./vessel-card";
 
 type LegType = "auto" | "railway" | "sea" | "air";
 type LegState = "done" | "active" | "upcoming";
@@ -19,11 +38,11 @@ interface Leg {
   state: LegState;
 }
 
-function transportIcon(type: LegType) {
-  if (type === "railway") return Train;
-  if (type === "sea") return Ship;
-  if (type === "air") return Plane;
-  return Truck;
+function transportIcon(type: LegType, className?: string) {
+  if (type === "railway") return <Train className={className} />;
+  if (type === "sea") return <Ship className={className} />;
+  if (type === "air") return <Plane className={className} />;
+  return <Truck className={className} />;
 }
 
 function transportLabel(type: LegType): string {
@@ -52,7 +71,11 @@ function formatDate(iso: string | null): string | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 const STATE_CAPTION: Record<LegState, string> = {
@@ -79,12 +102,24 @@ const CAPTION_STYLES: Record<LegState, string> = {
   upcoming: "text-slate-400",
 };
 
+/** Hard cap for the dropdown — beyond this the content scrolls internally. */
+const DROPDOWN_MAX_H = 320;
+
 interface TransportSegmentCardsProps {
   segments: ShipmentSegment[];
   shipment: Shipment;
+  railwayEvents: RailwayEvent[];
+  airEvents: AirEvent[];
+  seaPositions: SeaPosition[];
 }
 
-export function TransportSegmentCards({ segments, shipment }: TransportSegmentCardsProps) {
+export function TransportSegmentCards({
+  segments,
+  shipment,
+  railwayEvents,
+  airEvents,
+  seaPositions,
+}: TransportSegmentCardsProps) {
   const legs: Leg[] =
     segments.length > 0
       ? [...segments]
@@ -114,88 +149,184 @@ export function TransportSegmentCards({ segments, shipment }: TransportSegmentCa
               shipment.status === "Доставлен"
                 ? "done"
                 : shipment.departed
-                ? "active"
-                : "upcoming",
+                  ? "active"
+                  : "upcoming",
           },
         ];
 
-  return (
-    <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-stretch">
-      {legs.map((leg, i) => {
-        const Icon = transportIcon(leg.type);
-        const departure = formatDate(leg.departure);
-        const arrival = formatDate(leg.arrival);
-        const prevDone = i > 0 && legs[i - 1].state === "done";
+  function renderTracking(type: LegType) {
+    if (type === "railway" && railwayEvents.length > 0)
+      return <RailwayTimeline events={railwayEvents} />;
+    if (type === "air" && airEvents.length > 0)
+      return <AirTimeline events={airEvents} />;
+    if (type === "sea" && seaPositions.length > 0)
+      return <VesselCard positions={seaPositions} />;
+    return (
+      <p className="px-5 py-4 text-xs text-muted-foreground">
+        Трекинг ещё не добавлен
+      </p>
+    );
+  }
 
-        return (
-          <div key={leg.key} className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-center">
-            {/* Connector arrow before each card except the first */}
-            {i > 0 && (
+  return (
+    <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:flex-wrap lg:items-stretch lg:justify-center">
+      {legs.map((leg, i) => (
+        <LegCard
+          key={leg.key}
+          leg={leg}
+          index={i}
+          prevDone={i > 0 && legs[i - 1].state === "done"}
+          tracking={renderTracking(leg.type)}
+        />
+      ))}
+    </div>
+  );
+}
+
+interface LegCardProps {
+  leg: Leg;
+  index: number;
+  prevDone: boolean;
+  tracking: React.ReactNode;
+}
+
+function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState(0);
+
+  // Measure the real content height so the max-height transition animates
+  // exactly across the visible content — same feel for every dropdown
+  // regardless of how tall its tracking timeline is.
+  useLayoutEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const measure = () =>
+      setContentHeight(Math.min(el.scrollHeight, DROPDOWN_MAX_H));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const departure = formatDate(leg.departure);
+  const arrival = formatDate(leg.arrival);
+  const toggle = () => setIsOpen((v) => !v);
+
+  return (
+    <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-stretch">
+      {/* Connector arrow before each card except the first */}
+      {index > 0 && (
+        <div
+          className={cn(
+            "flex shrink-0 items-center justify-center self-center",
+            prevDone ? "text-emerald-500" : "text-slate-300",
+          )}
+        >
+          <ArrowDown className="h-5 w-5 lg:hidden" />
+          <ArrowRight className="hidden h-5 w-5 lg:block" />
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "relative flex h-full w-full flex-col rounded-2xl border transition-colors lg:w-70",
+          CARD_STYLES[leg.state],
+        )}
+      >
+        {/* Clickable header */}
+        <div
+          role="button"
+          tabIndex={0}
+          aria-expanded={isOpen}
+          onClick={toggle}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggle();
+            }
+          }}
+          className="relative flex flex-1 flex-col cursor-pointer p-4 pb-7"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
               <div
                 className={cn(
-                  "flex shrink-0 items-center justify-center self-center",
-                  prevDone ? "text-emerald-500" : "text-slate-300",
+                  "flex h-10 w-10 items-center justify-center rounded-full",
+                  CHIP_STYLES[leg.state],
                 )}
               >
-                <ArrowDown className="h-5 w-5 lg:hidden" />
-                <ArrowRight className="hidden h-5 w-5 lg:block" />
+                {transportIcon(leg.type, "h-5 w-5")}
               </div>
-            )}
-
-            <div
-              className={cn(
-                "flex min-w-[220px] flex-1 flex-col rounded-2xl border p-4 transition-colors",
-                CARD_STYLES[leg.state],
-              )}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-full",
-                      CHIP_STYLES[leg.state],
-                    )}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {transportLabel(leg.type)}
-                    </p>
-                    <p className={cn("flex items-center gap-1 text-[11px] font-medium", CAPTION_STYLES[leg.state])}>
-                      {leg.state === "done" && <Check className="h-3 w-3" />}
-                      {STATE_CAPTION[leg.state]}
-                    </p>
-                  </div>
-                </div>
-                <span className="shrink-0 rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-                  {i + 1}
-                </span>
-              </div>
-
-              {(leg.from || leg.to) && (
-                <p className="mt-3 text-sm font-medium text-slate-800">
-                  {leg.from ?? "—"} <span className="text-slate-400">→</span> {leg.to ?? "—"}
+              <div>
+                <p className="text-sm font-semibold text-slate-900">
+                  {transportLabel(leg.type)}
                 </p>
-              )}
+                <p
+                  className={cn(
+                    "flex items-center gap-1 text-[11px] font-medium",
+                    CAPTION_STYLES[leg.state],
+                  )}
+                >
+                  {leg.state === "done" && <Check className="h-3 w-3" />}
+                  {STATE_CAPTION[leg.state]}
+                </p>
+              </div>
+            </div>
+            <span className="shrink-0 rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
+              {index + 1}
+            </span>
+          </div>
 
-              {leg.vehicle && (
-                <p className="mt-1 text-xs text-muted-foreground">{leg.vehicle}</p>
-              )}
-              {leg.office && (
-                <p className="mt-0.5 text-xs text-muted-foreground">{leg.office}</p>
-              )}
+          {(leg.from || leg.to) && (
+            <p className="mt-3 text-sm font-medium text-slate-800">
+              {leg.from ?? "—"} <span className="text-slate-400">→</span>{" "}
+              {leg.to ?? "—"}
+            </p>
+          )}
 
-              {(departure || arrival) && (
-                <div className="mt-3 flex flex-col gap-0.5 border-t border-black/5 pt-2 text-[11px] text-muted-foreground">
-                  {departure && <span>Отправлен: {departure}</span>}
-                  {arrival && <span>Прибыл: {arrival}</span>}
-                </div>
-              )}
+          {leg.vehicle && (
+            <p className="mt-1 text-xs text-muted-foreground">{leg.vehicle}</p>
+          )}
+          {leg.office && (
+            <p className="mt-0.5 text-xs text-muted-foreground">{leg.office}</p>
+          )}
+
+          {(departure || arrival) && (
+            <div className="mt-3 flex flex-col gap-0.5 border-t border-black/5 pt-2 text-[11px] text-muted-foreground">
+              {departure && <span>Отправлен: {departure}</span>}
+              {arrival && <span>Прибыл: {arrival}</span>}
+            </div>
+          )}
+
+          {/* Expand indicator */}
+          <ChevronDown
+            className={cn(
+              "absolute bottom-2.5 right-3 h-4 w-4 text-slate-400 transition-transform",
+              isOpen && "rotate-180",
+            )}
+          />
+        </div>
+
+        <div
+          className={cn(
+            "absolute left-0 right-0 top-full z-20 mt-2",
+            !isOpen && "pointer-events-none",
+          )}
+        >
+          <div
+            style={{ maxHeight: isOpen ? contentHeight : 0 }}
+            className={cn(
+              "overflow-hidden rounded-2xl border-none bg-white transition-[max-height] duration-300 ease-out",
+              isOpen && "shadow-xl",
+            )}
+          >
+            <div ref={contentRef} className="max-h-80 overflow-y-auto">
+              {tracking}
             </div>
           </div>
-        );
-      })}
+        </div>
+      </div>
     </div>
   );
 }
