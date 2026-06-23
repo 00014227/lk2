@@ -167,7 +167,7 @@ export function PublicTrackPage() {
                   railwayEvents={result.railwayEvents.length ? result.railwayEvents : undefined}
                 />
                 {/* Route overlay */}
-                <div className="absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
+                <div className="absolute bottom-4 left-1/2 z-1000 -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
                   <span className="text-sm font-semibold text-slate-800">
                     {result.shipment.origin} → {result.shipment.destination}
                   </span>
