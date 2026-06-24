@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { arrayMove } from "@dnd-kit/sortable";
 import { type ColKey, DEFAULT_ORDER } from "../lib/columns";
 import { type Prefs, loadPrefs, savePrefs } from "../lib/prefs";
 
@@ -11,11 +12,7 @@ export interface UseTablePreferences {
   toggleCol: (key: ColKey) => void;
   hideRow: (id: string) => void;
   restoreRows: () => void;
-  dragOver: ColKey | null;
-  onDragStart: (key: ColKey) => void;
-  onDragOver: (e: React.DragEvent, key: ColKey) => void;
-  onDrop: (e: React.DragEvent, target: ColKey) => void;
-  onDragEnd: () => void;
+  reorderCols: (from: ColKey, to: ColKey) => void;
 }
 
 export function useTablePreferences(): UseTablePreferences {
@@ -46,28 +43,15 @@ export function useTablePreferences(): UseTablePreferences {
     savePrefs(prefs);
   }
 
-  // ── Column drag-and-drop ────────────────────────────────────────────────────
-  const dragSrc = useRef<ColKey | null>(null);
-  const [dragOver, setDragOver] = useState<ColKey | null>(null);
-
-  function onDragStart(key: ColKey) { dragSrc.current = key; }
-  function onDragOver(e: React.DragEvent, key: ColKey) {
-    e.preventDefault();
-    if (dragSrc.current !== key) setDragOver(key);
+  // ── Column drag-and-drop (@dnd-kit) ─────────────────────────────────────────
+  // arrayMove работает по полному colOrder, поэтому скрытые колонки сохраняют
+  // свои относительные позиции при перестановке видимых.
+  function reorderCols(from: ColKey, to: ColKey) {
+    const f = colOrder.indexOf(from);
+    const t = colOrder.indexOf(to);
+    if (f === -1 || t === -1 || f === t) return;
+    updatePrefs({ colOrder: arrayMove(colOrder, f, t) });
   }
-  function onDrop(e: React.DragEvent, target: ColKey) {
-    e.preventDefault();
-    const src = dragSrc.current;
-    if (!src || src === target) { setDragOver(null); return; }
-    const next = [...colOrder];
-    const from = next.indexOf(src);
-    const to   = next.indexOf(target);
-    next.splice(from, 1);
-    next.splice(to, 0, src);
-    setDragOver(null);
-    updatePrefs({ colOrder: next });
-  }
-  function onDragEnd() { setDragOver(null); dragSrc.current = null; }
 
   function toggleCol(key: ColKey) {
     const next = hiddenCols.includes(key)
@@ -94,10 +78,6 @@ export function useTablePreferences(): UseTablePreferences {
     toggleCol,
     hideRow,
     restoreRows,
-    dragOver,
-    onDragStart,
-    onDragOver,
-    onDrop,
-    onDragEnd,
+    reorderCols,
   };
 }

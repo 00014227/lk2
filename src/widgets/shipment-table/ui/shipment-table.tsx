@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@shared/lib/store-hooks";
 import { selectShipments } from "@entities/shipment";
+import type { ColKey } from "../lib/columns";
 import { selectSelectedShipmentId } from "@features/orders";
 import { CreateShipmentSheet } from "@features/create-shipment";
 import { PAGE_SIZE, useTableFilters } from "../model/use-table-filters";
@@ -32,6 +33,7 @@ export function ShipmentTable() {
   const setTransportFilter = (v: string) => { filters.setTransportFilter(v); filters.resetPage(); };
   const hideRow = (id: string) => { prefs.hideRow(id); filters.resetPage(); };
   const restoreRows = () => { prefs.restoreRows(); filters.resetPage(); };
+  const onToggleSort = (key: ColKey) => { filters.toggleSort(key); filters.resetPage(); };
 
   return (
     <div className="flex flex-col gap-0">
@@ -65,11 +67,9 @@ export function ShipmentTable() {
         <table className="min-w-full text-left">
           <TableHead
             visibleCols={prefs.visibleCols}
-            dragOver={prefs.dragOver}
-            onDragStart={prefs.onDragStart}
-            onDragOver={prefs.onDragOver}
-            onDrop={prefs.onDrop}
-            onDragEnd={prefs.onDragEnd}
+            reorderCols={prefs.reorderCols}
+            sort={filters.sort}
+            onToggleSort={onToggleSort}
           />
           <TableBody
             rows={filters.paginated}

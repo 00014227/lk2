@@ -93,6 +93,10 @@
   margin: 0;
 }
 
+.leaflet-bottom.leaflet-right {
+  display: none !important;
+}
+
 .vehicle-marker {
   display: flex;
   align-items: center;

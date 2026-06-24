@@ -2,8 +2,16 @@
 
 import { useMemo, useState } from "react";
 import type { Shipment, ShipmentStatus } from "@entities/shipment";
+import type { ColKey } from "../lib/columns";
+import { compareShipments } from "../lib/sorting";
 
 export const PAGE_SIZE = 10;
+
+export type SortDir = "asc" | "desc";
+export interface SortState {
+  key: ColKey | null;
+  dir: SortDir | null;
+}
 
 export interface UseTableFilters {
   search: string;
@@ -15,7 +23,10 @@ export interface UseTableFilters {
   transportFilter: string;
   setTransportFilter: (v: string) => void;
   companies: string[];
+  sort: SortState;
+  toggleSort: (key: ColKey) => void;
   filtered: Shipment[];
+  sorted: Shipment[];
   paginated: Shipment[];
   page: number;
   safePage: number;
@@ -34,7 +45,17 @@ export function useTableFilters(
   const [statusFilter, setStatusFilter] = useState<ShipmentStatus | "">("");
   const [companyFilter, setCompanyFilter] = useState("");
   const [transportFilter, setTransportFilter] = useState("");
+  const [sort, setSort] = useState<SortState>({ key: null, dir: null });
   const [page, setPage] = useState(1);
+
+  // Цикл сортировки по клику: другая колонка → asc → desc → сброс.
+  function toggleSort(key: ColKey) {
+    setSort((prev) => {
+      if (prev.key !== key) return { key, dir: "asc" };
+      if (prev.dir === "asc") return { key, dir: "desc" };
+      return { key: null, dir: null };
+    });
+  }
 
   const companies = useMemo(
     () => [...new Set(shipments.map((s) => s.customerName).filter(Boolean))].sort(),
@@ -61,9 +82,19 @@ export function useTableFilters(
     });
   }, [shipments, search, statusFilter, companyFilter, transportFilter, hiddenRows]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const sorted = useMemo(() => {
+    if (!sort.key || !sort.dir) return filtered;
+    const { key, dir } = sort;
+    // Копируем перед сортировкой — не мутируем мемоизированный filtered.
+    return [...filtered].sort((a, b) => {
+      const cmp = compareShipments(a, b, key);
+      return dir === "asc" ? cmp : -cmp;
+    });
+  }, [filtered, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const paginated = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   function resetPage() { setPage(1); }
 
@@ -89,7 +120,10 @@ export function useTableFilters(
     transportFilter,
     setTransportFilter,
     companies,
+    sort,
+    toggleSort,
     filtered,
+    sorted,
     paginated,
     page,
     safePage,
