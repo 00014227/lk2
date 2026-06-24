@@ -11,7 +11,8 @@ export const ALL_COLUMNS = [
   { key: "createdDate",      label: "Дата",                         sortType: "date",     width: 145 },
   { key: "currentLocation",  label: "Местоположение",               sortType: "text",     width: 250 },
   { key: "departureDate",    label: "Дата выезда",                  sortType: "date",     width: 205 },
-  { key: "distance",         label: "Километраж",                   sortType: "number",   width: 210 },
+  { key: "distance",         label: "Километраж",                   sortType: "number",   width: 200 },
+  { key: "comment",          label: "Комментарии",                  sortType: "text",     width: 220 },
 ] as const;
 
 export type ColKey = (typeof ALL_COLUMNS)[number]["key"];
