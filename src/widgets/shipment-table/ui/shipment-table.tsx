@@ -2,6 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useAppSelector } from "@shared/lib/store-hooks";
 import { selectShipments } from "@entities/shipment";
 import type { ColKey } from "../lib/columns";
@@ -35,6 +45,19 @@ export function ShipmentTable() {
   const restoreRows = () => { prefs.restoreRows(); filters.resetPage(); };
   const onToggleSort = (key: ColKey) => { filters.toggleSort(key); filters.resetPage(); };
 
+  // DnD-колонок: DndContext должен оборачивать <table> снаружи, т.к. он рендерит
+  // скрытый служебный div для a11y — внутри <table> это был бы невалидный HTML.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (over && active.id !== over.id) {
+      prefs.reorderCols(active.id as ColKey, over.id as ColKey);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-0">
       {/* ── Filters ───────────────────────────────────────────────────────────── */}
@@ -64,21 +87,22 @@ export function ShipmentTable() {
 
       {/* ── Table ─────────────────────────────────────────────────────────────── */}
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left">
-          <TableHead
-            visibleCols={prefs.visibleCols}
-            reorderCols={prefs.reorderCols}
-            sort={filters.sort}
-            onToggleSort={onToggleSort}
-          />
-          <TableBody
-            rows={filters.paginated}
-            visibleCols={prefs.visibleCols}
-            selectedShipmentId={selectedShipmentId}
-            onRowClick={(id) => router.push(`/dashboard/${encodeURIComponent(id)}`)}
-            onHideRow={hideRow}
-          />
-        </table>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <table className="min-w-full text-left">
+            <TableHead
+              visibleCols={prefs.visibleCols}
+              sort={filters.sort}
+              onToggleSort={onToggleSort}
+            />
+            <TableBody
+              rows={filters.paginated}
+              visibleCols={prefs.visibleCols}
+              selectedShipmentId={selectedShipmentId}
+              onRowClick={(id) => router.push(`/dashboard/${encodeURIComponent(id)}`)}
+              onHideRow={hideRow}
+            />
+          </table>
+        </DndContext>
       </div>
 
       {/* ── Pagination ────────────────────────────────────────────────────────── */}

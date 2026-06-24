@@ -1,18 +1,8 @@
 "use client";
 
 import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
   SortableContext,
   horizontalListSortingStrategy,
-  sortableKeyboardCoordinates,
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -23,43 +13,28 @@ import type { SortDir, SortState } from "../model/use-table-filters";
 
 interface TableHeadProps {
   visibleCols: ColKey[];
-  reorderCols: (from: ColKey, to: ColKey) => void;
   sort: SortState;
   onToggleSort: (key: ColKey) => void;
 }
 
-export function TableHead({ visibleCols, reorderCols, sort, onToggleSort }: TableHeadProps) {
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
-
-  function handleDragEnd(e: DragEndEvent) {
-    const { active, over } = e;
-    if (over && active.id !== over.id) {
-      reorderCols(active.id as ColKey, over.id as ColKey);
-    }
-  }
-
+export function TableHead({ visibleCols, sort, onToggleSort }: TableHeadProps) {
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <thead className="border-b border-border bg-slate-50/80 text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
-        <tr>
-          <SortableContext items={visibleCols} strategy={horizontalListSortingStrategy}>
-            {visibleCols.map((key) => (
-              <SortableHeaderCell
-                key={key}
-                colKey={key}
-                sortDir={sort.key === key ? sort.dir : null}
-                onToggleSort={onToggleSort}
-              />
-            ))}
-          </SortableContext>
-          {/* extra narrow th for hide button — намеренно вне SortableContext */}
-          <th className="w-8 px-2 py-4" />
-        </tr>
-      </thead>
-    </DndContext>
+    <thead className="border-b border-border bg-slate-50/80 text-xs font-semibold tracking-[0.16em] text-slate-500 uppercase">
+      <tr>
+        <SortableContext items={visibleCols} strategy={horizontalListSortingStrategy}>
+          {visibleCols.map((key) => (
+            <SortableHeaderCell
+              key={key}
+              colKey={key}
+              sortDir={sort.key === key ? sort.dir : null}
+              onToggleSort={onToggleSort}
+            />
+          ))}
+        </SortableContext>
+        {/* extra narrow th for hide button — намеренно вне SortableContext */}
+        <th className="w-8 px-2 py-4" />
+      </tr>
+    </thead>
   );
 }
 
