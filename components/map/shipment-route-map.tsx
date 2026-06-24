@@ -1,35 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CircleMarker, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from "react-leaflet";
+import { CircleMarker, Marker, Polyline, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { geocodeCity } from "@/lib/city-coords";
+import { fetchRoute } from "@/lib/osrm";
 import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent } from "@/lib/types";
+import BaseMap from "./base-map";
 
 const TEAL       = "#0d9488";
 const GRAY       = "#94a3b8";
 const LIGHT_GRAY = "#cbd5e1";
 const AIR_BLUE   = "#3b82f6";
 const SEA_BLUE   = "#0ea5e9";
-
-async function fetchRoute(waypoints: [number, number][]): Promise<[number, number][] | null> {
-  if (waypoints.length < 2) return null;
-  const coords = waypoints.map(([lat, lng]) => `${lng},${lat}`).join(";");
-  try {
-    const res = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`,
-      { signal: AbortSignal.timeout(10_000) },
-    );
-    if (!res.ok) return null;
-    const json = await res.json();
-    if (json.code !== "Ok" || !json.routes?.[0]) return null;
-    return (json.routes[0].geometry.coordinates as [number, number][]).map(
-      ([lng, lat]) => [lat, lng],
-    );
-  } catch {
-    return null;
-  }
-}
 
 function buildTruckIcon(variant: "pending" | "moving") {
   const bg = variant === "pending" ? "#94a3b8" : "#0f766e";
@@ -120,9 +103,11 @@ interface Props {
   airRoute?: AirRoute | null;
   seaRoute?: ContainerRoute | null;
   railwayEvents?: RailwayEvent[];
+  /** Enables mouse-wheel zoom and the +/- zoom buttons. Off by default. */
+  interactiveZoom?: boolean;
 }
 
-export default function ShipmentRouteMap({ origin, destination, vehicleId, departed = false, airEvents, airRoute, seaRoute, railwayEvents }: Props) {
+export default function ShipmentRouteMap({ origin, destination, vehicleId, departed = false, airEvents, airRoute, seaRoute, railwayEvents, interactiveZoom = false }: Props) {
   const notDeparted = !departed;
 
   // ── Sea mode ──────────────────────────────────────────────────────────────
@@ -298,18 +283,7 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
   );
 
   return (
-    <MapContainer
-      center={[42.4, 71.3]}
-      zoom={4}
-      scrollWheelZoom={false}
-      zoomControl={false}
-      className="h-full w-full"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
+    <BaseMap center={[42.4, 71.3]} zoom={4} zoomControl={interactiveZoom}>
       {isSeaMode ? (
         <>
           <AutoFit coords={seaCoords} />
@@ -481,6 +455,6 @@ export default function ShipmentRouteMap({ origin, destination, vehicleId, depar
           )}
         </>
       )}
-    </MapContainer>
+    </BaseMap>
   );
 }

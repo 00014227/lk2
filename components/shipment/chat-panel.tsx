@@ -48,6 +48,7 @@ function ManagerContact({
 export function ChatPanel({ shipment }: { shipment: Shipment }) {
   const orderNumber = shipment.id;
   const [messages, setMessages] = useState<OrderMessage[]>([]);
+  const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -60,6 +61,8 @@ export function ChatPanel({ shipment }: { shipment: Shipment }) {
         if (active) setMessages(data);
       } catch {
         /* ignore polling errors */
+      } finally {
+        if (active) setLoading(false);
       }
     };
     load();
@@ -122,9 +125,13 @@ export function ChatPanel({ shipment }: { shipment: Shipment }) {
       {/* Messages */}
       <div
         ref={listRef}
-        className="flex max-h-72 min-h-24 flex-col gap-2 overflow-y-auto rounded-2xl bg-slate-50/60 p-3"
+        className="flex h-72 flex-col gap-2 overflow-y-auto rounded-2xl bg-slate-50/60 p-3"
       >
-        {messages.length === 0 ? (
+        {loading ? (
+          <div className="m-auto flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Загрузка...
+          </div>
+        ) : messages.length === 0 ? (
           <p className="m-auto text-center text-xs text-muted-foreground">
             Напишите сообщение — менеджер ответит здесь.
           </p>
@@ -143,7 +150,7 @@ export function ChatPanel({ shipment }: { shipment: Shipment }) {
                   {!mine && m.senderName && (
                     <p className="mb-0.5 text-[11px] font-semibold text-primary">{m.senderName}</p>
                   )}
-                  <p className="whitespace-pre-wrap break-words">{m.body}</p>
+                  <p className="whitespace-pre-wrap wrap-break-word">{m.body}</p>
                   <p className={mine ? "mt-1 text-right text-[10px] text-white/70" : "mt-1 text-right text-[10px] text-muted-foreground"}>
                     {new Date(m.createdAt).toLocaleString("ru-RU", {
                       day: "2-digit",
@@ -167,7 +174,12 @@ export function ChatPanel({ shipment }: { shipment: Shipment }) {
           placeholder="Сообщение..."
           disabled={sending}
         />
-        <Button type="submit" size="icon" disabled={sending || !text.trim()}>
+        <Button
+          type="submit"
+          size="icon"
+          disabled={sending || !text.trim()}
+          className="h-12 w-12 shrink-0"
+        >
           {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </form>

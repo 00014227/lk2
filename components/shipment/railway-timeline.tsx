@@ -29,7 +29,7 @@ export function RailwayTimeline({ events }: Props) {
   return (
     <div className="px-5 py-4">
       <p className="mb-3 text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
-        История движения
+        ЖД-трекинг
       </p>
       <div className="relative">
         {/* vertical line */}

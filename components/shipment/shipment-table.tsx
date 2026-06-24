@@ -11,8 +11,8 @@ import {
   Eye,
   X,
 } from "lucide-react";
-import { selectShipment, selectVehicle } from "@/store/features/dashboard-slice";
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/store";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,7 +105,7 @@ function CellValue({ shipment, colKey }: { shipment: Shipment; colKey: ColKey })
 }
 
 export function ShipmentTable() {
-  const dispatch = useAppDispatch();
+  const router = useRouter();
   const { shipments, selectedShipmentId } = useAppSelector((s) => s.dashboard);
 
   // ── Prefs (localStorage) ────────────────────────────────────────────────────
@@ -454,10 +454,7 @@ export function ShipmentTable() {
                     "group cursor-pointer border-b border-border/80 bg-white transition hover:bg-secondary/45",
                     shipment.id === selectedShipmentId && "bg-secondary/55",
                   )}
-                  onClick={() => {
-                    dispatch(selectShipment(shipment.id));
-                    dispatch(selectVehicle(null));
-                  }}
+                  onClick={() => router.push(`/dashboard/${encodeURIComponent(shipment.id)}`)}
                 >
                   {visibleCols.map((key) => (
                     <td key={key} className="px-5 py-4">
