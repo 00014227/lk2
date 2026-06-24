@@ -6,7 +6,7 @@ export const ALL_COLUMNS = [
   { key: "origin",           label: "Откуда",                       sortType: "text" },
   { key: "destination",      label: "Куда",                         sortType: "text" },
   { key: "status",           label: "Статус",                       sortType: "status" },
-  { key: "vehicleNumber",    label: "Транспорт",                    sortType: "text" },
+  { key: "vehicleNumber",    label: "Номер ТС",                    sortType: "text" },
   { key: "estimatedArrival", label: "ETA",                          sortType: "duration" },
   { key: "createdDate",      label: "Дата",                         sortType: "date" },
   { key: "currentLocation",  label: "Местоположение",               sortType: "text" },
