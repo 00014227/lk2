@@ -14,7 +14,7 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useAppSelector } from "@shared/lib/store-hooks";
 import { selectShipments } from "@entities/shipment";
-import type { ColKey } from "../lib/columns";
+import { ACTIONS_COL_WIDTH, DEFAULT_WIDTHS, type ColKey } from "../lib/columns";
 import { selectSelectedShipmentId } from "@features/orders";
 import { CreateShipmentSheet } from "@features/create-shipment";
 import { PAGE_SIZE, useTableFilters } from "../model/use-table-filters";
@@ -58,6 +58,13 @@ export function ShipmentTable() {
     }
   };
 
+  // Ширины колонок задаются через <colgroup> при table-layout: fixed, чтобы
+  // столбцы можно было сжимать ýже содержимого. Пользовательская ширина
+  // переопределяет дефолтную.
+  const widthOf = (key: ColKey) => prefs.colWidths[key] ?? DEFAULT_WIDTHS[key];
+  const tableWidth =
+    prefs.visibleCols.reduce((sum, key) => sum + widthOf(key), 0) + ACTIONS_COL_WIDTH;
+
   return (
     <div className="flex flex-col gap-0">
       {/* ── Filters ───────────────────────────────────────────────────────────── */}
@@ -88,11 +95,20 @@ export function ShipmentTable() {
       {/* ── Table ─────────────────────────────────────────────────────────────── */}
       <div className="overflow-x-auto">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <table className="min-w-full text-left">
+          <table className="table-fixed text-left" style={{ width: tableWidth, minWidth: "100%" }}>
+            <colgroup>
+              {prefs.visibleCols.map((key) => (
+                <col key={key} style={{ width: widthOf(key) }} />
+              ))}
+              <col style={{ width: ACTIONS_COL_WIDTH }} />
+            </colgroup>
             <TableHead
               visibleCols={prefs.visibleCols}
               sort={filters.sort}
               onToggleSort={onToggleSort}
+              onResize={prefs.setColWidth}
+              onResizeCommit={prefs.commitColWidth}
+              onResetWidth={prefs.resetColWidth}
             />
             <TableBody
               rows={filters.paginated}

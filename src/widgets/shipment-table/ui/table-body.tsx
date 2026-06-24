@@ -43,7 +43,7 @@ export function TableBody({
             onClick={() => onRowClick(shipment.id)}
           >
             {visibleCols.map((key) => (
-              <td key={key} className="px-5 py-4">
+              <td key={key} className="truncate px-5 py-4">
                 <CellValue shipment={shipment} colKey={key} />
               </td>
             ))}

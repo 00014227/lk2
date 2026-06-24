@@ -9,16 +9,21 @@ export interface UseTablePreferences {
   visibleCols: ColKey[];
   hiddenCols: ColKey[];
   hiddenRows: string[];
+  colWidths: Partial<Record<ColKey, number>>;
   toggleCol: (key: ColKey) => void;
   hideRow: (id: string) => void;
   restoreRows: () => void;
   reorderCols: (from: ColKey, to: ColKey) => void;
+  setColWidth: (key: ColKey, width: number) => void;
+  commitColWidth: (key: ColKey, width: number) => void;
+  resetColWidth: (key: ColKey) => void;
 }
 
 export function useTablePreferences(): UseTablePreferences {
   const [colOrder, setColOrder] = useState<ColKey[]>(DEFAULT_ORDER);
   const [hiddenCols, setHiddenCols] = useState<ColKey[]>([]);
   const [hiddenRows, setHiddenRows] = useState<string[]>([]);
+  const [colWidths, setColWidths] = useState<Partial<Record<ColKey, number>>>({});
 
   useEffect(() => {
     // Preferences are stored in localStorage (client-only). Loading them after
@@ -29,6 +34,7 @@ export function useTablePreferences(): UseTablePreferences {
     setColOrder(p.colOrder);
     setHiddenCols(p.hiddenCols);
     setHiddenRows(p.hiddenRows);
+    setColWidths(p.colWidths);
   }, []);
 
   function updatePrefs(next: Partial<Prefs>) {
@@ -36,10 +42,12 @@ export function useTablePreferences(): UseTablePreferences {
       colOrder: next.colOrder ?? colOrder,
       hiddenCols: next.hiddenCols ?? hiddenCols,
       hiddenRows: next.hiddenRows ?? hiddenRows,
+      colWidths: next.colWidths ?? colWidths,
     };
     if (next.colOrder) setColOrder(prefs.colOrder);
     if (next.hiddenCols) setHiddenCols(prefs.hiddenCols);
     if (next.hiddenRows) setHiddenRows(prefs.hiddenRows);
+    if (next.colWidths) setColWidths(prefs.colWidths);
     savePrefs(prefs);
   }
 
@@ -51,6 +59,21 @@ export function useTablePreferences(): UseTablePreferences {
     const t = colOrder.indexOf(to);
     if (f === -1 || t === -1 || f === t) return;
     updatePrefs({ colOrder: arrayMove(colOrder, f, t) });
+  }
+
+  // ── Column resizing ─────────────────────────────────────────────────────────
+  // setColWidth обновляет ширину «вживую» во время перетаскивания (без записи
+  // в localStorage), commitColWidth фиксирует итог по отпусканию мыши.
+  function setColWidth(key: ColKey, width: number) {
+    setColWidths((prev) => ({ ...prev, [key]: width }));
+  }
+  function commitColWidth(key: ColKey, width: number) {
+    updatePrefs({ colWidths: { ...colWidths, [key]: width } });
+  }
+  function resetColWidth(key: ColKey) {
+    const next = { ...colWidths };
+    delete next[key];
+    updatePrefs({ colWidths: next });
   }
 
   function toggleCol(key: ColKey) {
@@ -75,9 +98,13 @@ export function useTablePreferences(): UseTablePreferences {
     visibleCols,
     hiddenCols,
     hiddenRows,
+    colWidths,
     toggleCol,
     hideRow,
     restoreRows,
     reorderCols,
+    setColWidth,
+    commitColWidth,
+    resetColWidth,
   };
 }
