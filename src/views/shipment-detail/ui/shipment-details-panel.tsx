@@ -174,11 +174,6 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
         </div>
       )}
 
-      {/* ── Chat with manager ────────────────────────────────────────── */}
-      <div className="border-t border-border bg-white">
-        <ChatPanel shipment={shipment} />
-      </div>
-
       {/* ── Date ─────────────────────────────────────────────────────── */}
       <div className="rounded-b-[28px] bg-white px-5 py-3 text-xs text-muted-foreground">
         Создан: {shipment.createdDate}
