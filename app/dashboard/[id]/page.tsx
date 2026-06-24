@@ -1,5 +1,4 @@
-import { ShipmentDetail } from "@/components/shipment/shipment-detail";
-import { RequireAuth } from "@/components/auth/require-auth";
+import { ShipmentDetailView } from "@views/shipment-detail";
 
 export default async function ShipmentDetailPage({
   params,
@@ -7,9 +6,5 @@ export default async function ShipmentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return (
-    <RequireAuth>
-      <ShipmentDetail id={id} />
-    </RequireAuth>
-  );
+  return <ShipmentDetailView id={id} />;
 }
