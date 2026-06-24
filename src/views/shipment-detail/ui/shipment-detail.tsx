@@ -107,7 +107,7 @@ export function ShipmentDetail({ id }: Props) {
         <p className="max-w-md text-sm text-muted-foreground">{error}</p>
         <div className="flex items-center gap-4">
           <button
-            className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(15,118,110,0.22)] transition hover:opacity-90"
+            className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(12,48,120,0.22)] transition hover:opacity-90"
             onClick={() => dispatch(fetchMyOrders())}
             type="button"
           >

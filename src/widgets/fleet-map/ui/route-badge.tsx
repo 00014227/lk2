@@ -13,9 +13,9 @@ export function RouteBadge({ shipment, loading, onClose }: RouteBadgeProps) {
   return (
     <div className="absolute bottom-4 left-1/2 z-1000 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/70 bg-white/95 px-4 py-2.5 shadow-lg backdrop-blur">
       {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin text-teal-600" />
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
       ) : (
-        <MapPin className="h-4 w-4 shrink-0 text-teal-600" />
+        <MapPin className="h-4 w-4 shrink-0 text-primary" />
       )}
       <span className="whitespace-nowrap text-sm font-semibold text-slate-800">
         {shipment.origin ?? "—"}

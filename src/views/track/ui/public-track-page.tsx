@@ -15,6 +15,7 @@ import {
 import { Badge } from "@shared/ui/badge";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
+import { Logo } from "@shared/ui/logo";
 import { Progress } from "@shared/ui/progress";
 import { RailwayTimeline } from "@features/track-shipment";
 import { AirTimeline } from "@features/track-shipment";
@@ -89,16 +90,11 @@ export function PublicTrackPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.14),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(245,158,11,0.10),transparent_28%),linear-gradient(180deg,#f6f8f5_0%,#eaf0ea_100%)]">
+    <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(12,48,120,0.12),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(239,63,34,0.09),transparent_28%),linear-gradient(180deg,#f7f9fd_0%,#eaeef7_100%)]">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="border-b border-border/50 bg-white/70 px-6 py-4 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Package className="h-6 w-6 text-primary" />
-            <span className="font-display text-lg font-semibold tracking-tight text-slate-800">
-              TransAsia Tracking
-            </span>
-          </div>
+          <Logo variant="full" className="h-7" />
           <Link
             href="/login"
             className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition hover:text-primary"
