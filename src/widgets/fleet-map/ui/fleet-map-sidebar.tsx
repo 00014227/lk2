@@ -33,11 +33,11 @@ export function FleetMapSidebar() {
           ))}
           <div className="mt-2 flex items-center gap-4 border-t border-border pt-3">
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full border-2 border-white bg-teal-600 shadow" />
+              <div className="h-3 w-3 rounded-full border-2 border-white bg-primary shadow" />
               <span className="text-xs text-muted-foreground">Откуда</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full border-2 border-white bg-amber-400 shadow" />
+              <div className="h-3 w-3 rounded-full border-2 border-white bg-accent shadow" />
               <span className="text-xs text-muted-foreground">Куда</span>
             </div>
           </div>

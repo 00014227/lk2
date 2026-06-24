@@ -27,7 +27,7 @@ const MANUAL_TYPE_CONFIG: Record<string, { bg: string; border: string; Icon: (p:
   "Авто":            { bg: "#fff7ed", border: "#ea580c", Icon: (p) => <Truck  size={p.size} color={p.color} /> },
   "Авиа":            { bg: "#f0f9ff", border: "#0284c7", Icon: (p) => <Plane  size={p.size} color={p.color} /> },
   "Железнодорожная": { bg: "#faf5ff", border: "#7c3aed", Icon: (p) => <Train  size={p.size} color={p.color} /> },
-  "Мультимодальная": { bg: "#f0fdfa", border: "#0d9488", Icon: (p) => <Layers size={p.size} color={p.color} /> },
+  "Мультимодальная": { bg: "#eef2fb", border: "#0c3078", Icon: (p) => <Layers size={p.size} color={p.color} /> },
 };
 
 function manualStatusRing(status: string | null): string {

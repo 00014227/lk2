@@ -1,6 +1,6 @@
 import L from "leaflet";
 
-export const TEAL       = "#0d9488";
+export const TEAL       = "#0c3078";
 export const GRAY       = "#94a3b8";
 export const LIGHT_GRAY = "#cbd5e1";
 export const AIR_BLUE   = "#3b82f6";
@@ -8,7 +8,7 @@ export const SEA_BLUE   = "#0ea5e9";
 export const RAIL_PURPLE = "#7c3aed";
 
 export function buildTruckIcon(variant: "pending" | "moving") {
-  const bg = variant === "pending" ? "#94a3b8" : "#0f766e";
+  const bg = variant === "pending" ? "#94a3b8" : "#0c3078";
   return L.divIcon({
     className: "",
     html: `<div style="position:relative;width:42px;height:42px;border-radius:50%;background:${bg};border:2.5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);">

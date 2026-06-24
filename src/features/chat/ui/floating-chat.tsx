@@ -93,7 +93,7 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
         onClick={toggle}
         aria-label={entered ? "Закрыть чат" : "Открыть чат"}
         aria-expanded={entered}
-        className="pointer-events-auto h-14 w-14 shadow-[0_12px_30px_rgba(15,118,110,0.22)]"
+        className="pointer-events-auto h-14 w-14 shadow-[0_12px_30px_rgba(12,48,120,0.22)]"
       >
         {entered ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
       </Button>

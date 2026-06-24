@@ -23,8 +23,8 @@ export function RouteOverlay({
       {/* ── Road route ──────────────────────────────────────────────── */}
       {traveledCoords && traveledCoords.length >= 2 && (
         <>
-          <Polyline positions={traveledCoords} pathOptions={{ color: "#0d9488", weight: 8, opacity: 0.18 }} />
-          <Polyline positions={traveledCoords} pathOptions={{ color: "#0d9488", weight: 3.5, opacity: 1 }} />
+          <Polyline positions={traveledCoords} pathOptions={{ color: "#0c3078", weight: 8, opacity: 0.18 }} />
+          <Polyline positions={traveledCoords} pathOptions={{ color: "#0c3078", weight: 3.5, opacity: 1 }} />
         </>
       )}
       {remainingCoords && remainingCoords.length >= 2 && (
@@ -45,7 +45,7 @@ export function RouteOverlay({
         <CircleMarker
           center={pinCoords.origin}
           radius={8}
-          pathOptions={{ color: "#fff", fillColor: "#0d9488", fillOpacity: 1, weight: 2.5 }}
+          pathOptions={{ color: "#fff", fillColor: "#0c3078", fillOpacity: 1, weight: 2.5 }}
         >
           <Tooltip permanent direction="top" offset={[0, -12]}>
             <span className="text-xs font-semibold">{shipment.origin}</span>
@@ -58,7 +58,7 @@ export function RouteOverlay({
         <CircleMarker
           center={pinCoords.dest}
           radius={8}
-          pathOptions={{ color: "#fff", fillColor: "#f59e0b", fillOpacity: 1, weight: 2.5 }}
+          pathOptions={{ color: "#fff", fillColor: "#ef3f22", fillOpacity: 1, weight: 2.5 }}
         >
           <Tooltip permanent direction="top" offset={[0, -12]}>
             <span className="text-xs font-semibold">{shipment.destination}</span>
