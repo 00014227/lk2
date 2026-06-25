@@ -1,4 +1,4 @@
-import { Shipment } from "@/lib/types";
+import { Shipment } from "@entities/shipment";
 
 export const shipments: Shipment[] = [
   {
