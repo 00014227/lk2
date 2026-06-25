@@ -16,8 +16,6 @@ export interface Shipment {
   vehicleId: string;
   estimatedArrival: string;
   createdDate: string;
-  driverName: string;
-  driverPhone: string;
   cargoType: string;
   weight: string;
   progress: number;

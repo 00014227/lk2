@@ -8,10 +8,8 @@ import {
   Container,
   Gauge,
   MapPinned,
-  Phone,
   ShieldCheck,
   Truck,
-  UserRound,
   Weight,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
@@ -44,8 +42,6 @@ function getStatusVariant(status: string) {
 
 const BASE_DETAILS = [
   { icon: Gauge,       label: "ETA",       key: "estimatedArrival" },
-  { icon: UserRound,   label: "Водитель",  key: "driverName"       },
-  { icon: Phone,       label: "Телефон",   key: "driverPhone"      },
   { icon: ShieldCheck, label: "Тип груза", key: "cargoType"        },
   { icon: Weight,      label: "Вес",       key: "weight"           },
 ] as const;

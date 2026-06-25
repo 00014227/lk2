@@ -4,7 +4,6 @@ export interface Vehicle {
   id: string;
   shipmentId: string;
   vehicleNumber: string;
-  driverName: string;
   status: ShipmentStatus;
   eta: string;
   position: [number, number];

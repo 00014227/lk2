@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { Container, Gauge, MapPinned, Phone, ShieldCheck, Truck, UserRound, Weight } from "lucide-react";
+import { Container, Gauge, MapPinned, ShieldCheck, Truck, Weight } from "lucide-react";
 import { Badge } from "@shared/ui/badge";
 import { Progress } from "@shared/ui/progress";
 import { useGPSProgress } from "@features/track-shipment";
@@ -136,8 +136,6 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
             ? { icon: Container, label: "Контейнер", value: shipment.vehicleNumber }
             : { icon: Truck, label: "Транспорт", value: shipment.vehicleNumber },
           { icon: Gauge, label: "ETA", value: formatEta(shipment.estimatedArrival, shipment.status) },
-          { icon: UserRound, label: "Водитель", value: shipment.driverName },
-          { icon: Phone, label: "Телефон", value: shipment.driverPhone },
           { icon: ShieldCheck, label: "Тип груза", value: shipment.cargoType },
           { icon: Weight, label: "Вес", value: shipment.weight },
           { icon: MapPinned, label: "Откуда", value: shipment.origin },
