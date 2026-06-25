@@ -23,6 +23,7 @@ import { VesselCard } from "@features/track-shipment";
 import { MultimodalProgress } from "@features/track-shipment";
 import { fetchPublicTracking } from "@entities/tracking";
 import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent, SeaPosition, ShipmentSegment } from "@entities/tracking";
+import { formatEta } from "@entities/shipment";
 import type { Shipment } from "@entities/shipment";
 
 const ShipmentRouteMap = dynamic(
@@ -210,7 +211,9 @@ export function PublicTrackPage() {
                         <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">{label}</p>
                       </div>
                       <p className="mt-1 text-sm font-semibold text-slate-900">
-                        {result.shipment[key] || "—"}
+                        {key === "estimatedArrival"
+                          ? formatEta(result.shipment.estimatedArrival, result.shipment.status)
+                          : result.shipment[key] || "—"}
                       </p>
                     </div>
                   ))}

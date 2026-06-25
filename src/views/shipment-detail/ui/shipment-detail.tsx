@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { fetchMyOrders, selectOrdersLoading, selectOrdersError } from "@features/orders";
-import { selectShipments } from "@entities/shipment";
+import { formatEta, selectShipments } from "@entities/shipment";
 import { Badge } from "@shared/ui/badge";
 import { Progress } from "@shared/ui/progress";
 import { useGPSProgress } from "@features/track-shipment";
@@ -229,7 +229,9 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
                 <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">{label}</p>
               </div>
               <p className="mt-1.5 text-sm font-semibold text-slate-900">
-                {shipment[key] || "—"}
+                {key === "estimatedArrival"
+                  ? formatEta(shipment.estimatedArrival, shipment.status)
+                  : shipment[key] || "—"}
               </p>
             </div>
           ))}

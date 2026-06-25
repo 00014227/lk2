@@ -8,6 +8,7 @@ import { Progress } from "@shared/ui/progress";
 import { useGPSProgress } from "@features/track-shipment";
 import { fetchRailwayEvents, fetchShipmentSegments, fetchPublicTracking } from "@entities/tracking";
 import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent, SeaPosition, ShipmentSegment } from "@entities/tracking";
+import { formatEta } from "@entities/shipment";
 import type { Shipment } from "@entities/shipment";
 import { AirTimeline } from "@features/track-shipment";
 import { RailwayTimeline } from "@features/track-shipment";
@@ -134,7 +135,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           isRailway
             ? { icon: Container, label: "Контейнер", value: shipment.vehicleNumber }
             : { icon: Truck, label: "Транспорт", value: shipment.vehicleNumber },
-          { icon: Gauge, label: "ETA", value: shipment.estimatedArrival },
+          { icon: Gauge, label: "ETA", value: formatEta(shipment.estimatedArrival, shipment.status) },
           { icon: UserRound, label: "Водитель", value: shipment.driverName },
           { icon: Phone, label: "Телефон", value: shipment.driverPhone },
           { icon: ShieldCheck, label: "Тип груза", value: shipment.cargoType },
