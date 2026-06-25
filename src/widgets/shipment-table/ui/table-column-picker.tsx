@@ -45,17 +45,13 @@ export function TableColumnPicker({ hiddenCols, onToggleCol }: TableColumnPicker
           {ALL_COLUMNS.map((col) => (
             <label
               key={col.key}
-              className={cn(
-                "flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm font-medium transition hover:bg-secondary/60",
-                ('required' in col && col.required) && "cursor-not-allowed opacity-50",
-              )}
+              className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm font-medium transition hover:bg-secondary/60"
             >
               <input
                 type="checkbox"
                 className="accent-primary"
                 checked={!hiddenCols.includes(col.key)}
-                disabled={'required' in col && !!col.required}
-                onChange={() => !('required' in col && col.required) && onToggleCol(col.key)}
+                onChange={() => onToggleCol(col.key)}
               />
               {col.label}
             </label>

@@ -1,7 +1,7 @@
 export type SortType = "text" | "date" | "number" | "status" | "duration";
 
 export const ALL_COLUMNS = [
-  { key: "id",               label: "Номер заказа", required: true, sortType: "text",     width: 214 },
+  { key: "id",               label: "Номер заказа",                 sortType: "text",     width: 214 },
   { key: "customerName",     label: "Компания",                     sortType: "text",     width: 205 },
   { key: "origin",           label: "Откуда",                       sortType: "text",     width: 185 },
   { key: "destination",      label: "Куда",                         sortType: "text",     width: 185 },
