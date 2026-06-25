@@ -13,6 +13,7 @@ interface Props {
   destination: string;
   vehicleId?: string;
   departed?: boolean;
+  delivered?: boolean;
   airEvents?: AirEvent[];
   airRoute?: AirRoute | null;
   seaRoute?: ContainerRoute | null;

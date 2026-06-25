@@ -157,6 +157,7 @@ export function PublicTrackPage() {
                   destination={result.shipment.destination}
                   vehicleId={result.shipment.vehicleId || undefined}
                   departed={result.shipment.departed}
+                  delivered={result.shipment.status === "Доставлен"}
                   airEvents={result.aviationEvents.length ? result.aviationEvents : undefined}
                   airRoute={result.airRoute}
                   seaRoute={result.containerRoute}

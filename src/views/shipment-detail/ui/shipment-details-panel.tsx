@@ -84,6 +84,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           destination={shipment.destination}
           vehicleId={shipment.vehicleId || undefined}
           departed={shipment.departed}
+          delivered={shipment.status === "Доставлен"}
           airEvents={airEvents.length ? airEvents : undefined}
           airRoute={airRoute}
           seaRoute={containerRoute}
