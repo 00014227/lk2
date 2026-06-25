@@ -24,7 +24,7 @@ export function TableColumnPicker({ hiddenCols, onToggleCol }: TableColumnPicker
   }, []);
 
   return (
-    <div className="relative ml-auto" ref={pickerRef}>
+    <div className="relative" ref={pickerRef}>
       <button
         className={cn(
           "flex h-9 items-center gap-1.5 rounded-xl border border-border bg-white px-3 text-xs font-semibold text-slate-600 transition hover:border-primary/40 hover:text-primary",

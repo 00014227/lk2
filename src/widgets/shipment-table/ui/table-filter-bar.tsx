@@ -5,13 +5,15 @@ import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
 import type { ColKey } from "../lib/columns";
 import { TableColumnPicker } from "./table-column-picker";
+import { TableCompanyPicker } from "./table-company-picker";
 
 interface TableFilterBarProps {
   search: string;
   onSearchChange: (value: string) => void;
   companies: string[];
-  companyFilter: string;
-  onCompanyChange: (value: string) => void;
+  companyFilter: string[];
+  onToggleCompany: (name: string) => void;
+  onClearCompanies: () => void;
   hasActiveFilters: boolean;
   onClearAll: () => void;
   hiddenRowsCount: number;
@@ -26,7 +28,8 @@ export function TableFilterBar({
   onSearchChange,
   companies,
   companyFilter,
-  onCompanyChange,
+  onToggleCompany,
+  onClearCompanies,
   hasActiveFilters,
   onClearAll,
   hiddenRowsCount,
@@ -57,20 +60,6 @@ export function TableFilterBar({
         )}
       </div>
 
-      {/* Company filter */}
-      {companies.length > 1 && (
-        <select
-          className="h-9 rounded-xl border border-border bg-white px-3 text-sm text-slate-700 outline-none focus:ring-4 focus:ring-ring"
-          value={companyFilter}
-          onChange={(e) => onCompanyChange(e.target.value)}
-        >
-          <option value="">Все компании</option>
-          {companies.map((name) => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
-      )}
-
       {hasActiveFilters && (
         <button
           className="text-xs font-semibold text-primary hover:underline"
@@ -93,18 +82,24 @@ export function TableFilterBar({
         </button>
       )}
 
-      {/* Create shipment button */}
-      <Button
-        size="sm"
-        className="h-9 gap-1.5 rounded-xl text-xs"
-        onClick={onCreateClick}
-      >
-        <Plus className="h-3.5 w-3.5" />
-        Создать заявку
-      </Button>
-
-      {/* Column settings */}
-      <TableColumnPicker hiddenCols={hiddenCols} onToggleCol={onToggleCol} />
+      {/* Right-aligned actions: create → company filter → column settings */}
+      <div className="ml-auto flex items-center gap-2">
+        <Button
+          size="sm"
+          className="h-9 gap-1.5 rounded-xl text-xs"
+          onClick={onCreateClick}
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Создать заявку
+        </Button>
+        <TableCompanyPicker
+          companies={companies}
+          selected={companyFilter}
+          onToggle={onToggleCompany}
+          onClear={onClearCompanies}
+        />
+        <TableColumnPicker hiddenCols={hiddenCols} onToggleCol={onToggleCol} />
+      </div>
     </div>
   );
 }

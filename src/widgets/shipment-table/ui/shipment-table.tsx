@@ -38,7 +38,14 @@ export function ShipmentTable() {
   // Filter/search changes reset pagination; row hiding lives in the prefs hook
   // but also resets the page, so the shell composes the two concerns here.
   const setSearch = (v: string) => { filters.setSearch(v); filters.resetPage(); };
-  const setCompanyFilter = (v: string) => { filters.setCompanyFilter(v); filters.resetPage(); };
+  const toggleCompany = (name: string) => {
+    const next = filters.companyFilter.includes(name)
+      ? filters.companyFilter.filter((c) => c !== name)
+      : [...filters.companyFilter, name];
+    filters.setCompanyFilter(next);
+    filters.resetPage();
+  };
+  const clearCompanies = () => { filters.setCompanyFilter([]); filters.resetPage(); };
   const setStatusFilter: typeof filters.setStatusFilter = (v) => { filters.setStatusFilter(v); filters.resetPage(); };
   const setTransportFilter = (v: string) => { filters.setTransportFilter(v); filters.resetPage(); };
   const hideRow = (id: string) => { prefs.hideRow(id); filters.resetPage(); };
@@ -74,7 +81,8 @@ export function ShipmentTable() {
           onSearchChange={setSearch}
           companies={filters.companies}
           companyFilter={filters.companyFilter}
-          onCompanyChange={setCompanyFilter}
+          onToggleCompany={toggleCompany}
+          onClearCompanies={clearCompanies}
           hasActiveFilters={filters.hasActiveFilters}
           onClearAll={filters.clearAllFilters}
           hiddenRowsCount={prefs.hiddenRows.length}
