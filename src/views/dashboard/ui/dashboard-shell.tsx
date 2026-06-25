@@ -209,7 +209,7 @@ export function DashboardShell() {
                 onClick={() => dispatch(setActiveTab("shipments"))}
                 type="button"
               >
-                Мои отправления
+                Мои перевозки
               </button>
             </div>
           </div>
@@ -236,7 +236,7 @@ export function DashboardShell() {
           ) : (
             <Card className="overflow-hidden">
               <CardHeader>
-                <CardTitle>Мои отправления</CardTitle>
+                <CardTitle>Мои перевозки</CardTitle>
                 <CardDescription>
                   Выберите строку отправления, чтобы посмотреть маршрут и детали.
                 </CardDescription>
