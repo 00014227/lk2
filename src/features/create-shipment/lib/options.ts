@@ -1,5 +1,4 @@
 import { Plane, Ship, Train, Truck } from "lucide-react";
-import type { TariffEstimate } from "@entities/tariff";
 
 export const TRANSPORT_OPTIONS = [
   { value: "Авиа",            label: "Air",  Icon: Plane  },
@@ -32,10 +31,4 @@ export const TRANSPORT_TO_TARIFF: Record<string, string> = {
   "Море": "sea",
   "Авто": "auto",
   "Железнодорожная": "rail",
-};
-
-export const BASIS_LABEL: Record<TariffEstimate["basis"], string> = {
-  kg: "за кг",
-  cbm: "за м³",
-  container: "за контейнер",
 };

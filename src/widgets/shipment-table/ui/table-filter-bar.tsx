@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Plus, Search, X } from "lucide-react";
+import { Calculator, Eye, Search, X } from "lucide-react";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
 import type { ColKey } from "../lib/columns";
@@ -82,22 +82,24 @@ export function TableFilterBar({
         </button>
       )}
 
-      {/* Right-aligned actions: create → company filter → column settings */}
       <div className="ml-auto flex items-center gap-2">
+        {/* Calculate cost button (opens the estimate modal) */}
         <Button
           size="sm"
           className="h-9 gap-1.5 rounded-xl text-xs"
           onClick={onCreateClick}
         >
-          <Plus className="h-3.5 w-3.5" />
-          Создать заявку
+          <Calculator className="h-3.5 w-3.5" />
+          Рассчитать стоимость
         </Button>
         <TableCompanyPicker
-          companies={companies}
-          selected={companyFilter}
-          onToggle={onToggleCompany}
-          onClear={onClearCompanies}
-        />
+            companies={companies}
+            selected={companyFilter}
+            onToggle={onToggleCompany}
+            onClear={onClearCompanies}
+          />
+
+        {/* Column settings */}
         <TableColumnPicker hiddenCols={hiddenCols} onToggleCol={onToggleCol} />
       </div>
     </div>

@@ -78,7 +78,7 @@ export interface UseCreateShipmentForm {
     loading: boolean;
     success: boolean;
     error: string | null;
-    onSubmit: (e: React.FormEvent) => void;
+    onSubmit: (e?: React.FormEvent) => void;
   };
 }
 
@@ -168,8 +168,8 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
     setContainers((p) => [...p, { qty: "", type: "" }]);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
     setLoading(true);
     setError(null);
     try {
@@ -178,9 +178,12 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
         direction,
         shipmentType,
         originAddressType,
-        originCountry,
+        // Route from the calculator modal (cities), falling back to detailed fields.
+        originCountry: estOrigin.trim() || originCountry,
         originMultiplePorts,
-        destinations,
+        destinations: estDestination.trim()
+          ? [{ addressType: '', country: estDestination.trim() }]
+          : destinations,
         shippingDate: shippingDate || null,
         shippingTerms: shippingTerms || null,
         grossVolume: grossVolume || null,
@@ -190,7 +193,11 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
         hsCode: hsCode || null,
         packageCount: packageCount || null,
         packageType: packageType || null,
-        cargoDescription: cargoDescription || null,
+        cargoDescription:
+          cargoDescription ||
+          (estOrigin.trim() && estDestination.trim()
+            ? `Расчёт по маршруту ${estOrigin.trim()} → ${estDestination.trim()}`
+            : null),
         containers: containers.filter((c) => c.qty || c.type),
       });
       setSuccess(true);
@@ -214,6 +221,7 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
         weightKg: Number(chargeableWeight) || Number(grossWeight) || undefined,
         volumeCbm: Number(grossVolume) || undefined,
         containers: containerQty || undefined,
+        containerType: containers.find((c) => c.type)?.type || undefined,
       });
       setEstimates(estimates);
     } catch {

@@ -14,9 +14,7 @@ export function CreateShipmentSheet({ open, onClose }: Props) {
       <TransportSelectDialog
         open={open && form.step === "select-type"}
         onClose={onClose}
-        type={form.type}
-        step1Valid={form.step1Valid}
-        onContinue={() => form.setStep("details")}
+        form={form}
       />
 
       <ShipmentDetailsForm

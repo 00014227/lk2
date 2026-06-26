@@ -6,10 +6,14 @@ export interface TariffLocation {
 export interface TariffEstimate {
   departure: string;
   destination: string;
-  transportType: string;
+  transportType: string | null;
   currency: string;
-  sellRate: number;
-  basis: "kg" | "cbm" | "container";
-  sellTotal: number | null;
-  validUntil: string;
+  total: number | null; // marked-up sell price
+  basis: string | null; // free text, e.g. "за рейс", "за контейнер 20'"
+  breakdown: string | null;
+  included: string | null;
+  excluded: string | null;
+  transitTime: string | null;
+  conditions: string | null;
+  sourceName: string | null;
 }
