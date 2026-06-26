@@ -35,12 +35,6 @@ export function VehicleMarkers({ markers, onVehicleClick }: VehicleMarkersProps)
                 <dd>{shipment ? `${shipment.origin} → ${shipment.destination}` : "—"}</dd>
                 <dt>Транспорт</dt>
                 <dd>{vehicle.vehicleNumber}</dd>
-                {vehicle.driverName && (
-                  <>
-                    <dt>Водитель</dt>
-                    <dd>{vehicle.driverName}</dd>
-                  </>
-                )}
                 <dt>Статус</dt>
                 <dd>{vehicle.status}</dd>
                 <dt>ETA</dt>

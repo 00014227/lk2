@@ -8,15 +8,13 @@ import {
   Container,
   Gauge,
   MapPinned,
-  Phone,
   ShieldCheck,
   Truck,
-  UserRound,
   Weight,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { fetchMyOrders, selectOrdersLoading, selectOrdersError } from "@features/orders";
-import { selectShipments } from "@entities/shipment";
+import { formatEta, selectShipments } from "@entities/shipment";
 import { Badge } from "@shared/ui/badge";
 import { Progress } from "@shared/ui/progress";
 import { useGPSProgress } from "@features/track-shipment";
@@ -44,8 +42,6 @@ function getStatusVariant(status: string) {
 
 const BASE_DETAILS = [
   { icon: Gauge,       label: "ETA",       key: "estimatedArrival" },
-  { icon: UserRound,   label: "Водитель",  key: "driverName"       },
-  { icon: Phone,       label: "Телефон",   key: "driverPhone"      },
   { icon: ShieldCheck, label: "Тип груза", key: "cargoType"        },
   { icon: Weight,      label: "Вес",       key: "weight"           },
 ] as const;
@@ -229,7 +225,9 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
                 <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">{label}</p>
               </div>
               <p className="mt-1.5 text-sm font-semibold text-slate-900">
-                {shipment[key] || "—"}
+                {key === "estimatedArrival"
+                  ? formatEta(shipment.estimatedArrival, shipment.status)
+                  : shipment[key] || "—"}
               </p>
             </div>
           ))}
@@ -244,6 +242,7 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
             destination={shipment.destination}
             vehicleId={shipment.vehicleId || undefined}
             departed={shipment.departed}
+            delivered={shipment.status === "Доставлен"}
             airEvents={airEvents.length ? airEvents : undefined}
             airRoute={airRoute}
             seaRoute={containerRoute}

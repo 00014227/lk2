@@ -14,12 +14,8 @@ import {
 } from "lucide-react";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
-import { cn } from "@shared/lib/utils";
 import {
   CONTAINER_TYPES,
-  DIRECTION_OPTIONS,
-  TRANSPORT_OPTIONS,
-  getShipmentTypes,
   selectCls,
 } from "../lib/options";
 import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
@@ -33,11 +29,7 @@ interface TransportSelectDialogProps {
 }
 
 export function TransportSelectDialog({ open, onClose, form }: TransportSelectDialogProps) {
-  const {
-    transportType, setTransportType,
-    direction, setDirection,
-    shipmentType, setShipmentType,
-  } = form.type;
+  const { transportType } = form.type;
   const { origin, setOrigin, destination, setDestination, estimating, estimates, run } = form.estimate;
   const { grossWeight, setGrossWeight, grossVolume, setGrossVolume } = form.cargo;
   const { items: containers, update: updateContainer } = form.containers;
@@ -45,7 +37,7 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
 
   const isContainerMode = transportType === "Море" || transportType === "Железнодорожная";
   const canCalculate = Boolean(origin.trim() && destination.trim());
-  const canSend = Boolean(transportType && origin.trim() && destination.trim());
+  const canSend = Boolean(origin.trim() && destination.trim());
 
   return (
     <RDialog.Root open={open} onOpenChange={(v) => !v && onClose()}>
@@ -87,52 +79,6 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
               </div>
 
               <div className="flex flex-col gap-5 px-7 pb-7 pt-5">
-                {/* Mode of Transport */}
-                <div>
-                  <SectionLabel>Mode of Transport</SectionLabel>
-                  <div className="grid grid-cols-4 gap-2">
-                    {TRANSPORT_OPTIONS.map(({ value, label, Icon }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setTransportType(value)}
-                        className={cn(
-                          "flex flex-col items-center gap-2 rounded-2xl border-2 py-3.5 transition",
-                          transportType === value
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-border bg-white text-slate-400 hover:border-slate-300 hover:text-slate-600",
-                        )}
-                      >
-                        <Icon className="h-5 w-5" />
-                        <span className="text-[11px] font-semibold">{label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Direction + Shipment Type */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <SectionLabel>Direction</SectionLabel>
-                    <select className={selectCls} value={direction} onChange={(e) => setDirection(e.target.value)}>
-                      <option value="">Направление...</option>
-                      {DIRECTION_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <SectionLabel>Shipment Type</SectionLabel>
-                    <select
-                      className={selectCls}
-                      value={shipmentType}
-                      onChange={(e) => setShipmentType(e.target.value)}
-                      disabled={!transportType}
-                    >
-                      <option value="">{transportType ? "Тип..." : "Сначала транспорт"}</option>
-                      {getShipmentTypes(transportType).map((o) => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-                </div>
-
                 {/* Route + cargo */}
                 <div>
                   <SectionLabel>Маршрут и груз</SectionLabel>
@@ -172,11 +118,11 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
                       </>
                     ) : (
                       <>
-                        <div>
+                        <div className="hidden">
                           <FieldLabel>Вес, кг</FieldLabel>
                           <Input type="number" inputMode="decimal" placeholder="напр. 1000" value={grossWeight} onChange={(e) => setGrossWeight(e.target.value)} />
                         </div>
-                        <div>
+                        <div className="hidden">
                           <FieldLabel>Объём, м³</FieldLabel>
                           <Input type="number" inputMode="decimal" placeholder="напр. 12" value={grossVolume} onChange={(e) => setGrossVolume(e.target.value)} />
                         </div>

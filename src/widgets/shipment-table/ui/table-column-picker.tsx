@@ -24,7 +24,7 @@ export function TableColumnPicker({ hiddenCols, onToggleCol }: TableColumnPicker
   }, []);
 
   return (
-    <div className="relative ml-auto" ref={pickerRef}>
+    <div className="relative" ref={pickerRef}>
       <button
         className={cn(
           "flex h-9 items-center gap-1.5 rounded-xl border border-border bg-white px-3 text-xs font-semibold text-slate-600 transition hover:border-primary/40 hover:text-primary",
@@ -38,24 +38,20 @@ export function TableColumnPicker({ hiddenCols, onToggleCol }: TableColumnPicker
       </button>
 
       {showPicker && (
-        <div className="absolute right-0 top-11 z-50 min-w-48 rounded-2xl border border-border bg-white p-2 shadow-xl">
+        <div className="absolute right-0 top-11 z-50 min-w-48 max-h-80 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-xl">
           <p className="px-2 py-1.5 text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
             Показать / скрыть
           </p>
           {ALL_COLUMNS.map((col) => (
             <label
               key={col.key}
-              className={cn(
-                "flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm font-medium transition hover:bg-secondary/60",
-                ('required' in col && col.required) && "cursor-not-allowed opacity-50",
-              )}
+              className="flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 text-sm font-medium transition hover:bg-secondary/60"
             >
               <input
                 type="checkbox"
                 className="accent-primary"
                 checked={!hiddenCols.includes(col.key)}
-                disabled={'required' in col && !!col.required}
-                onChange={() => !('required' in col && col.required) && onToggleCol(col.key)}
+                onChange={() => onToggleCol(col.key)}
               />
               {col.label}
             </label>

@@ -35,9 +35,16 @@ function parseDuration(v: string): number {
   return 0; // "Завершено" и прочее без часов/минут — раньше всех в asc
 }
 
+// Резолвит отображаемое значение колонки. Для синтетического ключа "arrivalDate"
+// поля в Shipment нет — берём план, с откатом на факт (как при рендере ячейки).
+function valueFor(s: Shipment, key: ColKey): string {
+  if (key === "arrivalDate") return s.arrivalDatePlan || s.arrivalDateActual || "";
+  return String(s[key] ?? "");
+}
+
 export function compareShipments(a: Shipment, b: Shipment, key: ColKey): number {
-  const av = String(a[key] ?? "");
-  const bv = String(b[key] ?? "");
+  const av = valueFor(a, key);
+  const bv = valueFor(b, key);
 
   const empty = compareEmpty(av, bv);
   if (empty !== null) return empty;

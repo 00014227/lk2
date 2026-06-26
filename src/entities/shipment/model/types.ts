@@ -16,13 +16,13 @@ export interface Shipment {
   vehicleId: string;
   estimatedArrival: string;
   createdDate: string;
-  driverName: string;
-  driverPhone: string;
   cargoType: string;
   weight: string;
   progress: number;
   currentLocation: string;
   departureDate: string;
+  arrivalDatePlan: string | null;
+  arrivalDateActual: string | null;
   departed: boolean;
   distance: string;
   transportationType: string | null;

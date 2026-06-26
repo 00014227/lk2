@@ -3,6 +3,7 @@ import L from "leaflet";
 export const TEAL       = "#0c3078";
 export const GRAY       = "#94a3b8";
 export const LIGHT_GRAY = "#cbd5e1";
+export const GREEN      = "#16a34a";
 export const AIR_BLUE   = "#3b82f6";
 export const SEA_BLUE   = "#0ea5e9";
 export const RAIL_PURPLE = "#7c3aed";
@@ -18,6 +19,23 @@ export function buildTruckIcon(variant: "pending" | "moving") {
         <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
         <circle cx="17" cy="18" r="2"/>
         <circle cx="7" cy="18" r="2"/>
+      </svg>
+    </div>`,
+    iconSize: [42, 42],
+    iconAnchor: [21, 21],
+  });
+}
+
+// Delivered marker — shown for any transport mode once the shipment is delivered.
+export function buildDeliveredIcon() {
+  return L.divIcon({
+    className: "",
+    html: `<div style="position:relative;width:42px;height:42px;border-radius:50%;background:${GREEN};border:2.5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+      <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m7.5 4.27 9 5.15"/>
+        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+        <path d="M3.3 7 12 12l8.7-5"/>
+        <path d="M12 22V12"/>
       </svg>
     </div>`,
     iconSize: [42, 42],

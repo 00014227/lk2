@@ -18,8 +18,8 @@ export interface UseTableFilters {
   setSearch: (v: string) => void;
   statusFilter: ShipmentStatus | "";
   setStatusFilter: (v: ShipmentStatus | "") => void;
-  companyFilter: string;
-  setCompanyFilter: (v: string) => void;
+  companyFilter: string[];
+  setCompanyFilter: (v: string[]) => void;
   transportFilter: string;
   setTransportFilter: (v: string) => void;
   companies: string[];
@@ -43,7 +43,7 @@ export function useTableFilters(
 ): UseTableFilters {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ShipmentStatus | "">("");
-  const [companyFilter, setCompanyFilter] = useState("");
+  const [companyFilter, setCompanyFilter] = useState<string[]>([]);
   const [transportFilter, setTransportFilter] = useState("");
   const [sort, setSort] = useState<SortState>({ key: null, dir: null });
   const [page, setPage] = useState(1);
@@ -68,7 +68,7 @@ export function useTableFilters(
     return shipments.filter((s) => {
       if (hiddenSet.has(s.id)) return false;
       if (statusFilter && s.status !== statusFilter) return false;
-      if (companyFilter && s.customerName !== companyFilter) return false;
+      if (companyFilter.length && !companyFilter.includes(s.customerName)) return false;
       if (transportFilter && s.transportationType !== transportFilter) return false;
       if (q)
         return (
@@ -99,13 +99,13 @@ export function useTableFilters(
   function resetPage() { setPage(1); }
 
   const hasActiveFilters = Boolean(
-    search || statusFilter || companyFilter || transportFilter,
+    search || statusFilter || companyFilter.length || transportFilter,
   );
 
   function clearAllFilters() {
     setSearch("");
     setStatusFilter("");
-    setCompanyFilter("");
+    setCompanyFilter([]);
     setTransportFilter("");
     resetPage();
   }
