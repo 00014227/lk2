@@ -2,15 +2,19 @@
 
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import {
   ArrowRight,
+  ChevronRight,
   Clock3,
   Container,
   LogOut,
   MapPinned,
+  Star,
   Truck,
 } from "lucide-react";
 import { logout } from "@features/auth";
+import { getUnratedDeliveries } from "@features/rate-delivery";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import {
   fetchMyOrders,
@@ -53,6 +57,8 @@ export function DashboardShell() {
   useEffect(() => {
     dispatch(fetchMyOrders());
   }, [dispatch]);
+
+  const unratedCount = getUnratedDeliveries(shipments).length;
 
   const stats = [
     {
@@ -154,6 +160,21 @@ export function DashboardShell() {
                 </p>
               </div>
             </div>
+            <Link
+              href="/rating"
+              className="flex items-center justify-between rounded-[22px] bg-white/8 px-4 py-3 transition hover:bg-white/16 focus-visible:ring-4 focus-visible:ring-white/30 focus-visible:outline-none"
+            >
+              <div className="flex items-center gap-3">
+                <Star className="h-5 w-5 text-amber-300" />
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
+                    Оценить поездки
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">{unratedCount}</p>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-white/70" />
+            </Link>
           </div>
         </header>
 

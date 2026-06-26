@@ -46,6 +46,9 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 6px);
   --animate-pulsar: pulsar 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-overlay-in: overlay-in 0.2s ease-out;
+  --animate-content-in: content-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-sheet-in: sheet-in 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes pulsar {
@@ -60,6 +63,40 @@
   100% {
     transform: scale(2);
     opacity: 0;
+  }
+}
+
+/* Modal overlay fade-in */
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Centered modal card: fade + scale-in (transform keeps the -50%/-50% centering) */
+@keyframes content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Bottom-sheet card: slide up from below (Яндекс Go style) */
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

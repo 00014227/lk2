@@ -3,11 +3,13 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect } from "react";
-import { ArrowLeft, MapPinned } from "lucide-react";
+import { ArrowLeft, MapPinned, Star } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { fetchMyOrders, selectOrdersLoading, selectOrdersError } from "@features/orders";
 import { selectShipments } from "@entities/shipment";
+import { RateDeliveryModal, useDeliveryRating } from "@features/rate-delivery";
 import { Badge } from "@shared/ui/badge";
+import { Button } from "@shared/ui/button";
 import { Progress } from "@shared/ui/progress";
 import { useGPSProgress } from "@features/track-shipment";
 import { useShipmentTracking } from "@features/track-shipment";
@@ -115,6 +117,7 @@ export function ShipmentDetail({ id }: Props) {
 
 function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
   const progress = useGPSProgress(shipment);
+  const rating = useDeliveryRating(shipment);
   const {
     isRailway,
     railwayEvents,
@@ -143,9 +146,15 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
               )}
             </div>
           </div>
-          <Badge variant={getStatusVariant(shipment.status)} className="shrink-0">
-            {shipment.status}
-          </Badge>
+          <div className="flex shrink-0 items-center gap-3">
+            {shipment.status === "Доставлен" && (
+              <Button type="button" variant="ghost" size="sm" onClick={rating.open}>
+                <Star className="h-4 w-4" />
+                Оценить доставку
+              </Button>
+            )}
+            <Badge variant={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
+          </div>
         </div>
 
         {/* Route progress */}
@@ -219,6 +228,15 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
 
       {/* Floating chat with manager */}
       <FloatingChat shipment={shipment} />
+
+      {/* Delivery rating popup — auto-opens for delivered, unrated shipments */}
+      <RateDeliveryModal
+        isOpen={rating.isOpen}
+        onClose={rating.close}
+        onSubmit={rating.submit}
+        otherUnratedCount={rating.otherUnratedCount}
+        onRateOthers={rating.goToRatingPage}
+      />
     </main>
   );
 }
