@@ -8,9 +8,10 @@ export const ALL_COLUMNS = [
   { key: "status",           label: "Статус",                       sortType: "status",   width: 175 },
   { key: "vehicleNumber",    label: "Номер ТС",                     sortType: "text",     width: 180 },
   { key: "estimatedArrival", label: "ETA",                          sortType: "duration", width: 110 },
-  { key: "createdDate",      label: "Дата",                         sortType: "date",     width: 145 },
+  { key: "createdDate",      label: "Дата создания",                sortType: "date",     width: 230 },
   { key: "currentLocation",  label: "Местоположение",               sortType: "text",     width: 250 },
   { key: "departureDate",    label: "Дата выезда",                  sortType: "date",     width: 205 },
+  { key: "arrivalDate",      label: "Дата прибытия",                sortType: "date",     width: 205 },
   { key: "distance",         label: "Километраж",                   sortType: "number",   width: 200 },
   // comment will be enamble when we get backend changes
   // { key: "comment",          label: "Комментарии",                  sortType: "text",     width: 220 },

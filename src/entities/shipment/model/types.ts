@@ -21,6 +21,8 @@ export interface Shipment {
   progress: number;
   currentLocation: string;
   departureDate: string;
+  arrivalDatePlan: string | null;
+  arrivalDateActual: string | null;
   departed: boolean;
   distance: string;
   transportationType: string | null;

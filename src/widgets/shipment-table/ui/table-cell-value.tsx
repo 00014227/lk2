@@ -19,5 +19,11 @@ export function CellValue({
     return <span className="text-sm text-slate-500">{shipment.customerName}</span>;
   if (colKey === "estimatedArrival")
     return <span className="text-sm text-slate-700">{formatEta(shipment.estimatedArrival, shipment.status)}</span>;
+  if (colKey === "arrivalDate")
+    return (
+      <span className="text-sm text-slate-700">
+        {shipment.arrivalDatePlan || shipment.arrivalDateActual || "—"}
+      </span>
+    );
   return <span className="text-sm text-slate-700">{shipment[colKey]}</span>;
 }
