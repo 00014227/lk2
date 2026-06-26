@@ -10,6 +10,7 @@ import {
   MapPinned,
   ShieldCheck,
   Truck,
+  UserRound,
   Weight,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
@@ -41,9 +42,10 @@ function getStatusVariant(status: string) {
 }
 
 const BASE_DETAILS = [
-  { icon: Gauge,       label: "ETA",       key: "estimatedArrival" },
-  { icon: ShieldCheck, label: "Тип груза", key: "cargoType"        },
-  { icon: Weight,      label: "Вес",       key: "weight"           },
+  { icon: Gauge,       label: "ETA",         key: "estimatedArrival" },
+  { icon: ShieldCheck, label: "Тип груза",   key: "cargoType"        },
+  { icon: Weight,      label: "Вес",         key: "weight"           },
+  { icon: UserRound,   label: "Менеджер ТА", key: "kamName"          },
 ] as const;
 
 function CenteredState({ children }: { children: React.ReactNode }) {
