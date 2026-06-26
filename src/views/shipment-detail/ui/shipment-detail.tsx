@@ -3,19 +3,10 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect } from "react";
-import {
-  ArrowLeft,
-  Container,
-  Gauge,
-  MapPinned,
-  ShieldCheck,
-  Truck,
-  UserRound,
-  Weight,
-} from "lucide-react";
+import { ArrowLeft, MapPinned } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { fetchMyOrders, selectOrdersLoading, selectOrdersError } from "@features/orders";
-import { formatEta, selectShipments } from "@entities/shipment";
+import { selectShipments } from "@entities/shipment";
 import { Badge } from "@shared/ui/badge";
 import { Progress } from "@shared/ui/progress";
 import { useGPSProgress } from "@features/track-shipment";
@@ -23,6 +14,7 @@ import { useShipmentTracking } from "@features/track-shipment";
 import type { Shipment } from "@entities/shipment";
 import { TransportSegmentCards } from "@features/track-shipment";
 import { FloatingChat } from "@features/chat";
+import { ShipmentInfo } from "@widgets/shipment-info";
 
 const ShipmentRouteMap = dynamic(() => import("@widgets/shipment-route-map"), {
   ssr: false,
@@ -40,13 +32,6 @@ function getStatusVariant(status: string) {
   if (status === "На границе" || status === "Таможенный контроль") return "warning";
   return "neutral";
 }
-
-const BASE_DETAILS = [
-  { icon: Gauge,       label: "ETA",         key: "estimatedArrival" },
-  { icon: ShieldCheck, label: "Тип груза",   key: "cargoType"        },
-  { icon: Weight,      label: "Вес",         key: "weight"           },
-  { icon: UserRound,   label: "Менеджер ТА", key: "kamName"          },
-] as const;
 
 function CenteredState({ children }: { children: React.ReactNode }) {
   return (
@@ -204,36 +189,7 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
         </section>
 
         {/* Details */}
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-2xl border border-white/70 bg-card p-4">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              {isRailway ? (
-                <Container className="h-3.5 w-3.5 shrink-0" />
-              ) : (
-                <Truck className="h-3.5 w-3.5 shrink-0" />
-              )}
-              <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">
-                {isRailway ? "Контейнер" : "Транспорт"}
-              </p>
-            </div>
-            <p className="mt-1.5 text-sm font-semibold text-slate-900">
-              {shipment.vehicleNumber || "—"}
-            </p>
-          </div>
-          {BASE_DETAILS.map(({ icon: Icon, label, key }) => (
-            <div className="rounded-2xl border border-white/70 bg-card p-4" key={label}>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Icon className="h-3.5 w-3.5 shrink-0" />
-                <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">{label}</p>
-              </div>
-              <p className="mt-1.5 text-sm font-semibold text-slate-900">
-                {key === "estimatedArrival"
-                  ? formatEta(shipment.estimatedArrival, shipment.status)
-                  : shipment[key] || "—"}
-              </p>
-            </div>
-          ))}
-        </section>
+        <ShipmentInfo shipment={shipment} isRailway={isRailway} />
 
         {/* Map — full width */}
         <section className="relative isolate h-[60vh] min-h-105 w-full overflow-hidden rounded-[28px] border border-white/70 shadow-[0_18px_60px_rgba(16,35,48,0.08)]">
