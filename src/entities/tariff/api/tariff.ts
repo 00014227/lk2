@@ -15,6 +15,7 @@ export interface TariffEstimateParams {
   weightKg?: number;
   volumeCbm?: number;
   containers?: number;
+  containerType?: string;
   date?: string;
 }
 

@@ -87,16 +87,32 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
         </div>
       )}
 
-      <Button
-        type="button"
-        size="icon"
-        onClick={toggle}
-        aria-label={entered ? "Закрыть чат" : "Открыть чат"}
-        aria-expanded={entered}
-        className="pointer-events-auto h-14 w-14 shadow-[0_12px_30px_rgba(12,48,120,0.22)]"
-      >
-        {entered ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-      </Button>
+      {/* Кнопка + пульсар. Круги «дышат» позади кнопки, только пока чат закрыт. */}
+      <div className="pointer-events-none relative h-14 w-14">
+        {!entered && (
+          <>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-0 rounded-full bg-primary/40 animate-pulsar motion-reduce:hidden"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-0 rounded-full bg-primary/30 animate-pulsar [animation-delay:1.2s] motion-reduce:hidden"
+            />
+          </>
+        )}
+
+        <Button
+          type="button"
+          size="icon"
+          onClick={toggle}
+          aria-label={entered ? "Закрыть чат" : "Открыть чат"}
+          aria-expanded={entered}
+          className="pointer-events-auto relative z-10 h-14 w-14 shadow-[0_12px_30px_rgba(12,48,120,0.22)] hover:scale-110 hover:brightness-110"
+        >
+          {entered ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        </Button>
+      </div>
     </div>
   );
 }

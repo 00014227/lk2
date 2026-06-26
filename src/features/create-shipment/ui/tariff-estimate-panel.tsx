@@ -2,7 +2,6 @@
 
 import { Calculator, Loader2 } from "lucide-react";
 import { Button } from "@shared/ui/button";
-import { BASIS_LABEL } from "../lib/options";
 import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
 import { FieldLabel, SectionLabel } from "./form-labels";
 import { LocationAutocomplete } from "./location-autocomplete";
@@ -71,24 +70,23 @@ export function TariffEstimatePanel({ estimate }: TariffEstimatePanelProps) {
                     <span className="text-sm font-medium text-slate-700">
                       {est.departure} → {est.destination}
                     </span>
-                    <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                      {est.transportType}
-                    </span>
-                  </div>
-                  <div className="mt-1 flex items-end justify-between gap-2">
-                    {est.sellTotal != null ? (
-                      <p className="text-lg font-semibold text-slate-900">
-                        ≈ {est.sellTotal.toLocaleString("ru-RU")} {est.currency}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        Укажите вес / объём / контейнеры выше
-                      </p>
+                    {est.transportType && (
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                        {est.transportType}
+                      </span>
                     )}
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {est.sellRate.toLocaleString("ru-RU")} {est.currency} {BASIS_LABEL[est.basis]}
-                    </span>
                   </div>
+                  {est.total != null ? (
+                    <p className="mt-1 text-lg font-semibold text-slate-900">
+                      ≈ {est.total.toLocaleString("ru-RU")} {est.currency}
+                      {est.basis ? <span className="text-xs font-normal text-muted-foreground"> · {est.basis}</span> : null}
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-sm text-muted-foreground">Точная ставка по запросу.</p>
+                  )}
+                  {est.breakdown && (
+                    <p className="mt-1 whitespace-pre-wrap text-xs text-muted-foreground">{est.breakdown}</p>
+                  )}
                 </div>
               ))
             )}

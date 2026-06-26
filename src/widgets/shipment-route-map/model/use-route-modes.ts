@@ -10,6 +10,7 @@ export interface RouteModeInput {
   destination: string;
   vehicleId?: string;
   departed?: boolean;
+  delivered?: boolean;
   airEvents?: AirEvent[];
   airRoute?: AirRoute | null;
   seaRoute?: ContainerRoute | null;
@@ -28,6 +29,7 @@ export interface RouteModes {
     ports: Waypoint[];
     shipPos: [number, number] | null;
     shipLabel: string;
+    delivered: boolean;
   };
   railway: {
     pos: [number, number] | null;
@@ -36,10 +38,12 @@ export interface RouteModes {
     destPin: Pin;
     originLabel: string;
     destLabel: string;
+    delivered: boolean;
   };
   air: {
     coords: [number, number][];
     airports: Waypoint[];
+    delivered: boolean;
   };
   truck: {
     traveledCoords: [number, number][] | null;
@@ -53,6 +57,7 @@ export interface RouteModes {
     destPin: Pin;
     originLabel: string;
     destLabel: string;
+    delivered: boolean;
   };
 }
 
@@ -61,6 +66,7 @@ export function useRouteModes({
   destination,
   vehicleId,
   departed = false,
+  delivered = false,
   airEvents,
   airRoute,
   seaRoute,
@@ -229,8 +235,19 @@ export function useRouteModes({
   ];
 
   const routeStart = traveledCoords?.[0] ?? remainingCoords?.[0] ?? null;
-  const originPos  = pins.origin ?? routeStart;
-  const markerPos = notDeparted ? originPos : (vehiclePos ?? originPos);
+  const routeEnd =
+    remainingCoords?.[remainingCoords.length - 1] ??
+    traveledCoords?.[traveledCoords.length - 1] ??
+    null;
+  const originPos = pins.origin ?? routeStart;
+  const destPos = pins.dest ?? routeEnd;
+  // Delivered → pin sits at the destination; otherwise at the live GPS point
+  // (or the origin before departure / when GPS is unavailable).
+  const markerPos = delivered
+    ? (destPos ?? vehiclePos ?? originPos)
+    : notDeparted
+      ? originPos
+      : (vehiclePos ?? originPos);
   const routeColor = notDeparted ? LIGHT_GRAY : (vehiclePos ? GRAY : TEAL);
   const truckTooltip = notDeparted
     ? "Место отправления"
@@ -248,7 +265,7 @@ export function useRouteModes({
 
   return {
     mode,
-    sea: { coords: seaCoords, ports: seaPorts, shipPos, shipLabel },
+    sea: { coords: seaCoords, ports: seaPorts, shipPos, shipLabel, delivered },
     railway: {
       pos: railwayPos,
       stationLabel: railwayStationLabel,
@@ -256,8 +273,9 @@ export function useRouteModes({
       destPin: pins.dest,
       originLabel: origin,
       destLabel: destination,
+      delivered,
     },
-    air: { coords: airCoords, airports: airAirports },
+    air: { coords: airCoords, airports: airAirports, delivered },
     truck: {
       traveledCoords,
       remainingCoords,
@@ -270,6 +288,7 @@ export function useRouteModes({
       destPin: pins.dest,
       originLabel: origin,
       destLabel: destination,
+      delivered,
     },
   };
 }
