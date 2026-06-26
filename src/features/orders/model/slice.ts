@@ -11,6 +11,7 @@ export const fetchMyOrders = createAsyncThunk(
   "orders/fetchMyOrders",
   async (_, { dispatch }) => {
     const { data } = await api.get<{ shipments: Shipment[]; vehicles: Vehicle[] }>("/orders/my");
+    console.log("Fetched my orders:", data);
     dispatch(setShipments(data.shipments));
     dispatch(setVehicles(data.vehicles));
   },

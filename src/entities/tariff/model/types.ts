@@ -6,6 +6,7 @@ export interface TariffLocation {
 export interface TariffEstimate {
   departure: string;
   destination: string;
+  transitPoint: string | null; // перевалочный пункт (напр. Санкт-Петербург)
   transportType: string | null;
   currency: string;
   total: number | null; // marked-up sell price

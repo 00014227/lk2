@@ -8,10 +8,16 @@ import {
   Info,
   Loader2,
   Package,
+  Plane,
   Send,
+  Ship,
+  Shuffle,
+  Train,
+  Truck,
   XCircle,
   X,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
 import {
@@ -139,39 +145,52 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
                         Точная ставка по запросу — отправьте заявку, менеджер свяжется с вами.
                       </p>
                     ) : (
-                      estimates.map((est, i) => (
-                        <div key={i} className="overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.04]">
-                          <div className="flex items-center justify-between gap-2 border-b border-primary/10 px-4 py-2.5">
-                            <span className="text-sm font-medium text-slate-700">
-                              {est.departure} → {est.destination}
-                            </span>
-                            {est.transportType && (
-                              <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                                {est.transportType}
-                              </span>
-                            )}
-                          </div>
-                          <div className="px-4 py-3">
-                            {est.total != null ? (
-                              <p className="text-2xl font-bold text-slate-900">
-                                ≈ {est.total.toLocaleString("ru-RU")} {est.currency}
-                                {est.basis && <span className="ml-1 text-xs font-normal text-muted-foreground">· {est.basis}</span>}
-                              </p>
-                            ) : (
-                              <p className="text-sm text-muted-foreground">Точная ставка по запросу.</p>
-                            )}
-
-                            <div className="mt-3 flex flex-col gap-2 text-xs">
-                              {est.breakdown && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Расчёт" value={est.breakdown} />}
-                              {est.included && <DetailRow icon={<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />} label="Включено" value={est.included} />}
-                              {est.excluded && <DetailRow icon={<XCircle className="h-3.5 w-3.5 text-rose-400" />} label="Не включено" value={est.excluded} />}
-                              {est.transitTime && <DetailRow icon={<Clock3 className="h-3.5 w-3.5 text-slate-400" />} label="Срок" value={est.transitTime} />}
-                              {est.conditions && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Условия" value={est.conditions} />}
+                      estimates.map((est, i) => {
+                        const { Icon, tint } = transportVisual(est.transportType);
+                        return (
+                          <div key={i} className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+                            {/* Compact header: icon + type + route on the left, price on the right */}
+                            <div className="flex items-center gap-3 px-4 py-3">
+                              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tint}`}>
+                                <Icon className="h-5 w-5" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-[13px] font-semibold text-slate-800">
+                                  {est.transportType ?? "Перевозка"}
+                                </p>
+                                <p className="truncate text-[11px] text-muted-foreground">
+                                  {est.departure}
+                                  {est.transitPoint ? ` → ${est.transitPoint}` : ""} → {est.destination}
+                                </p>
+                              </div>
+                              <div className="shrink-0 text-right">
+                                {est.total != null ? (
+                                  <>
+                                    <p className="whitespace-nowrap text-base font-bold leading-tight text-slate-900">
+                                      {est.total.toLocaleString("ru-RU")}
+                                      <span className="ml-1 text-[11px] font-semibold text-muted-foreground">{est.currency}</span>
+                                    </p>
+                                    {est.basis && <p className="text-[10px] text-muted-foreground">{est.basis}</p>}
+                                  </>
+                                ) : (
+                                  <p className="text-[11px] text-muted-foreground">по запросу</p>
+                                )}
+                              </div>
                             </div>
-                            {est.sourceName && <p className="mt-2 text-[10px] italic text-muted-foreground">Источник: {est.sourceName}</p>}
+
+                            {(est.breakdown || est.included || est.excluded || est.transitTime || est.conditions) && (
+                              <div className="flex flex-col gap-1.5 border-t border-slate-100 px-4 py-2.5 text-[11px]">
+                                {est.breakdown && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Расчёт" value={est.breakdown} />}
+                                {est.included && <DetailRow icon={<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />} label="Включено" value={est.included} />}
+                                {est.excluded && <DetailRow icon={<XCircle className="h-3.5 w-3.5 text-rose-400" />} label="Не включено" value={est.excluded} />}
+                                {est.transitTime && <DetailRow icon={<Clock3 className="h-3.5 w-3.5 text-slate-400" />} label="Срок" value={est.transitTime} />}
+                                {est.conditions && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Условия" value={est.conditions} />}
+                                {est.sourceName && <p className="mt-0.5 text-[10px] italic text-muted-foreground">Источник: {est.sourceName}</p>}
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 )}
@@ -204,6 +223,16 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
       </RDialog.Portal>
     </RDialog.Root>
   );
+}
+
+function transportVisual(type: string | null): { Icon: LucideIcon; tint: string } {
+  const t = (type ?? "").toLowerCase();
+  if (t.includes("авто")) return { Icon: Truck, tint: "bg-amber-50 text-amber-600" };
+  if (t.includes("мор")) return { Icon: Ship, tint: "bg-sky-50 text-sky-600" };
+  if (t.includes("жел") || t.includes("жд")) return { Icon: Train, tint: "bg-violet-50 text-violet-600" };
+  if (t.includes("авиа") || t.includes("возд")) return { Icon: Plane, tint: "bg-rose-50 text-rose-600" };
+  if (t.includes("мульти")) return { Icon: Shuffle, tint: "bg-emerald-50 text-emerald-600" };
+  return { Icon: Package, tint: "bg-primary/10 text-primary" };
 }
 
 function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
