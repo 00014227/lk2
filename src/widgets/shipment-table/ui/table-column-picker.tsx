@@ -38,7 +38,7 @@ export function TableColumnPicker({ hiddenCols, onToggleCol }: TableColumnPicker
       </button>
 
       {showPicker && (
-        <div className="absolute right-0 top-11 z-50 min-w-48 rounded-2xl border border-border bg-white p-2 shadow-xl">
+        <div className="absolute right-0 top-11 z-50 min-w-48 max-h-80 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-xl">
           <p className="px-2 py-1.5 text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
             Показать / скрыть
           </p>

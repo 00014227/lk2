@@ -26,6 +26,8 @@ export function TableCompanyPicker({ companies, selected, onToggle, onClear }: T
 
   const count = selected.length;
 
+  if (companies.length <= 1) return;
+
   return (
     <div className="relative" ref={pickerRef}>
       <button
