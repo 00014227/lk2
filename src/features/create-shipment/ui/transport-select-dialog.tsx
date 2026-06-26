@@ -140,7 +140,7 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
                       </p>
                     ) : (
                       estimates.map((est, i) => (
-                        <div key={i} className="overflow-hidden rounded-2xl border border-primary/20 bg-primary/[0.04]">
+                        <div key={i} className="overflow-hidden rounded-2xl border border-primary/20 bg-primary/4">
                           <div className="flex items-center justify-between gap-2 border-b border-primary/10 px-4 py-2.5">
                             <span className="text-sm font-medium text-slate-700">
                               {est.departure} → {est.destination}
