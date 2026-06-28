@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { logout } from "@features/auth";
 import { getUnratedDeliveries } from "@features/rate-delivery";
+import { NotificationBell } from "@features/notifications/ui/notification-bell";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import {
   fetchMyOrders,
@@ -93,17 +94,20 @@ export function DashboardShell() {
                   Центр управления клиентскими грузоперевозками
                 </h1>
               </div>
-              <Button
-                className="shrink-0 border-white/10 bg-white/10 text-white hover:bg-white/16"
-                variant="ghost"
-                onClick={() => {
-                  logout();
-                  window.location.href = "/login";
-                }}
-              >
-                <LogOut className="h-4 w-4" />
-                Выйти
-              </Button>
+              <div className="flex items-center gap-2 text-white">
+                <NotificationBell />
+                <Button
+                  className="shrink-0 border-white/10 bg-white/10 text-white hover:bg-white/16"
+                  variant="ghost"
+                  onClick={() => {
+                    logout();
+                    window.location.href = "/login";
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Выйти
+                </Button>
+              </div>
             </div>
             <p className="max-w-3xl text-sm leading-7 text-slate-200">
               Визуальный MVP для отслеживания отправлений, прозрачности для клиентов
