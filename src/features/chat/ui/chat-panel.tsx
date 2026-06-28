@@ -22,40 +22,42 @@ const TOPIC_COLORS: Record<string, string> = {
 
 type QuickGroup = { label: string; icon: string; templates: string[] };
 
-const QUICK_GROUPS: QuickGroup[] = [
-  {
-    label: "Груз и доставка",
-    icon: "🚛",
-    templates: [
-      "Где мой груз сейчас?",
-      "Когда ожидается доставка?",
-      "Есть ли задержка по перевозке?",
-    ],
-  },
-  {
-    label: "Документы",
-    icon: "📄",
-    templates: [
-      "Пришлите документы по грузу",
-      "Нужна накладная",
-      "Пришлите счёт-фактуру",
-    ],
-  },
-  {
-    label: "Финансы и оплата",
-    icon: "💰",
-    templates: [
-      "Вопрос по оплате",
-      "Уточнить стоимость доставки",
-      "Пришлите счёт на оплату",
-    ],
-  },
-  {
-    label: "Другой вопрос",
-    icon: "💬",
-    templates: [],
-  },
-];
+// The "Груз и доставка" templates adapt to the shipment's current phase, so the
+// suggested questions always match the situation (no "когда доставка?" on a
+// delivered order). Other groups stay constant.
+function deliveryTemplates(status: string): string[] {
+  switch (status) {
+    case "Доставлен":
+      return ["Пришлите закрывающие документы", "Нужна счёт-фактура", "Оставить отзыв о доставке"];
+    case "Прибывает":
+      return ["Куда прибудет груз?", "Как организовать получение?", "Какие документы нужны для приёмки?"];
+    case "Таможенный контроль":
+      return ["Что с растаможкой груза?", "Нужны ли документы от меня?", "Когда выпустят груз?"];
+    case "На границе":
+      return ["Что с грузом на границе?", "Когда продолжится перевозка?", "Есть ли задержка?"];
+    case "Задерживается":
+      return ["Почему задержка?", "Когда ожидать груз теперь?", "Что предпринимается?"];
+    default: // В пути
+      return ["Где мой груз сейчас?", "Когда ожидается доставка?", "Есть ли задержка по перевозке?"];
+  }
+}
+
+function quickGroups(status: string): QuickGroup[] {
+  return [
+    { label: "Груз и доставка", icon: "🚛", templates: deliveryTemplates(status) },
+    {
+      label: "Документы",
+      icon: "📄",
+      templates: ["Пришлите документы по грузу", "Нужна накладная", "Пришлите счёт-фактуру"],
+    },
+    {
+      label: "Финансы и оплата",
+      icon: "💰",
+      templates: ["Вопрос по оплате", "Уточнить стоимость доставки", "Пришлите счёт на оплату"],
+    },
+    { label: "Другой вопрос", icon: "💬", templates: [] },
+  ];
+}
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
@@ -102,9 +104,13 @@ interface ChatPanelProps {
   messages: OrderMessage[];
   loading: boolean;
   onSend: (body: string) => Promise<void>;
+  /** Hide the in-body manager contact block (e.g. when the dock header shows it). */
+  showContacts?: boolean;
+  /** Fill the parent height — message list grows instead of fixed 256px (dock mode). */
+  fill?: boolean;
 }
 
-export function ChatPanel({ shipment, messages, loading, onSend }: ChatPanelProps) {
+export function ChatPanel({ shipment, messages, loading, onSend, showContacts = true, fill = false }: ChatPanelProps) {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<QuickGroup | null>(null);
@@ -129,10 +135,10 @@ export function ChatPanel({ shipment, messages, loading, onSend }: ChatPanelProp
     finally { setSending(false); }
   }
 
-  const hasContacts = shipment.responsibleName || shipment.kamName;
+  const hasContacts = showContacts && (shipment.responsibleName || shipment.kamName);
 
   return (
-    <div className="flex flex-col gap-3 px-5 py-4">
+    <div className={`flex flex-col gap-3 px-5 py-4 ${fill ? "h-full" : ""}`}>
       {/* Manager contacts */}
       {hasContacts && (
         <div className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-2">
@@ -152,7 +158,7 @@ export function ChatPanel({ shipment, messages, loading, onSend }: ChatPanelProp
             <>
               <p className="text-center text-sm font-semibold text-slate-700">О чём хотите спросить?</p>
               <div className="flex flex-col gap-2">
-                {QUICK_GROUPS.map((g) => (
+                {quickGroups(shipment.status).map((g) => (
                   <button
                     key={g.label}
                     type="button"
@@ -222,7 +228,7 @@ export function ChatPanel({ shipment, messages, loading, onSend }: ChatPanelProp
       {/* ── CHAT WITH HISTORY — no topic selection anywhere ──────────────────── */}
       {hasMessages && (
         <>
-          <div ref={listRef} className="flex h-64 flex-col gap-2 overflow-y-auto rounded-2xl bg-slate-50/60 p-3">
+          <div ref={listRef} className={`flex flex-col gap-2 overflow-y-auto rounded-2xl bg-slate-50/60 p-3 ${fill ? "min-h-0 flex-1" : "h-64"}`}>
             {messages.map((m) => {
               // System events (status updates, future doc/invoice notifications)
               // render as a centered divider — not a chat bubble.
