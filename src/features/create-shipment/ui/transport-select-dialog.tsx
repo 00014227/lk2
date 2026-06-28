@@ -4,6 +4,7 @@ import * as RDialog from "@radix-ui/react-dialog";
 import {
   Calculator,
   CheckCircle2,
+  ChevronDown,
   Clock3,
   Info,
   Loader2,
@@ -17,6 +18,7 @@ import {
   XCircle,
   X,
 } from "lucide-react";
+import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
@@ -25,6 +27,7 @@ import {
   selectCls,
 } from "../lib/options";
 import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
+import type { TariffEstimate } from "@entities/tariff";
 import { FieldLabel, SectionLabel } from "./form-labels";
 import { LocationAutocomplete } from "./location-autocomplete";
 
@@ -138,62 +141,7 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
                 </div>
 
                 {/* Estimate result */}
-                {estimates !== null && (
-                  <div className="flex flex-col gap-2">
-                    {estimates.length === 0 ? (
-                      <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                        Точная ставка по запросу — отправьте заявку, менеджер свяжется с вами.
-                      </p>
-                    ) : (
-                      estimates.map((est, i) => {
-                        const { Icon, tint } = transportVisual(est.transportType);
-                        return (
-                          <div key={i} className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-                            {/* Compact header: icon + type + route on the left, price on the right */}
-                            <div className="flex items-center gap-3 px-4 py-3">
-                              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tint}`}>
-                                <Icon className="h-5 w-5" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate text-[13px] font-semibold text-slate-800">
-                                  {est.transportType ?? "Перевозка"}
-                                </p>
-                                <p className="truncate text-[11px] text-muted-foreground">
-                                  {est.departure}
-                                  {est.transitPoint ? ` → ${est.transitPoint}` : ""} → {est.destination}
-                                </p>
-                              </div>
-                              <div className="shrink-0 text-right">
-                                {est.total != null ? (
-                                  <>
-                                    <p className="whitespace-nowrap text-base font-bold leading-tight text-slate-900">
-                                      {est.total.toLocaleString("ru-RU")}
-                                      <span className="ml-1 text-[11px] font-semibold text-muted-foreground">{est.currency}</span>
-                                    </p>
-                                    {est.basis && <p className="text-[10px] text-muted-foreground">{est.basis}</p>}
-                                  </>
-                                ) : (
-                                  <p className="text-[11px] text-muted-foreground">по запросу</p>
-                                )}
-                              </div>
-                            </div>
-
-                            {(est.breakdown || est.included || est.excluded || est.transitTime || est.conditions) && (
-                              <div className="flex flex-col gap-1.5 border-t border-slate-100 px-4 py-2.5 text-[11px]">
-                                {est.breakdown && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Расчёт" value={est.breakdown} />}
-                                {est.included && <DetailRow icon={<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />} label="Включено" value={est.included} />}
-                                {est.excluded && <DetailRow icon={<XCircle className="h-3.5 w-3.5 text-rose-400" />} label="Не включено" value={est.excluded} />}
-                                {est.transitTime && <DetailRow icon={<Clock3 className="h-3.5 w-3.5 text-slate-400" />} label="Срок" value={est.transitTime} />}
-                                {est.conditions && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Условия" value={est.conditions} />}
-                                {est.sourceName && <p className="mt-0.5 text-[10px] italic text-muted-foreground">Источник: {est.sourceName}</p>}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                )}
+                <EstimateList estimates={estimates} />
 
                 {error && <p className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">{error}</p>}
 
@@ -222,6 +170,87 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
         </RDialog.Content>
       </RDialog.Portal>
     </RDialog.Root>
+  );
+}
+
+function EstimateList({ estimates }: { estimates: TariffEstimate[] | null }) {
+  const [openIdx, setOpenIdx] = useState<number | null>(0);
+
+  if (estimates === null) return null;
+
+  if (estimates.length === 0) {
+    return (
+      <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
+        Точная ставка по запросу — отправьте заявку, менеджер свяжется с вами.
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {estimates.map((est, i) => {
+        const { Icon, tint } = transportVisual(est.transportType);
+        const hasDetails = est.breakdown || est.included || est.excluded || est.transitTime || est.conditions;
+        const isOpen = openIdx === i;
+
+        return (
+          <div key={i} className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 px-4 py-3 text-left"
+              onClick={() => setOpenIdx(isOpen ? null : i)}
+            >
+              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tint}`}>
+                <Icon className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13px] font-semibold text-slate-800">
+                  {est.transportType ?? "Перевозка"}
+                </p>
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {est.departure} → {est.destination}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <div className="text-right">
+                  {est.total != null ? (
+                    <>
+                      <p className="whitespace-nowrap text-base font-bold leading-tight text-slate-900">
+                        {est.total.toLocaleString("ru-RU")}
+                        <span className="ml-1 text-[11px] font-semibold text-muted-foreground">{est.currency}</span>
+                      </p>
+                      {est.basis && <p className="text-[10px] text-muted-foreground">{est.basis}</p>}
+                    </>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground">по запросу</p>
+                  )}
+                  {est.freightOnly && (
+                    <p className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-amber-600">только за фрахт</p>
+                  )}
+                </div>
+                {hasDetails && (
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                  />
+                )}
+              </div>
+            </button>
+
+            {hasDetails && isOpen && (
+              <div className="flex flex-col gap-1.5 border-t border-slate-100 px-4 py-2.5 text-[11px]">
+                {est.transitPoint && <DetailRow icon={<Shuffle className="h-3.5 w-3.5 text-slate-400" />} label="Транзит" value={est.transitPoint} />}
+                {est.breakdown && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Расчёт" value={est.breakdown} />}
+                {est.included && <DetailRow icon={<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />} label="Включено" value={est.included} />}
+                {est.excluded && <DetailRow icon={<XCircle className="h-3.5 w-3.5 text-rose-400" />} label="Не включено" value={est.excluded} />}
+                {est.transitTime && <DetailRow icon={<Clock3 className="h-3.5 w-3.5 text-slate-400" />} label="Срок" value={est.transitTime} />}
+                {est.conditions && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Условия" value={est.conditions} />}
+                {est.sourceName && <p className="mt-0.5 text-[10px] italic text-muted-foreground">Источник: {est.sourceName}</p>}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

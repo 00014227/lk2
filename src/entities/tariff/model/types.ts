@@ -17,4 +17,5 @@ export interface TariffEstimate {
   transitTime: string | null;
   conditions: string | null;
   sourceName: string | null;
+  freightOnly?: boolean; // авто-прайс ташкентского офиса — только фрахт
 }
