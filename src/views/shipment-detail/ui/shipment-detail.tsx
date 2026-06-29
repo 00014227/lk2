@@ -133,28 +133,28 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
       className="transition-[padding] duration-200 ease-out"
       style={{ paddingRight: "var(--dock-w, 0px)" }}
     >
-    <main className="mx-auto min-h-screen max-w-400 pb-12">
+    <main className="mx-auto min-h-screen max-w-app pb-12">
       {/* ── Sticky header ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-border bg-white/95 px-5 py-4 backdrop-blur lg:px-8">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 items-center gap-4">
-            <BackLink className="shrink-0" />
-            <div className="min-w-0">
-              <p className="truncate font-display text-xl font-semibold leading-tight">
-                {shipment.id}
+      <header className="sticky top-0 z-30 border-b border-border bg-white/95 px-4 py-3 backdrop-blur sm:px-5 sm:py-4 lg:px-8">
+        {/* Заголовок переносится на отдельную строку ниже на узких экранах,
+            где он не помещается между «Назад» и статусом; на sm+ — в один ряд. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5">
+          <BackLink className="order-1 shrink-0" />
+          <div className="order-3 w-full min-w-0 sm:order-2 sm:w-auto sm:flex-1">
+            <p className="truncate font-display text-xl font-semibold leading-tight">
+              {shipment.id}
+            </p>
+            {shipment.customerName && (
+              <p className="truncate text-sm font-medium text-primary">
+                {shipment.customerName}
               </p>
-              {shipment.customerName && (
-                <p className="truncate text-sm font-medium text-primary">
-                  {shipment.customerName}
-                </p>
-              )}
-            </div>
+            )}
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="order-2 ml-auto flex shrink-0 items-center gap-3 sm:order-3 sm:ml-0">
             {shipment.status === "Доставлен" && (
               <Button type="button" variant="ghost" size="sm" onClick={rating.open}>
                 <Star className="h-4 w-4" />
-                Оценить доставку
+                <span className="hidden sm:inline">Оценить доставку</span>
               </Button>
             )}
             <Badge variant={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
@@ -173,13 +173,13 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
         </div>
 
         {/* Origin / destination */}
-        <div className="mt-2.5 flex items-center justify-between gap-4 text-sm">
+        <div className="mt-2.5 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <div className="flex min-w-0 items-center gap-1.5">
             <MapPinned className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span className="text-muted-foreground">Откуда:</span>
             <span className="truncate font-semibold text-slate-900">{shipment.origin}</span>
           </div>
-          <div className="flex min-w-0 items-center justify-end gap-1.5">
+          <div className="flex min-w-0 items-center gap-1.5 sm:justify-end">
             <span className="text-muted-foreground">Куда:</span>
             <span className="truncate font-semibold text-slate-900">{shipment.destination}</span>
             <MapPinned className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -188,7 +188,7 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
       </header>
 
       {/* ── Body ──────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-6 px-5 py-6 lg:px-8">
+      <div className="flex flex-col gap-6 px-4 py-5 sm:px-5 sm:py-6 lg:px-8">
         {/* Transport legs */}
         <section>
           <h2 className="mb-3 font-display text-lg font-semibold">Транспортировка</h2>
@@ -219,8 +219,8 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
             seaRoute={containerRoute}
             railwayEvents={railwayEvents.length ? railwayEvents : undefined}
           />
-          <div className="absolute bottom-4 left-1/2 z-1000 -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
-            <span className="text-sm font-semibold text-slate-800">
+          <div className="absolute bottom-4 left-1/2 z-1000 max-w-[calc(100%-1.5rem)] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
+            <span className="block truncate text-sm font-semibold text-slate-800">
               {shipment.origin} → {shipment.destination}
             </span>
           </div>

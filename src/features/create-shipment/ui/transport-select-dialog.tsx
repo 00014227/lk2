@@ -2,7 +2,7 @@
 
 import * as RDialog from "@radix-ui/react-dialog";
 import { memo } from "react";
-import { Calculator, CheckCircle2, Loader2, Package, Send, X } from "lucide-react";
+import { ArrowDown, ArrowRight, Calculator, CheckCircle2, Loader2, Package, Send, X } from "lucide-react";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
 import {
@@ -74,53 +74,61 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({ open,
                 {/* Route + cargo */}
                 <div>
                   <SectionLabel>Маршрут и груз</SectionLabel>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <FieldLabel>Город отправления</FieldLabel>
-                      <LocationAutocomplete value={origin} onChange={setOrigin} placeholder="напр. Ташкент" />
-                    </div>
-                    <div>
-                      <FieldLabel>Город назначения</FieldLabel>
-                      <LocationAutocomplete value={destination} onChange={setDestination} placeholder="напр. Стамбул" />
-                    </div>
 
-                    {isContainerMode ? (
-                      <>
-                        <div>
-                          <FieldLabel>Тип контейнера</FieldLabel>
-                          <select
-                            className={selectCls}
-                            value={containers[0]?.type ?? ""}
-                            onChange={(e) => updateContainer(0, "type", e.target.value)}
-                          >
-                            <option value="">Выберите...</option>
-                            {CONTAINER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-                          </select>
-                        </div>
-                        <div>
-                          <FieldLabel>Кол-во контейнеров</FieldLabel>
-                          <Input
-                            type="number"
-                            inputMode="numeric"
-                            placeholder="напр. 1"
-                            value={containers[0]?.qty ?? ""}
-                            onChange={(e) => updateContainer(0, "qty", e.target.value)}
-                          />
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="hidden">
-                          <FieldLabel>Вес, кг</FieldLabel>
-                          <Input type="number" inputMode="decimal" placeholder="напр. 1000" value={grossWeight} onChange={(e) => setGrossWeight(e.target.value)} />
-                        </div>
-                        <div className="hidden">
-                          <FieldLabel>Объём, м³</FieldLabel>
-                          <Input type="number" inputMode="decimal" placeholder="напр. 12" value={grossVolume} onChange={(e) => setGrossVolume(e.target.value)} />
-                        </div>
-                      </>
-                    )}
+                  {/* Маршрут: ↓ на узких экранах, → на широких */}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                    <div className="flex-1">
+                      <FieldLabel htmlFor="origin-city">Город отправления</FieldLabel>
+                      <LocationAutocomplete id="origin-city" value={origin} onChange={setOrigin} placeholder="напр. Ташкент" />
+                    </div>
+                    <div className="flex justify-center text-slate-400 sm:mb-3 sm:shrink-0" aria-hidden>
+                      <ArrowDown className="h-5 w-5 sm:hidden" />
+                      <ArrowRight className="hidden h-5 w-5 sm:block" />
+                    </div>
+                    <div className="flex-1">
+                      <FieldLabel htmlFor="destination-city">Город назначения</FieldLabel>
+                      <LocationAutocomplete id="destination-city" value={destination} onChange={setDestination} placeholder="напр. Стамбул" />
+                    </div>
                   </div>
+
+                  {isContainerMode ? (
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div>
+                        <FieldLabel htmlFor="container-type">Тип контейнера</FieldLabel>
+                        <select
+                          id="container-type"
+                          className={selectCls}
+                          value={containers[0]?.type ?? ""}
+                          onChange={(e) => updateContainer(0, "type", e.target.value)}
+                        >
+                          <option value="">Выберите...</option>
+                          {CONTAINER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <FieldLabel htmlFor="container-qty">Кол-во контейнеров</FieldLabel>
+                        <Input
+                          id="container-qty"
+                          type="number"
+                          inputMode="numeric"
+                          placeholder="напр. 1"
+                          value={containers[0]?.qty ?? ""}
+                          onChange={(e) => updateContainer(0, "qty", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="hidden">
+                        <FieldLabel>Вес, кг</FieldLabel>
+                        <Input type="number" inputMode="decimal" placeholder="напр. 1000" value={grossWeight} onChange={(e) => setGrossWeight(e.target.value)} />
+                      </div>
+                      <div className="hidden">
+                        <FieldLabel>Объём, м³</FieldLabel>
+                        <Input type="number" inputMode="decimal" placeholder="напр. 12" value={grossVolume} onChange={(e) => setGrossVolume(e.target.value)} />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Estimate result */}
