@@ -96,7 +96,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 origin-top-right overflow-hidden rounded-2xl border border-border bg-white shadow-[0_24px_80px_rgba(16,35,48,0.18)]">
+        <div className="fixed inset-x-3 top-[5.5rem] z-50 ml-auto w-auto max-w-sm origin-top overflow-hidden rounded-2xl border border-border bg-white shadow-[0_24px_80px_rgba(16,35,48,0.18)] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:ml-0 sm:mt-2 sm:w-80 sm:max-w-none sm:origin-top-right">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <p className="text-sm font-semibold text-slate-900">
