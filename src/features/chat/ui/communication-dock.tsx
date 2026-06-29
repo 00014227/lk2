@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@shared/lib/utils";
 import { useBreakpoint, useViewportWidth } from "@shared/lib/use-breakpoint";
-import { fetchOrderMessages, sendOrderMessage } from "@entities/order-message";
+import { fetchOrderMessages, sendOrderMessage, fetchUnreadNotifications } from "@entities/order-message";
 import type { OrderMessage } from "@entities/order-message";
 import type { Shipment } from "@entities/shipment";
 import { ChatPanel } from "./chat-panel";
@@ -137,8 +138,11 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
     return () => document.documentElement.style.setProperty("--dock-w", "0px");
   }, []);
 
-  // Polling: 5s when open, 30s when collapsed.
+  // Messages are loaded only while the chat is open. Fetching them marks them
+  // read on the server, so loading while collapsed would silently clear the
+  // unread notification before the user has actually read anything. Poll 5s.
   useEffect(() => {
+    if (!open) return;
     let active = true;
     const load = async () => {
       try {
@@ -147,8 +151,29 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
       } catch { if (active) setLoading(false); }
     };
     load();
-    const interval = open ? 5000 : 30000;
-    const timer = window.setInterval(load, interval);
+    const timer = window.setInterval(load, 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [orderNumber, open]);
+
+  // Unread badge for the collapsed rail: a read-only count from the same
+  // notifications feed the bell uses (this GET does NOT mark anything read).
+  // Opening the chat reads the messages, so we clear the badge optimistically.
+  const [unreadCount, setUnreadCount] = useState(0);
+  useEffect(() => {
+    if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUnreadCount(0);
+      return;
+    }
+    let active = true;
+    const load = async () => {
+      try {
+        const all = await fetchUnreadNotifications();
+        if (active) setUnreadCount(all.filter((n) => n.orderNumber === orderNumber).length);
+      } catch { /* ignore */ }
+    };
+    load();
+    const timer = window.setInterval(load, 30000);
     return () => { active = false; window.clearInterval(timer); };
   }, [orderNumber, open]);
 
@@ -159,6 +184,16 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
 
   const setOpen = (v: boolean) => setPrefs((p) => ({ ...p, open: v }));
   const toggleExpand = () => setPrefs((p) => ({ ...p, expanded: !p.expanded }));
+
+  // Auto-expand when the user arrived from a notification click (`?chat=open`).
+  // Runs once on mount; a new message arriving on the page (no param) won't
+  // trigger this — it only bumps the unread badge on the collapsed rail.
+  const searchParams = useSearchParams();
+  const openFromNotification = searchParams.get("chat") === "open";
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (openFromNotification) setOpen(true);
+  }, [openFromNotification]);
 
   // Escape closes when open.
   useEffect(() => {
@@ -188,10 +223,6 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
   };
-
-  const unreadCount = messages.filter(
-    (m) => (m.senderType === "manager" || m.senderType === "system") && !m.readByClient,
-  ).length;
 
   // ── Collapsed rail ─────────────────────────────────────────────────────────
   if (!open) {
