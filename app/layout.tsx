@@ -33,6 +33,42 @@ const nebulosaDisplay = localFont({
   fallback: ["Arial", "Helvetica", "sans-serif"],
 });
 
+// Основной читаемый шрифт интерфейса (Inter, оптический размер 18pt). Каждый
+// вес — отдельный файл, поэтому font-medium/semibold/bold дают настоящую,
+// а не имитированную разницу в начертании.
+const inter = localFont({
+  src: [
+    {
+      path: "../public/fonts/Inter/Inter_18pt-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Inter/Inter_18pt-Italic.woff2",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../public/fonts/Inter/Inter_18pt-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Inter/Inter_18pt-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/Inter/Inter_18pt-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-inter",
+  display: "swap",
+  fallback: ["Arial", "Helvetica", "sans-serif"],
+});
+
 export const metadata: Metadata = {
   title: "TransAsia Logistics Portal",
   description:
@@ -47,7 +83,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body
-        className={`${nebulosa.variable} ${nebulosaDisplay.variable} bg-background text-foreground antialiased`}
+        className={`${inter.variable} ${nebulosa.variable} ${nebulosaDisplay.variable} bg-background text-foreground antialiased`}
       >
         <AppProvider>{children}</AppProvider>
       </body>
