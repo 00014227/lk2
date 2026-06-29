@@ -75,7 +75,7 @@ export function ShipmentTable() {
   return (
     <div className="flex flex-col gap-0">
       {/* ── Filters ───────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 border-b border-border px-6 py-4">
+      <div className="flex flex-col gap-3 border-b border-border px-4 py-4 sm:px-6">
         <TableFilterBar
           search={filters.search}
           onSearchChange={setSearch}
@@ -101,7 +101,7 @@ export function ShipmentTable() {
       </div>
 
       {/* ── Table ─────────────────────────────────────────────────────────────── */}
-      <div className="overflow-x-auto">
+      <div className="max-w-full overflow-x-auto overscroll-x-contain">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <table className="table-fixed text-left" style={{ width: tableWidth, minWidth: "100%" }}>
             <colgroup>

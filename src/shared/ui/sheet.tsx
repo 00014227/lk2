@@ -31,7 +31,9 @@ function SheetContent({
       <SheetOverlay />
       <Dialog.Content
         className={cn(
-          "fixed inset-y-4 right-4 z-50 flex w-full max-w-xl flex-col rounded-[28px] border border-white/70 bg-white/96 shadow-[0_24px_80px_rgba(16,35,48,0.24)] outline-none",
+          // Полноэкранный на телефонах (без скруглений/отступов), карточка
+          // справа на sm+. pb под safe-area для iOS-индикатора.
+          "fixed inset-y-0 right-0 z-50 flex w-full flex-col rounded-none border border-white/70 bg-white/96 pb-[env(safe-area-inset-bottom)] shadow-[0_24px_80px_rgba(16,35,48,0.24)] outline-none sm:inset-y-4 sm:right-4 sm:max-w-xl sm:rounded-[28px] sm:pb-0",
           className,
         )}
         {...props}

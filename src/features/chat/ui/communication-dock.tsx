@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@shared/lib/utils";
+import { useBreakpoint, useViewportWidth } from "@shared/lib/use-breakpoint";
 import { fetchOrderMessages, sendOrderMessage } from "@entities/order-message";
 import type { OrderMessage } from "@entities/order-message";
 import type { Shipment } from "@entities/shipment";
@@ -78,12 +79,19 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
 
   // Lazy initializer reads localStorage on the client, default on the server.
   const [prefs, setPrefs] = useState<DockPrefs>(loadPrefs);
-  const [layout, setLayout] = useState<Layout>("push");
   const [messages, setMessages] = useState<OrderMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [dragging, setDragging] = useState(false);
 
   const { open, width, expanded } = prefs;
+
+  // Responsive layout derived from the shared breakpoint hook (SSR-safe).
+  // base/sm (<768) → sheet, md (768–1023) → overlay, lg+ (≥1024) → push.
+  // Starting from "sheet" on the first paint avoids reserving dock width on
+  // small screens (which would push content off-screen).
+  const bp = useBreakpoint();
+  const layout: Layout =
+    bp === "base" || bp === "sm" ? "sheet" : bp === "md" ? "overlay" : "push";
 
   // Persist prefs.
   useEffect(() => {
@@ -92,19 +100,8 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
     } catch { /* ignore */ }
   }, [prefs]);
 
-  // Track responsive layout mode.
-  useEffect(() => {
-    const compute = () => {
-      const w = window.innerWidth;
-      setLayout(w < 768 ? "sheet" : w < 1024 ? "overlay" : "push");
-    };
-    compute();
-    window.addEventListener("resize", compute);
-    return () => window.removeEventListener("resize", compute);
-  }, []);
-
   // Effective panel width by layout + expanded state.
-  const vw = typeof window !== "undefined" ? window.innerWidth : 1280;
+  const vw = useViewportWidth() || 1280;
   const effectiveWidth =
     layout === "sheet"
       ? vw
@@ -113,14 +110,27 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
         : width;
 
   // Push page content only in "push" layout — set CSS var consumed by the page.
+  // min(...,100vw) is a belt-and-suspenders guard so the reserved width can
+  // never exceed the viewport (no horizontal overflow on narrow screens).
   useEffect(() => {
     const root = document.documentElement;
-    const reserve = layout === "push" && open ? `${effectiveWidth}px` : "0px";
+    const reserve =
+      layout === "push" && open ? `min(${effectiveWidth}px, 100vw)` : "0px";
     root.style.setProperty("--dock-w", reserve);
     // Nudge map / charts to recompute size after the layout transition.
     const t = window.setTimeout(() => window.dispatchEvent(new Event("resize")), 260);
     return () => window.clearTimeout(t);
   }, [layout, open, effectiveWidth]);
+
+  // Lock body scroll behind the sheet/overlay (push leaves the page usable).
+  useEffect(() => {
+    if (!open || layout === "push") return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open, layout]);
 
   // Clean up the reserved space when the dock unmounts (navigating away).
   useEffect(() => {
@@ -206,7 +216,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
         aria-label="Связь с TransAsia"
         style={{ width: isSheet ? "100%" : effectiveWidth }}
         className={cn(
-          "fixed right-0 top-0 z-1100 flex h-[100dvh] flex-col border-l border-border bg-white shadow-[-4px_0_24px_rgba(16,35,48,0.10)]",
+          "fixed right-0 top-0 z-1100 flex h-dvh flex-col border-l border-border bg-white shadow-[-4px_0_24px_rgba(16,35,48,0.10)]",
           !dragging && "transition-[width] duration-200 ease-out",
         )}
       >
@@ -215,7 +225,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
           <div
             onPointerDown={onDragStart}
             onDoubleClick={() => setPrefs((p) => ({ ...p, width: DEFAULT_WIDTH, expanded: false }))}
-            className="absolute left-0 top-0 z-10 h-full w-1.5 cursor-col-resize"
+            className="absolute left-0 top-0 z-10 hidden h-full w-2.5 cursor-col-resize touch-none md:block"
             role="separator"
             aria-label="Изменить ширину панели"
           >
@@ -232,7 +242,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
         />
 
         {/* Conversation body fills remaining height */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pb-[env(safe-area-inset-bottom)]">
           <ChatPanel
             shipment={shipment}
             messages={messages}

@@ -20,8 +20,8 @@ export default function FleetMap() {
   const fleet = useFleetMap();
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
-      <div className="relative h-135 overflow-hidden rounded-[28px]">
+    <div className="grid gap-5 lg:grid-cols-[1fr_minmax(260px,320px)]">
+      <div className="relative h-[clamp(20rem,50vh,40rem)] overflow-hidden rounded-[28px] lg:h-[clamp(30rem,60vh,48rem)]">
         <BaseMap center={CENTER} zoom={5}>
           <MapClickHandler onDeselect={fleet.deselect} />
 

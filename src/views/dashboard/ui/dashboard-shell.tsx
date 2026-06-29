@@ -41,7 +41,7 @@ import { ShipmentTable } from "@widgets/shipment-table";
 const FleetMap = dynamic(() => import("@widgets/fleet-map"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-135 items-center justify-center rounded-[28px] bg-slate-100 text-sm font-semibold text-slate-500">
+    <div className="flex h-[clamp(20rem,50vh,40rem)] items-center justify-center rounded-[28px] bg-slate-100 text-sm font-semibold text-slate-500 lg:h-[clamp(30rem,60vh,48rem)]">
       Загрузка карты транспорта...
     </div>
   ),
@@ -84,7 +84,7 @@ export function DashboardShell() {
 
   return (
     <>
-      <main className="mx-auto flex min-h-screen max-w-400 flex-col gap-6 px-5 py-5 lg:px-8 lg:py-7">
+      <main className="mx-auto flex min-h-screen max-w-app flex-col gap-6 px-4 py-5 sm:px-5 lg:px-8 lg:py-7">
         <header className="flex flex-col gap-6 rounded-[34px] border border-white/10 bg-[#0c3078] p-6 text-white shadow-[0_24px_80px_rgba(12,48,120,0.28)] lg:p-8">
           <div className="flex items-center justify-between gap-4">
             <Logo tone="white" className="h-8" />
@@ -105,11 +105,11 @@ export function DashboardShell() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
-            <div className="space-y-5">
-              <h1 className="font-display text-4xl font-semibold tracking-tight">
+            <div className="min-w-0 space-y-5">
+              <h1 className="font-display text-2xl lg:text-4xl font-semibold tracking-tight">
                 Центр управления клиентскими грузоперевозками
               </h1>
-              <p className="max-w-3xl text-sm leading-7 text-slate-200">
+              <p className="max-w-3xl text-sm leading-5 lg:leading-7 text-slate-200">
                 Визуальный MVP для отслеживания отправлений, прозрачности для клиентов
                 и последующей интеграции с ERP, GPS и внешними API сервисами.
               </p>
@@ -136,7 +136,7 @@ export function DashboardShell() {
               </div>
             </div>
 
-            <div className="grid content-start gap-3 self-start rounded-[28px] border border-white/10 bg-white/8 p-4 backdrop-blur">
+            <div className="grid min-w-0 content-start gap-3 self-start rounded-[28px] border border-white/10 bg-white/8 p-4 backdrop-blur">
               <div className="flex items-center justify-between gap-3 rounded-[22px] bg-white/8 px-4 py-3">
                 <p className="text-xs font-semibold tracking-[0.22em] text-white/55 uppercase">
                   Всего перевозок
@@ -183,7 +183,7 @@ export function DashboardShell() {
           </div>
         </header>
 
-        <section className="grid gap-4 xl:grid-cols-3">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {stats.map((item) => (
             <Card key={item.label}>
               <CardContent className="flex items-start justify-between gap-4 p-6">
@@ -214,9 +214,9 @@ export function DashboardShell() {
                 Видимость отправлений
               </h2>
             </div>
-            <div className="inline-flex rounded-full border border-white/70 bg-white/85 p-1 shadow-[0_14px_30px_rgba(16,35,48,0.06)]">
+            <div className="flex w-full rounded-full border border-white/70 bg-white/85 p-1 shadow-[0_14px_30px_rgba(16,35,48,0.06)] sm:inline-flex sm:w-auto">
               <button
-                className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                className={`flex-1 rounded-full px-5 py-2.5 text-sm font-semibold transition sm:flex-none ${
                   activeTab === "map"
                     ? "bg-primary text-primary-foreground shadow-[0_10px_24px_rgba(12,48,120,0.22)]"
                     : "text-slate-600"
@@ -227,7 +227,7 @@ export function DashboardShell() {
                 Карта
               </button>
               <button
-                className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                className={`flex-1 rounded-full px-5 py-2.5 text-sm font-semibold transition sm:flex-none ${
                   activeTab === "shipments"
                     ? "bg-primary text-primary-foreground shadow-[0_10px_24px_rgba(12,48,120,0.22)]"
                     : "text-slate-600"
