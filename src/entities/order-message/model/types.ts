@@ -20,3 +20,10 @@ export interface UnreadNotification {
   topic: string;
   createdAt: string;
 }
+
+export interface StatusHistoryEntry {
+  id: string;
+  status: string;
+  location: string | null;
+  changedAt: string;
+}

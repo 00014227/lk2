@@ -39,6 +39,7 @@ export function TransportSegmentCards({
           tracking={
             <LegTracking
               type={leg.type}
+              orderNumber={shipment.id}
               railwayEvents={railwayEvents}
               airEvents={airEvents}
               seaPositions={seaPositions}

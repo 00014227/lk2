@@ -1,5 +1,5 @@
 import api from "@shared/api";
-import type { OrderMessage, UnreadNotification } from "../model/types";
+import type { OrderMessage, UnreadNotification, StatusHistoryEntry } from "../model/types";
 
 export async function fetchOrderMessages(orderNumber: string): Promise<OrderMessage[]> {
   const res = await api.get<OrderMessage[]>(
@@ -22,5 +22,12 @@ export async function sendOrderMessage(
 
 export async function fetchUnreadNotifications(): Promise<UnreadNotification[]> {
   const res = await api.get<UnreadNotification[]>('/orders/my/unread-notifications');
+  return res.data;
+}
+
+export async function fetchStatusHistory(orderNumber: string): Promise<StatusHistoryEntry[]> {
+  const res = await api.get<StatusHistoryEntry[]>(
+    `/orders/my/${encodeURIComponent(orderNumber)}/status-history`,
+  );
   return res.data;
 }
