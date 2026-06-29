@@ -71,9 +71,10 @@ export function NotificationBell() {
   const count = notifications.length;
   const grouped = groupByOrder(notifications);
 
-  function goToOrder(orderId: string) {
+  function goToOrder(orderNumber: string) {
     setOpen(false);
-    router.push(`/dashboard/${encodeURIComponent(orderId)}`);
+    // `?chat=open` tells the order's communication dock to auto-expand the chat.
+    router.push(`/dashboard/${encodeURIComponent(orderNumber)}?chat=open`);
   }
 
   return (
@@ -129,7 +130,7 @@ export function NotificationBell() {
                   <button
                     key={orderId}
                     type="button"
-                    onClick={() => goToOrder(orderId)}
+                    onClick={() => goToOrder(first.orderNumber)}
                     className="w-full border-b border-border px-4 py-3 text-left transition last:border-0 hover:bg-slate-50 active:bg-slate-100"
                   >
                     <div className="flex items-start justify-between gap-2">
