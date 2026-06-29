@@ -38,21 +38,23 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<UnreadNotification[]>([]);
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  async function load() {
-    try {
-      const data = await fetchUnreadNotifications();
-      setNotifications(data);
-    } catch {
-      // silent
-    }
-  }
 
   useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const data = await fetchUnreadNotifications();
+        if (active) setNotifications(data);
+      } catch {
+        // silent
+      }
+    }
     load();
-    pollRef.current = setInterval(load, 30_000);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+    const id = setInterval(load, 30_000);
+    return () => {
+      active = false;
+      clearInterval(id);
+    };
   }, []);
 
   useEffect(() => {

@@ -1,23 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  ChevronLeft,
-  Clock,
-  Mail,
-  MapPin,
-  MessageSquare,
-  Maximize2,
-  Minimize2,
-  Phone,
-  Truck,
-  X,
-} from "lucide-react";
 import { cn } from "@shared/lib/utils";
 import { fetchOrderMessages, sendOrderMessage } from "@entities/order-message";
 import type { OrderMessage } from "@entities/order-message";
 import type { Shipment } from "@entities/shipment";
 import { ChatPanel } from "./chat-panel";
+import { ContextHeader } from "./context-header";
+import { DockCollapsedRail } from "./dock-collapsed-rail";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -52,25 +42,6 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
-function transportLabel(t: string | null | undefined): string {
-  if (!t) return "";
-  const l = t.toLowerCase();
-  if (l.includes("мор") || l.includes("sea")) return "Море";
-  if (l.includes("авиа") || l.includes("air")) return "Авиа";
-  if (l.includes("жел") || l.includes("rail")) return "Ж/Д";
-  if (l.includes("авто") || l.includes("truck")) return "Авто";
-  return t;
-}
-
-const STATUS_DOT: Record<string, string> = {
-  Доставлен: "bg-emerald-500",
-  Прибывает: "bg-sky-500",
-  "Таможенный контроль": "bg-orange-500",
-  "На границе": "bg-amber-500",
-  Задерживается: "bg-rose-500",
-  "В пути": "bg-blue-500",
-};
-
 function inTashkentWorkHours(): boolean {
   const h = Number(new Date().toLocaleString("ru-RU", { hour: "numeric", timeZone: "Asia/Tashkent" }));
   return h >= 9 && h < 18;
@@ -98,115 +69,6 @@ function avgReplyLabel(messages: OrderMessage[]): string {
   return inTashkentWorkHours()
     ? "Обычно отвечает в течение 15–30 минут"
     : "Ответит утром, с 09:00 (Ташкент)";
-}
-
-// ── Context header ───────────────────────────────────────────────────────────
-
-function ContextHeader({
-  shipment,
-  avgReply,
-  expanded,
-  onToggleExpand,
-  onClose,
-}: {
-  shipment: Shipment;
-  avgReply: string;
-  expanded: boolean;
-  onToggleExpand: () => void;
-  onClose: () => void;
-}) {
-  const transport = transportLabel(shipment.transportationType);
-  const managerName = shipment.responsibleName || shipment.kamName;
-  const managerPhone = shipment.responsiblePhone || shipment.kamPhone;
-  const managerEmail = shipment.responsibleEmail || shipment.kamEmail;
-  const dot = STATUS_DOT[shipment.status] ?? "bg-slate-400";
-
-  return (
-    <div className="shrink-0 border-b border-border bg-white px-5 pb-3 pt-3">
-      {/* Row 1: number + controls */}
-      <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-[15px] font-semibold text-slate-900">{shipment.id}</p>
-        <div className="flex shrink-0 items-center gap-0.5">
-          <button
-            type="button"
-            onClick={onToggleExpand}
-            aria-label={expanded ? "Свернуть панель" : "Развернуть панель"}
-            className="hidden h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 lg:flex"
-          >
-            {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Закрыть панель"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Row 2: route + transport */}
-      <div className="mt-1 flex items-center gap-1.5 text-[13px] text-slate-600">
-        <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-        <span className="truncate">
-          {shipment.origin} → {shipment.destination}
-        </span>
-        {transport && (
-          <span className="flex shrink-0 items-center gap-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
-            <Truck className="h-2.5 w-2.5" /> {transport}
-          </span>
-        )}
-      </div>
-
-      {/* Row 3: status + ETA */}
-      <div className="mt-1 flex items-center gap-2 text-[13px]">
-        <span className="flex items-center gap-1.5">
-          <span className={cn("h-2 w-2 rounded-full", dot)} />
-          <span className="font-medium text-slate-700">{shipment.status}</span>
-        </span>
-        {shipment.estimatedArrival && (
-          <span className="text-slate-400">·&nbsp;ETA&nbsp;{shipment.estimatedArrival}</span>
-        )}
-      </div>
-
-      {/* Row 4: manager */}
-      {managerName && (
-        <div className="mt-2.5 flex items-start gap-2.5 rounded-xl bg-slate-50 px-3 py-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[13px] font-semibold text-primary">
-            {managerName.slice(0, 1)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-semibold text-slate-900">{managerName}</p>
-            <p className="text-[11px] text-slate-400">TransAsia</p>
-            <p className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-500">
-              <Clock className="h-3 w-3" /> {avgReply}
-            </p>
-          </div>
-          <div className="flex shrink-0 flex-col gap-1">
-            {managerPhone && (
-              <a
-                href={`tel:${managerPhone}`}
-                aria-label="Позвонить"
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-white text-slate-500 transition hover:border-primary/40 hover:text-primary"
-              >
-                <Phone className="h-3.5 w-3.5" />
-              </a>
-            )}
-            {managerEmail && (
-              <a
-                href={`mailto:${managerEmail}`}
-                aria-label="Написать на почту"
-                className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-white text-slate-500 transition hover:border-primary/40 hover:text-primary"
-              >
-                <Mail className="h-3.5 w-3.5" />
-              </a>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
 }
 
 // ── Dock ─────────────────────────────────────────────────────────────────────
@@ -323,27 +185,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
 
   // ── Collapsed rail ─────────────────────────────────────────────────────────
   if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Открыть связь с TransAsia"
-        className="group fixed right-0 top-1/2 z-1100 flex -translate-y-1/2 flex-col items-center gap-2 rounded-l-2xl border border-r-0 border-border bg-white px-2.5 py-4 shadow-[-4px_0_24px_rgba(16,35,48,0.08)] transition hover:bg-primary/5"
-      >
-        <span className="relative">
-          <MessageSquare className="h-5 w-5 text-primary" />
-          {unreadCount > 0 && (
-            <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </span>
-          )}
-        </span>
-        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500 [writing-mode:vertical-rl]">
-          Связь
-        </span>
-        <ChevronLeft className="h-4 w-4 text-slate-300 transition group-hover:-translate-x-0.5 group-hover:text-primary" />
-      </button>
-    );
+    return <DockCollapsedRail unreadCount={unreadCount} onOpen={() => setOpen(true)} />;
   }
 
   // ── Open panel ───────────────────────────────────────────────────────────────
