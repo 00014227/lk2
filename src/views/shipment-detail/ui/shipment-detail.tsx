@@ -136,21 +136,21 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
     <main className="mx-auto min-h-screen max-w-app pb-12">
       {/* ── Sticky header ─────────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 border-b border-border bg-white/95 px-4 py-3 backdrop-blur sm:px-5 sm:py-4 lg:px-8">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex min-w-0 items-center gap-4">
-            <BackLink className="shrink-0" />
-            <div className="min-w-0">
-              <p className="truncate font-display text-xl font-semibold leading-tight">
-                {shipment.id}
+        {/* Заголовок переносится на отдельную строку ниже на узких экранах,
+            где он не помещается между «Назад» и статусом; на sm+ — в один ряд. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5">
+          <BackLink className="order-1 shrink-0" />
+          <div className="order-3 w-full min-w-0 sm:order-2 sm:w-auto sm:flex-1">
+            <p className="truncate font-display text-xl font-semibold leading-tight">
+              {shipment.id}
+            </p>
+            {shipment.customerName && (
+              <p className="truncate text-sm font-medium text-primary">
+                {shipment.customerName}
               </p>
-              {shipment.customerName && (
-                <p className="truncate text-sm font-medium text-primary">
-                  {shipment.customerName}
-                </p>
-              )}
-            </div>
+            )}
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="order-2 ml-auto flex shrink-0 items-center gap-3 sm:order-3 sm:ml-0">
             {shipment.status === "Доставлен" && (
               <Button type="button" variant="ghost" size="sm" onClick={rating.open}>
                 <Star className="h-4 w-4" />

@@ -7,10 +7,12 @@ import type { TariffLocation } from "@entities/tariff";
 
 /** City input with suggestions pulled from the tariff location dictionary. */
 export function LocationAutocomplete({
+  id,
   value,
   onChange,
   placeholder,
 }: {
+  id?: string;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
@@ -32,6 +34,7 @@ export function LocationAutocomplete({
   return (
     <div className="relative">
       <Input
+        id={id}
         placeholder={placeholder}
         value={value}
         onChange={(e) => { onChange(e.target.value); setOpen(true); }}
