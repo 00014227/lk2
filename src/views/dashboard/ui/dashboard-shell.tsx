@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { logout } from "@features/auth";
 import { getUnratedDeliveries } from "@features/rate-delivery";
+import { NotificationBell } from "@features/notifications";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import {
   fetchMyOrders,
@@ -84,15 +85,11 @@ export function DashboardShell() {
   return (
     <>
       <main className="mx-auto flex min-h-screen max-w-400 flex-col gap-6 px-5 py-5 lg:px-8 lg:py-7">
-        <header className="grid gap-4 rounded-[34px] border border-white/10 bg-[#0c3078] p-6 text-white shadow-[0_24px_80px_rgba(12,48,120,0.28)] lg:grid-cols-[1.35fr_0.65fr] lg:p-8">
-          <div className="space-y-5">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <Logo tone="white" className="h-8" />
-                <h1 className="mt-5 font-display text-4xl font-semibold tracking-tight">
-                  Центр управления клиентскими грузоперевозками
-                </h1>
-              </div>
+        <header className="flex flex-col gap-6 rounded-[34px] border border-white/10 bg-[#0c3078] p-6 text-white shadow-[0_24px_80px_rgba(12,48,120,0.28)] lg:p-8">
+          <div className="flex items-center justify-between gap-4">
+            <Logo tone="white" className="h-8" />
+            <div className="flex items-center gap-2 text-white">
+              <NotificationBell />
               <Button
                 className="shrink-0 border-white/10 bg-white/10 text-white hover:bg-white/16"
                 variant="ghost"
@@ -105,76 +102,84 @@ export function DashboardShell() {
                 Выйти
               </Button>
             </div>
-            <p className="max-w-3xl text-sm leading-7 text-slate-200">
-              Визуальный MVP для отслеживания отправлений, прозрачности для клиентов
-              и последующей интеграции с ERP, GPS и внешними API сервисами.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <Badge className="bg-white/14 text-white" variant="neutral">
-                Логистическая панель
-              </Badge>
-              <Badge className="bg-white/14 text-white" variant="neutral">
-                Backend API
-              </Badge>
-              {loading ? (
-                <Badge className="bg-amber-400/18 text-amber-100" variant="neutral">
-                  Загрузка данных...
-                </Badge>
-              ) : error ? (
-                <Badge className="bg-rose-400/18 text-rose-200" variant="neutral">
-                  Ошибка загрузки
-                </Badge>
-              ) : (
-                <Badge className="bg-green-400/18 text-green-200" variant="neutral">
-                  Данные актуальны
-                </Badge>
-              )}
-            </div>
           </div>
 
-          <div className="grid gap-3 rounded-[28px] border border-white/10 bg-white/8 p-4 backdrop-blur">
-            <div className="flex items-center justify-between rounded-[22px] bg-white/8 px-4 py-3">
-              <div>
+          <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
+            <div className="space-y-5">
+              <h1 className="font-display text-4xl font-semibold tracking-tight">
+                Центр управления клиентскими грузоперевозками
+              </h1>
+              <p className="max-w-3xl text-sm leading-7 text-slate-200">
+                Визуальный MVP для отслеживания отправлений, прозрачности для клиентов
+                и последующей интеграции с ERP, GPS и внешними API сервисами.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge className="bg-white/14 text-white" variant="neutral">
+                  Логистическая панель
+                </Badge>
+                <Badge className="bg-white/14 text-white" variant="neutral">
+                  Backend API
+                </Badge>
+                {loading ? (
+                  <Badge className="bg-amber-400/18 text-amber-100" variant="neutral">
+                    Загрузка данных...
+                  </Badge>
+                ) : error ? (
+                  <Badge className="bg-rose-400/18 text-rose-200" variant="neutral">
+                    Ошибка загрузки
+                  </Badge>
+                ) : (
+                  <Badge className="bg-green-400/18 text-green-200" variant="neutral">
+                    Данные актуальны
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="grid content-start gap-3 self-start rounded-[28px] border border-white/10 bg-white/8 p-4 backdrop-blur">
+              <div className="flex items-center justify-between gap-3 rounded-[22px] bg-white/8 px-4 py-3">
                 <p className="text-xs font-semibold tracking-[0.22em] text-white/55 uppercase">
                   Всего перевозок
                 </p>
-                <p className="mt-1 text-lg font-semibold">{shipments.length}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-semibold">{shipments.length}</p>
+                  <ArrowRight className="h-5 w-5 text-accent" />
+                </div>
               </div>
-              <ArrowRight className="h-5 w-5 text-accent" />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[22px] bg-white/8 p-4">
-                <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
-                  Доставлено
-                </p>
-                <p className="mt-2 text-2xl font-semibold">
-                  {shipments.filter((s) => s.status === "Доставлен").length}
-                </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="flex items-center justify-between gap-3 rounded-[22px] bg-white/8 px-4 py-3">
+                  <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
+                    Доставлено
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {shipments.filter((s) => s.status === "Доставлен").length}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between gap-3 rounded-[22px] bg-white/8 px-4 py-3">
+                  <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
+                    В пути
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {shipments.filter((s) => s.status !== "Доставлен").length}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-[22px] bg-white/8 p-4">
-                <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
-                  В пути
-                </p>
-                <p className="mt-2 text-2xl font-semibold">
-                  {shipments.filter((s) => s.status !== "Доставлен").length}
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/rating"
-              className="flex items-center justify-between rounded-[22px] bg-white/8 px-4 py-3 transition hover:bg-white/16 focus-visible:ring-4 focus-visible:ring-white/30 focus-visible:outline-none"
-            >
-              <div className="flex items-center gap-3">
-                <Star className="h-5 w-5 text-amber-300" />
-                <div>
+              <Link
+                href="/rating"
+                className="flex items-center justify-between gap-3 rounded-[22px] bg-white/8 px-4 py-3 transition hover:bg-white/16 focus-visible:ring-4 focus-visible:ring-white/30 focus-visible:outline-none"
+              >
+                <div className="flex items-center gap-3">
+                  <Star className="h-5 w-5 text-amber-300" />
                   <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
                     Оценить поездки
                   </p>
-                  <p className="mt-1 text-lg font-semibold">{unratedCount}</p>
                 </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-white/70" />
-            </Link>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-semibold">{unratedCount}</p>
+                  <ChevronRight className="h-5 w-5 text-white/70" />
+                </div>
+              </Link>
+            </div>
           </div>
         </header>
 

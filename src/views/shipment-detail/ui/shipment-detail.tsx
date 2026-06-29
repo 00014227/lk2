@@ -15,7 +15,7 @@ import { useGPSProgress } from "@features/track-shipment";
 import { useShipmentTracking } from "@features/track-shipment";
 import type { Shipment } from "@entities/shipment";
 import { TransportSegmentCards } from "@features/track-shipment";
-import { FloatingChat } from "@features/chat";
+import { CommunicationDock } from "@features/chat";
 import { ShipmentInfo } from "@widgets/shipment-info";
 
 const ShipmentRouteMap = dynamic(() => import("@widgets/shipment-route-map"), {
@@ -129,6 +129,10 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
   } = useShipmentTracking(shipment);
 
   return (
+    <div
+      className="transition-[padding] duration-200 ease-out"
+      style={{ paddingRight: "var(--dock-w, 0px)" }}
+    >
     <main className="mx-auto min-h-screen max-w-400 pb-12">
       {/* ── Sticky header ─────────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 border-b border-border bg-white/95 px-5 py-4 backdrop-blur lg:px-8">
@@ -225,9 +229,10 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
         {/* Footer */}
         <p className="text-xs text-muted-foreground">Создан: {shipment.createdDate}</p>
       </div>
+    </main>
 
-      {/* Floating chat with manager */}
-      <FloatingChat shipment={shipment} />
+      {/* Right dock — communication center for this shipment */}
+      <CommunicationDock shipment={shipment} />
 
       {/* Delivery rating popup — auto-opens for delivered, unrated shipments */}
       <RateDeliveryModal
@@ -237,6 +242,6 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
         otherUnratedCount={rating.otherUnratedCount}
         onRateOthers={rating.goToRatingPage}
       />
-    </main>
+    </div>
   );
 }
