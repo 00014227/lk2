@@ -29,6 +29,10 @@ export function RatingShell() {
     setList(getUnratedDeliveries(shipments));
   }, [shipments]);
 
+  // Stable reference (kept stable by the React Compiler) so memoized rows
+  // don't re-render when an unrelated row is rated out of the list.
+  const handleRated = (id: string) => setList((prev) => prev.filter((s) => s.id !== id));
+
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-5 py-6 lg:px-8">
       <header className="flex items-center gap-4">
@@ -65,7 +69,7 @@ export function RatingShell() {
             <UnratedDeliveryRow
               key={shipment.id}
               shipment={shipment}
-              onRated={(id) => setList((prev) => prev.filter((s) => s.id !== id))}
+              onRated={handleRated}
             />
           ))
         )}

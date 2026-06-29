@@ -1,6 +1,7 @@
 "use client";
 
 import * as RDialog from "@radix-ui/react-dialog";
+import { memo } from "react";
 import { Calculator, CheckCircle2, Loader2, Package, Send, X } from "lucide-react";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
@@ -19,7 +20,7 @@ interface TransportSelectDialogProps {
   form: UseCreateShipmentForm;
 }
 
-export function TransportSelectDialog({ open, onClose, form }: TransportSelectDialogProps) {
+export const TransportSelectDialog = memo(function TransportSelectDialog({ open, onClose, form }: TransportSelectDialogProps) {
   const { transportType } = form.type;
   const { origin, setOrigin, destination, setDestination, estimating, estimates, run } = form.estimate;
   const { grossWeight, setGrossWeight, grossVolume, setGrossVolume } = form.cargo;
@@ -153,4 +154,4 @@ export function TransportSelectDialog({ open, onClose, form }: TransportSelectDi
       </RDialog.Portal>
     </RDialog.Root>
   );
-}
+});

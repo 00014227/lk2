@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, MapPin } from "lucide-react";
 import { Button } from "@shared/ui/button";
@@ -14,7 +14,10 @@ interface UnratedDeliveryRowProps {
   onRated: (id: string) => void;
 }
 
-export function UnratedDeliveryRow({ shipment, onRated }: UnratedDeliveryRowProps) {
+// memo: rendered in a list in RatingShell; when one delivery is rated and
+// filtered out, memo lets the remaining rows skip re-render (their `shipment`
+// is unchanged and `onRated` is kept stable by the React Compiler).
+export const UnratedDeliveryRow = memo(function UnratedDeliveryRow({ shipment, onRated }: UnratedDeliveryRowProps) {
   const [rating, setRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
@@ -67,4 +70,4 @@ export function UnratedDeliveryRow({ shipment, onRated }: UnratedDeliveryRowProp
       </div>
     </div>
   );
-}
+});
