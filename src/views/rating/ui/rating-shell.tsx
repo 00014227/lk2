@@ -34,7 +34,7 @@ export function RatingShell() {
   const handleRated = (id: string) => setList((prev) => prev.filter((s) => s.id !== id));
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-5 py-6 lg:px-8">
+    <main className="mx-auto min-h-screen max-w-3xl px-4 py-6 sm:px-5 lg:px-8">
       <header className="flex items-center gap-4">
         <Link
           href="/dashboard"

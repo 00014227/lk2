@@ -46,7 +46,7 @@ export function Modal({
             placement === "center" &&
               "left-1/2 top-1/2 max-h-[90vh] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[28px] data-[state=open]:animate-content-in",
             placement === "bottom" &&
-              "inset-x-0 bottom-0 mx-auto max-h-[90vh] w-full max-w-md rounded-t-[28px] data-[state=open]:animate-sheet-in",
+              "inset-x-0 bottom-0 mx-auto max-h-[90vh] w-full max-w-md rounded-t-[28px] pb-[env(safe-area-inset-bottom)] data-[state=open]:animate-sheet-in",
             "motion-reduce:animate-none",
             className,
           )}

@@ -20,19 +20,19 @@ export function TablePagination({
   onPageChange,
 }: TablePaginationProps) {
   return (
-    <div className="flex items-center justify-between gap-4 border-t border-border px-6 py-4">
+    <div className="flex flex-col items-start gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6">
       <p className="text-sm text-muted-foreground">
         {totalCount === 0
           ? "Нет результатов"
           : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, totalCount)} из ${totalCount}`}
       </p>
 
-      <div className="flex items-center gap-2">
+      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
         <Button size="icon" variant="outline" disabled={safePage <= 1} onClick={() => onPageChange((p) => p - 1)}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
 
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {Array.from({ length: totalPages }, (_, i) => i + 1)
             .filter((p) => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
             .reduce<(number | "…")[]>((acc, p, idx, arr) => {

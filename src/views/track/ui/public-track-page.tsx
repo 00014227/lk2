@@ -93,7 +93,7 @@ export function PublicTrackPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(12,48,120,0.12),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(239,63,34,0.09),transparent_28%),linear-gradient(180deg,#f7f9fd_0%,#eaeef7_100%)]">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="border-b border-border/50 bg-white/70 px-6 py-4 backdrop-blur-sm">
+      <header className="border-b border-border/50 bg-white/70 px-4 py-4 backdrop-blur-sm sm:px-6">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Logo variant="full" className="h-7" />
           <Link
@@ -106,7 +106,7 @@ export function PublicTrackPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-6 py-10">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         {/* ── Search ─────────────────────────────────────────────────────── */}
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900">
@@ -116,7 +116,7 @@ export function PublicTrackPage() {
             Введите номер перевозки для просмотра статуса и маршрута
           </p>
 
-          <form className="mt-6 flex gap-3" onSubmit={handleSearch}>
+          <form className="mt-6 flex flex-col gap-3 sm:flex-row" onSubmit={handleSearch}>
             <Input
               className="flex-1 text-base"
               placeholder="Например: TLUZ-008618"
@@ -124,7 +124,7 @@ export function PublicTrackPage() {
               onChange={(e) => setQuery(e.target.value)}
               disabled={loading}
             />
-            <Button type="submit" size="lg" disabled={loading || !query.trim()}>
+            <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={loading || !query.trim()}>
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -149,9 +149,9 @@ export function PublicTrackPage() {
         {/* ── Results ────────────────────────────────────────────────────── */}
         {result && (
           <div className="mt-10 overflow-hidden rounded-[28px] border border-border bg-white shadow-[0_8px_40px_rgba(16,35,48,0.10)]">
-            <div className="flex min-h-[70vh]">
+            <div className="flex flex-col lg:min-h-[70vh] lg:flex-row">
               {/* Map */}
-              <div className="relative min-w-0 flex-1">
+              <div className="relative h-[clamp(18rem,45vh,36rem)] min-w-0 lg:h-auto lg:flex-1">
                 <ShipmentRouteMap
                   key={result.shipment.id}
                   origin={result.shipment.origin}
@@ -165,15 +165,15 @@ export function PublicTrackPage() {
                   railwayEvents={result.railwayEvents.length ? result.railwayEvents : undefined}
                 />
                 {/* Route overlay */}
-                <div className="absolute bottom-4 left-1/2 z-1000 -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
-                  <span className="text-sm font-semibold text-slate-800">
+                <div className="absolute bottom-4 left-1/2 z-1000 max-w-[calc(100%-1.5rem)] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
+                  <span className="block truncate text-sm font-semibold text-slate-800">
                     {result.shipment.origin} → {result.shipment.destination}
                   </span>
                 </div>
               </div>
 
               {/* Details panel */}
-              <div className="flex w-80 shrink-0 flex-col overflow-y-auto border-l border-border bg-slate-50/60">
+              <div className="flex w-full shrink-0 flex-col overflow-y-auto border-t border-border bg-slate-50/60 lg:w-80 lg:border-t-0 lg:border-l">
                 {/* Header */}
                 <div className="border-b border-border bg-white px-6 py-5">
                   <Badge variant={getStatusVariant(result.shipment.status)}>

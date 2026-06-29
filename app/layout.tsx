@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { AppProvider } from "@app/providers/app-provider";
 import "@app/styles/globals.css";
@@ -73,6 +73,18 @@ export const metadata: Metadata = {
   title: "TransAsia Logistics Portal",
   description:
     "Client logistics dashboard for shipment visibility and tracking.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // viewport-fit=cover — чтобы док/шит на iOS могли рисоваться под вырезом и
+  // индикатором (вместе с env(safe-area-inset-*) в самих компонентах).
+  viewportFit: "cover",
+  themeColor: "#0c3078",
+  // Намеренно НЕ ставим maximumScale/userScalable:false — блокировка зума
+  // нарушает доступность (WCAG 1.4.4). Fluid-типографика снижает потребность
+  // в зуме, но не запрещает его.
 };
 
 export default function RootLayout({

@@ -39,9 +39,9 @@ export function TableFilterBar({
   onToggleCol,
 }: TableFilterBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
       {/* Search */}
-      <div className="relative min-w-50 flex-1">
+      <div className="relative w-full sm:min-w-50 sm:flex-1">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           className="h-9 rounded-xl pl-9 text-sm"
@@ -82,7 +82,7 @@ export function TableFilterBar({
         </button>
       )}
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
         {/* Calculate cost button (opens the estimate modal) */}
         <Button
           size="sm"
