@@ -1,12 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { cn } from "@shared/lib/utils";
-import { useBreakpoint, useViewportWidth } from "@shared/lib/use-breakpoint";
-import { fetchOrderMessages, sendOrderMessage, fetchUnreadNotifications } from "@entities/order-message";
+import { useCallback, useEffect, useState } from "react";
+
+import {
+  fetchOrderMessages,
+  sendOrderMessage,
+  fetchUnreadNotifications,
+} from "@entities/order-message";
 import type { OrderMessage } from "@entities/order-message";
 import type { Shipment } from "@entities/shipment";
+
+import { useBreakpoint, useViewportWidth } from "@shared/lib/use-breakpoint";
+import { cn } from "@shared/lib/utils";
+
 import { ChatPanel } from "./chat-panel";
 import { ContextHeader } from "./context-header";
 import { DockCollapsedRail } from "./dock-collapsed-rail";
@@ -36,7 +43,9 @@ function loadPrefs(): DockPrefs {
         expanded: !!p.expanded,
       };
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return { open: false, width: DEFAULT_WIDTH, expanded: false };
 }
 
@@ -45,7 +54,9 @@ function clamp(n: number, min: number, max: number) {
 }
 
 function inTashkentWorkHours(): boolean {
-  const h = Number(new Date().toLocaleString("ru-RU", { hour: "numeric", timeZone: "Asia/Tashkent" }));
+  const h = Number(
+    new Date().toLocaleString("ru-RU", { hour: "numeric", timeZone: "Asia/Tashkent" }),
+  );
   return h >= 9 && h < 18;
 }
 
@@ -56,7 +67,9 @@ function avgReplyLabel(messages: OrderMessage[]): string {
     if (messages[i].senderType !== "manager") continue;
     for (let j = i - 1; j >= 0; j--) {
       if (messages[j].senderType === "client") {
-        const mins = (new Date(messages[i].createdAt).getTime() - new Date(messages[j].createdAt).getTime()) / 60000;
+        const mins =
+          (new Date(messages[i].createdAt).getTime() - new Date(messages[j].createdAt).getTime()) /
+          60000;
         if (mins >= 0) latencies.push(mins);
         break;
       }
@@ -91,14 +104,15 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
   // Starting from "sheet" on the first paint avoids reserving dock width on
   // small screens (which would push content off-screen).
   const bp = useBreakpoint();
-  const layout: Layout =
-    bp === "base" || bp === "sm" ? "sheet" : bp === "md" ? "overlay" : "push";
+  const layout: Layout = bp === "base" || bp === "sm" ? "sheet" : bp === "md" ? "overlay" : "push";
 
   // Persist prefs.
   useEffect(() => {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [prefs]);
 
   // Effective panel width by layout + expanded state.
@@ -115,8 +129,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
   // never exceed the viewport (no horizontal overflow on narrow screens).
   useEffect(() => {
     const root = document.documentElement;
-    const reserve =
-      layout === "push" && open ? `min(${effectiveWidth}px, 100vw)` : "0px";
+    const reserve = layout === "push" && open ? `min(${effectiveWidth}px, 100vw)` : "0px";
     root.style.setProperty("--dock-w", reserve);
     // Nudge map / charts to recompute size after the layout transition.
     const t = window.setTimeout(() => window.dispatchEvent(new Event("resize")), 260);
@@ -147,40 +160,54 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
     const load = async () => {
       try {
         const data = await fetchOrderMessages(orderNumber);
-        if (active) { setMessages(data); setLoading(false); }
-      } catch { if (active) setLoading(false); }
+        if (active) {
+          setMessages(data);
+          setLoading(false);
+        }
+      } catch {
+        if (active) setLoading(false);
+      }
     };
     load();
     const timer = window.setInterval(load, 5000);
-    return () => { active = false; window.clearInterval(timer); };
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, [orderNumber, open]);
 
   // Unread badge for the collapsed rail: a read-only count from the same
   // notifications feed the bell uses (this GET does NOT mark anything read).
-  // Opening the chat reads the messages, so we clear the badge optimistically.
-  const [unreadCount, setUnreadCount] = useState(0);
+  // Opening the chat reads the messages, so the badge is cleared optimistically —
+  // derive the displayed count instead of resetting state inside the effect.
+  const [fetchedUnread, setFetchedUnread] = useState(0);
+  const unreadCount = open ? 0 : fetchedUnread;
   useEffect(() => {
-    if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUnreadCount(0);
-      return;
-    }
+    if (open) return;
     let active = true;
     const load = async () => {
       try {
         const all = await fetchUnreadNotifications();
-        if (active) setUnreadCount(all.filter((n) => n.orderNumber === orderNumber).length);
-      } catch { /* ignore */ }
+        if (active) setFetchedUnread(all.filter((n) => n.orderNumber === orderNumber).length);
+      } catch {
+        /* ignore */
+      }
     };
     load();
     const timer = window.setInterval(load, 30000);
-    return () => { active = false; window.clearInterval(timer); };
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, [orderNumber, open]);
 
-  const handleSend = useCallback(async (body: string) => {
-    const msg = await sendOrderMessage(orderNumber, body);
-    setMessages((prev) => [...prev, msg]);
-  }, [orderNumber]);
+  const handleSend = useCallback(
+    async (body: string) => {
+      const msg = await sendOrderMessage(orderNumber, body);
+      setMessages((prev) => [...prev, msg]);
+    },
+    [orderNumber],
+  );
 
   const setOpen = (v: boolean) => setPrefs((p) => ({ ...p, open: v }));
   const toggleExpand = () => setPrefs((p) => ({ ...p, expanded: !p.expanded }));
@@ -198,7 +225,9 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
   // Escape closes when open.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
@@ -247,7 +276,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
         aria-label="Связь с TransAsia"
         style={{ width: isSheet ? "100%" : effectiveWidth }}
         className={cn(
-          "fixed right-0 top-0 z-1100 flex h-dvh flex-col border-l border-border bg-white shadow-[-4px_0_24px_rgba(16,35,48,0.10)]",
+          "fixed top-0 right-0 z-1100 flex h-dvh flex-col border-l border-border bg-white shadow-[-4px_0_24px_rgba(16,35,48,0.10)]",
           !dragging && "transition-[width] duration-200 ease-out",
         )}
       >
@@ -256,7 +285,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
           <div
             onPointerDown={onDragStart}
             onDoubleClick={() => setPrefs((p) => ({ ...p, width: DEFAULT_WIDTH, expanded: false }))}
-            className="absolute left-0 top-0 z-10 hidden h-full w-2.5 cursor-col-resize touch-none md:block"
+            className="absolute top-0 left-0 z-10 hidden h-full w-2.5 cursor-col-resize touch-none md:block"
             role="separator"
             aria-label="Изменить ширину панели"
           >

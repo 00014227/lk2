@@ -13,10 +13,7 @@ export interface InfoGroupData {
   fields: InfoField[];
 }
 
-export function buildShipmentInfoGroups(
-  shipment: Shipment,
-  isRailway: boolean,
-): InfoGroupData[] {
+export function buildShipmentInfoGroups(shipment: Shipment, isRailway: boolean): InfoGroupData[] {
   return [
     {
       title: "Груз",
@@ -43,9 +40,7 @@ export function buildShipmentInfoGroups(
     },
     {
       title: "Ответственный",
-      fields: [
-        { key: "kamName", label: "Менеджер ТА", value: shipment.kamName },
-      ],
+      fields: [{ key: "kamName", label: "Менеджер ТА", value: shipment.kamName }],
     },
   ];
 }

@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { CheckCircle2 } from "lucide-react";
+
+import { Button } from "@shared/ui/button";
 import { Modal } from "@shared/ui/modal";
 import { StarRating } from "@shared/ui/star-rating";
-import { Button } from "@shared/ui/button";
+
 import type { DeliveryRatingValue } from "../model/types";
 
 interface RateDeliveryModalProps {
@@ -76,20 +79,11 @@ export function RateDeliveryModal({
             <CheckCircle2 className="h-8 w-8 text-emerald-600" />
           </div>
           <div>
-            <p className="font-display text-lg font-semibold text-slate-900">
-              Спасибо за оценку!
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Ваш отзыв поможет нам стать лучше.
-            </p>
+            <p className="font-display text-lg font-semibold text-slate-900">Спасибо за оценку!</p>
+            <p className="mt-1 text-sm text-muted-foreground">Ваш отзыв поможет нам стать лучше.</p>
           </div>
           {otherUnratedCount > 0 && onRateOthers && (
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={onRateOthers}
-            >
+            <Button type="button" variant="outline" className="w-full" onClick={onRateOthers}>
               Оценить другие поездки ({otherUnratedCount})
             </Button>
           )}

@@ -1,9 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
+
 import { CircleMarker, Marker, Polyline, Tooltip } from "react-leaflet";
+
 import { AutoFit } from "@shared/ui/auto-fit";
+
 import { TEAL, buildDeliveredIcon, buildTruckIcon } from "../lib/leaflet-icons";
+
 import type { RouteModes } from "../model/use-route-modes";
 
 export function TruckRouteLayer({
@@ -33,7 +37,10 @@ export function TruckRouteLayer({
         // Delivered → the whole route is rendered as completed (solid TEAL).
         allCoords.length >= 2 && (
           <>
-            <Polyline positions={allCoords} pathOptions={{ color: TEAL, weight: 6, opacity: 0.2 }} />
+            <Polyline
+              positions={allCoords}
+              pathOptions={{ color: TEAL, weight: 6, opacity: 0.2 }}
+            />
             <Polyline positions={allCoords} pathOptions={{ color: TEAL, weight: 3, opacity: 1 }} />
           </>
         )
@@ -41,15 +48,27 @@ export function TruckRouteLayer({
         <>
           {!notDeparted && traveledCoords && traveledCoords.length >= 2 && (
             <>
-              <Polyline positions={traveledCoords} pathOptions={{ color: TEAL, weight: 6, opacity: 0.2 }} />
-              <Polyline positions={traveledCoords} pathOptions={{ color: TEAL, weight: 3, opacity: 1 }} />
+              <Polyline
+                positions={traveledCoords}
+                pathOptions={{ color: TEAL, weight: 6, opacity: 0.2 }}
+              />
+              <Polyline
+                positions={traveledCoords}
+                pathOptions={{ color: TEAL, weight: 3, opacity: 1 }}
+              />
             </>
           )}
 
           {remainingCoords && remainingCoords.length >= 2 && (
             <>
-              <Polyline positions={remainingCoords} pathOptions={{ color: routeColor, weight: 6, opacity: 0.2 }} />
-              <Polyline positions={remainingCoords} pathOptions={{ color: routeColor, weight: 3, opacity: 0.85 }} />
+              <Polyline
+                positions={remainingCoords}
+                pathOptions={{ color: routeColor, weight: 6, opacity: 0.2 }}
+              />
+              <Polyline
+                positions={remainingCoords}
+                pathOptions={{ color: routeColor, weight: 3, opacity: 0.85 }}
+              />
             </>
           )}
         </>

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import { Building2, Check } from "lucide-react";
+
 import { cn } from "@shared/lib/utils";
 
 interface TableCompanyPickerProps {
@@ -11,14 +13,18 @@ interface TableCompanyPickerProps {
   onClear: () => void;
 }
 
-export function TableCompanyPicker({ companies, selected, onToggle, onClear }: TableCompanyPickerProps) {
+export function TableCompanyPicker({
+  companies,
+  selected,
+  onToggle,
+  onClear,
+}: TableCompanyPickerProps) {
   const [showPicker, setShowPicker] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node))
-        setShowPicker(false);
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) setShowPicker(false);
     }
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -41,14 +47,14 @@ export function TableCompanyPicker({ companies, selected, onToggle, onClear }: T
         <Building2 className="h-3.5 w-3.5" />
         Все компании
         {count > 0 && (
-          <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-primary-foreground">
+          <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-none font-bold text-primary-foreground">
             {count}
           </span>
         )}
       </button>
 
       {showPicker && (
-        <div className="absolute right-0 top-11 z-50 max-h-80 min-w-56 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-xl">
+        <div className="absolute top-11 right-0 z-50 max-h-80 min-w-56 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-xl">
           <div className="flex items-center justify-between gap-2 px-2 py-1.5">
             <p className="text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
               Фильтр по компании

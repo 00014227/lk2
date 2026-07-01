@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+
 import type { Shipment } from "./types";
 
 interface ShipmentState {
@@ -20,7 +21,7 @@ export const shipmentSlice = createSlice({
   selectors: {
     selectShipments: (state) => state.items,
     selectShipmentById: (state, id: string | null) =>
-      id ? state.items.find((s) => s.id === id) ?? null : null,
+      id ? (state.items.find((s) => s.id === id) ?? null) : null,
   },
 });
 

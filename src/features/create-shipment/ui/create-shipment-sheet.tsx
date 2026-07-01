@@ -4,7 +4,10 @@ import { useCreateShipmentForm } from "../model/use-create-shipment-form";
 import { ShipmentDetailsForm } from "./shipment-details-form";
 import { TransportSelectDialog } from "./transport-select-dialog";
 
-interface Props { open: boolean; onClose: () => void }
+interface Props {
+  open: boolean;
+  onClose: () => void;
+}
 
 export function CreateShipmentSheet({ open, onClose }: Props) {
   const form = useCreateShipmentForm(open);
@@ -17,11 +20,7 @@ export function CreateShipmentSheet({ open, onClose }: Props) {
         form={form}
       />
 
-      <ShipmentDetailsForm
-        open={open && form.step === "details"}
-        onClose={onClose}
-        form={form}
-      />
+      <ShipmentDetailsForm open={open && form.step === "details"} onClose={onClose} form={form} />
     </>
   );
 }

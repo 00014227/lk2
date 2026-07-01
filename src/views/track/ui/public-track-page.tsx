@@ -3,40 +3,40 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  ArrowLeft,
-  Gauge,
-  MapPinned,
-  Package,
-  Search,
-  ShieldCheck,
-  Weight,
-} from "lucide-react";
+
+import { ArrowLeft, Gauge, MapPinned, Package, Search, ShieldCheck, Weight } from "lucide-react";
+
+import { RailwayTimeline } from "@features/track-shipment";
+import { AirTimeline } from "@features/track-shipment";
+import { VesselCard } from "@features/track-shipment";
+import { MultimodalProgress } from "@features/track-shipment";
+
+import { formatEta } from "@entities/shipment";
+import type { Shipment } from "@entities/shipment";
+import { fetchPublicTracking } from "@entities/tracking";
+import type {
+  AirEvent,
+  AirRoute,
+  ContainerRoute,
+  RailwayEvent,
+  SeaPosition,
+  ShipmentSegment,
+} from "@entities/tracking";
+
 import { Badge } from "@shared/ui/badge";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
 import { Logo } from "@shared/ui/logo";
 import { Progress } from "@shared/ui/progress";
-import { RailwayTimeline } from "@features/track-shipment";
-import { AirTimeline } from "@features/track-shipment";
-import { VesselCard } from "@features/track-shipment";
-import { MultimodalProgress } from "@features/track-shipment";
-import { fetchPublicTracking } from "@entities/tracking";
-import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent, SeaPosition, ShipmentSegment } from "@entities/tracking";
-import { formatEta } from "@entities/shipment";
-import type { Shipment } from "@entities/shipment";
 
-const ShipmentRouteMap = dynamic(
-  () => import("@widgets/shipment-route-map"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full w-full items-center justify-center bg-slate-100 text-sm text-muted-foreground">
-        Загрузка карты...
-      </div>
-    ),
-  },
-);
+const ShipmentRouteMap = dynamic(() => import("@widgets/shipment-route-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center bg-slate-100 text-sm text-muted-foreground">
+      Загрузка карты...
+    </div>
+  ),
+});
 
 function getStatusVariant(status: string) {
   if (status === "Доставлен") return "success";
@@ -47,11 +47,11 @@ function getStatusVariant(status: string) {
 }
 
 const DETAIL_ROWS = [
-  { icon: Gauge,      label: "ETA",         key: "estimatedArrival" },
-  { icon: ShieldCheck, label: "Тип груза",  key: "cargoType"        },
-  { icon: Weight,     label: "Вес",          key: "weight"           },
-  { icon: MapPinned,  label: "Откуда",       key: "origin"           },
-  { icon: MapPinned,  label: "Куда",         key: "destination"      },
+  { icon: Gauge, label: "ETA", key: "estimatedArrival" },
+  { icon: ShieldCheck, label: "Тип груза", key: "cargoType" },
+  { icon: Weight, label: "Вес", key: "weight" },
+  { icon: MapPinned, label: "Откуда", key: "origin" },
+  { icon: MapPinned, label: "Куда", key: "destination" },
 ] as const;
 
 export function PublicTrackPage() {
@@ -124,7 +124,12 @@ export function PublicTrackPage() {
               onChange={(e) => setQuery(e.target.value)}
               disabled={loading}
             />
-            <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={loading || !query.trim()}>
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full sm:w-auto"
+              disabled={loading || !query.trim()}
+            >
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -140,9 +145,7 @@ export function PublicTrackPage() {
           </form>
 
           {error && (
-            <p className="mt-4 rounded-2xl bg-red-50 px-5 py-3 text-sm text-red-600">
-              {error}
-            </p>
+            <p className="mt-4 rounded-2xl bg-red-50 px-5 py-3 text-sm text-red-600">{error}</p>
           )}
         </div>
 
@@ -179,7 +182,7 @@ export function PublicTrackPage() {
                   <Badge variant={getStatusVariant(result.shipment.status)}>
                     {result.shipment.status}
                   </Badge>
-                  <p className="mt-3 font-display text-2xl font-semibold leading-tight">
+                  <p className="mt-3 font-display text-2xl leading-tight font-semibold">
                     {result.shipment.id}
                   </p>
                   {result.shipment.customerName && (
@@ -208,7 +211,9 @@ export function PublicTrackPage() {
                     <div className="bg-white px-6 py-3" key={label}>
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Icon className="h-3.5 w-3.5 shrink-0" />
-                        <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">{label}</p>
+                        <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">
+                          {label}
+                        </p>
                       </div>
                       <p className="mt-1 text-sm font-semibold text-slate-900">
                         {key === "estimatedArrival"
@@ -222,7 +227,9 @@ export function PublicTrackPage() {
                     <div className="bg-white px-6 py-3">
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Package className="h-3.5 w-3.5 shrink-0" />
-                        <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">Тип перевозки</p>
+                        <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">
+                          Тип перевозки
+                        </p>
                       </div>
                       <p className="mt-1 text-sm font-semibold text-slate-900">
                         {result.shipment.transportationType}
@@ -246,14 +253,16 @@ export function PublicTrackPage() {
                 )}
 
                 {/* Air timeline */}
-                {(result.shipment.transportationType?.includes("Авиа") || result.shipment.transportationType?.includes("Мультимодальн")) && (
+                {(result.shipment.transportationType?.includes("Авиа") ||
+                  result.shipment.transportationType?.includes("Мультимодальн")) && (
                   <div className="border-t border-border bg-white">
                     <AirTimeline events={result.aviationEvents} />
                   </div>
                 )}
 
                 {/* Vessel card */}
-                {(result.shipment.transportationType?.includes("Мор") || result.shipment.transportationType?.includes("Мультимодальн")) && (
+                {(result.shipment.transportationType?.includes("Мор") ||
+                  result.shipment.transportationType?.includes("Мультимодальн")) && (
                   <div className="border-t border-border bg-white">
                     <VesselCard positions={result.seaPositions} />
                   </div>

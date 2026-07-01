@@ -1,13 +1,17 @@
 "use client";
 
 import { memo } from "react";
+
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ChevronDown, ChevronUp, ChevronsUpDown, GripVertical } from "lucide-react";
+
 import { cn } from "@shared/lib/utils";
+
 import { ALL_COLUMNS, type ColKey } from "../lib/columns";
-import type { SortDir } from "../model/use-table-filters";
 import { ColumnResizer } from "./column-resizer";
+
+import type { SortDir } from "../model/use-table-filters";
 
 interface TableHeaderCellProps {
   colKey: ColKey;
@@ -43,10 +47,11 @@ export const TableHeaderCell = memo(function TableHeaderCell({
     position: isDragging ? "relative" : undefined,
   };
 
-  const SortIcon = sortDir === "asc" ? ChevronUp : sortDir === "desc" ? ChevronDown : ChevronsUpDown;
+  const SortIcon =
+    sortDir === "asc" ? ChevronUp : sortDir === "desc" ? ChevronDown : ChevronsUpDown;
 
   return (
-    <th ref={setNodeRef} style={style} className="relative select-none px-5 py-4">
+    <th ref={setNodeRef} style={style} className="relative px-5 py-4 select-none">
       <div className="flex min-w-0 items-center gap-1.5">
         {/* drag-handle — listeners/attributes только здесь */}
         <button
@@ -67,7 +72,9 @@ export const TableHeaderCell = memo(function TableHeaderCell({
           aria-label={`Сортировать по «${col.label}»`}
         >
           <span className="truncate">{col.label}</span>
-          <SortIcon className={cn("h-3 w-3 shrink-0", sortDir ? "text-primary" : "text-slate-300")} />
+          <SortIcon
+            className={cn("h-3 w-3 shrink-0", sortDir ? "text-primary" : "text-slate-300")}
+          />
         </button>
       </div>
 

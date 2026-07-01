@@ -9,8 +9,8 @@ export function FleetMapSidebar() {
         </p>
         <h3 className="mt-3 font-display text-2xl font-semibold">Карта маршрутов</h3>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          Наведите на иконку транспорта для информации. Нажмите — чтобы увидеть маршрут
-          по дорогам от точки отправления до назначения.
+          Наведите на иконку транспорта для информации. Нажмите — чтобы увидеть маршрут по дорогам
+          от точки отправления до назначения.
         </p>
       </div>
       <div className="rounded-[28px] border border-border bg-white p-5">
@@ -43,7 +43,16 @@ export function FleetMapSidebar() {
           </div>
           <div className="mt-3 flex items-center gap-3 border-t border-border pt-3">
             <svg width="18" height="18" viewBox="0 0 18 18">
-              <circle cx="9" cy="9" r="7" fill="#2563eb" fillOpacity="0.25" stroke="#2563eb" strokeWidth="2" strokeDasharray="4 3" />
+              <circle
+                cx="9"
+                cy="9"
+                r="7"
+                fill="#2563eb"
+                fillOpacity="0.25"
+                stroke="#2563eb"
+                strokeWidth="2"
+                strokeDasharray="4 3"
+              />
             </svg>
             <span className="text-xs text-muted-foreground">Ручное местоположение</span>
           </div>

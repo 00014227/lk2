@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
+
 import * as RDialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
+
 import { cn } from "@shared/lib/utils";
 
 interface ModalProps {
@@ -44,7 +46,7 @@ export function Modal({
           className={cn(
             "fixed z-50 overflow-y-auto border border-white/70 bg-white shadow-[0_24px_80px_rgba(16,35,48,0.24)] outline-none",
             placement === "center" &&
-              "left-1/2 top-1/2 max-h-[90vh] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[28px] data-[state=open]:animate-content-in",
+              "top-1/2 left-1/2 max-h-[90vh] w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[28px] data-[state=open]:animate-content-in",
             placement === "bottom" &&
               "inset-x-0 bottom-0 mx-auto max-h-[90vh] w-full max-w-md rounded-t-[28px] pb-[env(safe-area-inset-bottom)] data-[state=open]:animate-sheet-in",
             "motion-reduce:animate-none",
@@ -53,7 +55,7 @@ export function Modal({
         >
           <RDialog.Close
             aria-label={closeLabel}
-            className="absolute right-5 top-5 rounded-full border border-border bg-white/90 p-2 text-slate-500 transition hover:text-slate-900 focus-visible:ring-4 focus-visible:ring-ring focus-visible:outline-none"
+            className="absolute top-5 right-5 rounded-full border border-border bg-white/90 p-2 text-slate-500 transition hover:text-slate-900 focus-visible:ring-4 focus-visible:ring-ring focus-visible:outline-none"
           >
             <X className="h-4 w-4" />
           </RDialog.Close>

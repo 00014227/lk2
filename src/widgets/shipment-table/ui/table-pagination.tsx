@@ -1,8 +1,9 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@shared/ui/button";
+
 import { cn } from "@shared/lib/utils";
+import { Button } from "@shared/ui/button";
 
 interface TablePaginationProps {
   safePage: number;
@@ -28,7 +29,12 @@ export function TablePagination({
       </p>
 
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
-        <Button size="icon" variant="outline" disabled={safePage <= 1} onClick={() => onPageChange((p) => p - 1)}>
+        <Button
+          size="icon"
+          variant="outline"
+          disabled={safePage <= 1}
+          onClick={() => onPageChange((p) => p - 1)}
+        >
           <ChevronLeft className="h-4 w-4" />
         </Button>
 
@@ -42,7 +48,9 @@ export function TablePagination({
             }, [])
             .map((item, idx) =>
               item === "…" ? (
-                <span key={`ellipsis-${idx}`} className="px-1 py-1 text-sm text-muted-foreground">…</span>
+                <span key={`ellipsis-${idx}`} className="px-1 py-1 text-sm text-muted-foreground">
+                  …
+                </span>
               ) : (
                 <button
                   key={item}
@@ -61,7 +69,12 @@ export function TablePagination({
             )}
         </div>
 
-        <Button size="icon" variant="outline" disabled={safePage >= totalPages} onClick={() => onPageChange((p) => p + 1)}>
+        <Button
+          size="icon"
+          variant="outline"
+          disabled={safePage >= totalPages}
+          onClick={() => onPageChange((p) => p + 1)}
+        >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

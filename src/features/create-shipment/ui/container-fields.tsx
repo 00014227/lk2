@@ -1,10 +1,13 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+
 import { Input } from "@shared/ui/input";
+
 import { CONTAINER_TYPES, selectCls } from "../lib/options";
-import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
 import { FieldLabel, SectionLabel } from "./form-labels";
+
+import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
 
 interface ContainerFieldsProps {
   containers: UseCreateShipmentForm["containers"];
@@ -35,7 +38,11 @@ export function ContainerFields({ containers }: ContainerFieldsProps) {
                 onChange={(e) => containers.update(idx, "type", e.target.value)}
               >
                 <option value="">Select equipment type...</option>
-                {CONTAINER_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                {CONTAINER_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
               </select>
             </div>
             {containers.items.length > 1 && (

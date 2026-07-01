@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
+import type { Shipment } from "@entities/shipment";
 import { fetchRailwayEvents, fetchShipmentSegments, fetchPublicTracking } from "@entities/tracking";
 import type {
   AirEvent,
@@ -10,7 +12,6 @@ import type {
   SeaPosition,
   ShipmentSegment,
 } from "@entities/tracking";
-import type { Shipment } from "@entities/shipment";
 
 export interface UseShipmentTracking {
   isRailway: boolean;

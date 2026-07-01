@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
 import { getAuthState } from "../api/auth";
 
 export function RequireAuth({ children }: { children: React.ReactNode }) {

@@ -1,6 +1,9 @@
 import api from "@shared/api";
 
-export interface ContainerEntry { qty: string; type: string; }
+export interface ContainerEntry {
+  qty: string;
+  type: string;
+}
 
 export interface ShipmentRequestPayload {
   // Step 1

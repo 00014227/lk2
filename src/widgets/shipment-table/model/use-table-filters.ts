@@ -1,9 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+
 import type { Shipment, ShipmentStatus } from "@entities/shipment";
-import type { ColKey } from "../lib/columns";
+
 import { compareShipments } from "../lib/sorting";
+
+import type { ColKey } from "../lib/columns";
 
 export const PAGE_SIZE = 10;
 
@@ -37,10 +40,7 @@ export interface UseTableFilters {
   clearAllFilters: () => void;
 }
 
-export function useTableFilters(
-  shipments: Shipment[],
-  hiddenRows: string[],
-): UseTableFilters {
+export function useTableFilters(shipments: Shipment[], hiddenRows: string[]): UseTableFilters {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ShipmentStatus | "">("");
   const [companyFilter, setCompanyFilter] = useState<string[]>([]);
@@ -96,7 +96,9 @@ export function useTableFilters(
   const safePage = Math.min(page, totalPages);
   const paginated = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  function resetPage() { setPage(1); }
+  function resetPage() {
+    setPage(1);
+  }
 
   const hasActiveFilters = Boolean(
     search || statusFilter || companyFilter.length || transportFilter,

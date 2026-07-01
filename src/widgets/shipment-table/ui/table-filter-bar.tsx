@@ -1,11 +1,14 @@
 "use client";
 
 import { Calculator, Eye, Search, X } from "lucide-react";
+
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
-import type { ColKey } from "../lib/columns";
+
 import { TableColumnPicker } from "./table-column-picker";
 import { TableCompanyPicker } from "./table-company-picker";
+
+import type { ColKey } from "../lib/columns";
 
 interface TableFilterBarProps {
   search: string;
@@ -42,7 +45,7 @@ export function TableFilterBar({
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
       {/* Search */}
       <div className="relative w-full sm:min-w-50 sm:flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           className="h-9 rounded-xl pl-9 text-sm"
           placeholder="Поиск по номеру, маршруту, транспорту..."
@@ -51,7 +54,7 @@ export function TableFilterBar({
         />
         {search && (
           <button
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             onClick={() => onSearchChange("")}
             type="button"
           >
@@ -84,20 +87,16 @@ export function TableFilterBar({
 
       <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
         {/* Calculate cost button (opens the estimate modal) */}
-        <Button
-          size="sm"
-          className="h-9 gap-1.5 rounded-xl text-xs"
-          onClick={onCreateClick}
-        >
+        <Button size="sm" className="h-9 gap-1.5 rounded-xl text-xs" onClick={onCreateClick}>
           <Calculator className="h-3.5 w-3.5" />
           Рассчитать стоимость
         </Button>
         <TableCompanyPicker
-            companies={companies}
-            selected={companyFilter}
-            onToggle={onToggleCompany}
-            onClear={onClearCompanies}
-          />
+          companies={companies}
+          selected={companyFilter}
+          onToggle={onToggleCompany}
+          onClear={onClearCompanies}
+        />
 
         {/* Column settings */}
         <TableColumnPicker hiddenCols={hiddenCols} onToggleCol={onToggleCol} />

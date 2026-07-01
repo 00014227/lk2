@@ -1,21 +1,18 @@
 "use client";
 
 import { CheckCircle2, Loader2 } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@shared/ui/sheet";
-import { Input } from "@shared/ui/input";
+
 import { Button } from "@shared/ui/button";
+import { Input } from "@shared/ui/input";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@shared/ui/sheet";
+
 import { COMMODITY_TYPES, INCOTERMS, PACKAGE_TYPES, selectCls } from "../lib/options";
-import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
 import { ContainerFields } from "./container-fields";
 import { DestinationFields } from "./destination-fields";
 import { FieldLabel, SectionLabel } from "./form-labels";
 import { TariffEstimatePanel } from "./tariff-estimate-panel";
+
+import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
 
 interface ShipmentDetailsFormProps {
   open: boolean;
@@ -48,12 +45,13 @@ export function ShipmentDetailsForm({ open, onClose, form }: ShipmentDetailsForm
                 Менеджер свяжется с вами в ближайшее время.
               </p>
             </div>
-            <Button className="w-full" onClick={onClose}>Закрыть</Button>
+            <Button className="w-full" onClick={onClose}>
+              Закрыть
+            </Button>
           </div>
         ) : (
           <form className="flex flex-1 flex-col overflow-y-auto" onSubmit={submit.onSubmit}>
             <div className="flex flex-col gap-6 px-6 py-5">
-
               {/* ── Origin & Destination ──────────────────────────────── */}
               <DestinationFields origin={form.origin} destinations={form.destinations} />
 
@@ -72,9 +70,17 @@ export function ShipmentDetailsForm({ open, onClose, form }: ShipmentDetailsForm
                   </div>
                   <div>
                     <FieldLabel>Shipping Terms</FieldLabel>
-                    <select className={selectCls} value={dates.shippingTerms} onChange={(e) => dates.setShippingTerms(e.target.value)}>
+                    <select
+                      className={selectCls}
+                      value={dates.shippingTerms}
+                      onChange={(e) => dates.setShippingTerms(e.target.value)}
+                    >
                       <option value=""></option>
-                      {INCOTERMS.map((t) => <option key={t} value={t}>{t}</option>)}
+                      {INCOTERMS.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -87,46 +93,88 @@ export function ShipmentDetailsForm({ open, onClose, form }: ShipmentDetailsForm
                   <div className="grid grid-cols-3 gap-3">
                     <div>
                       <FieldLabel>Gross Volume</FieldLabel>
-                      <Input placeholder="m³" value={cargo.grossVolume} onChange={(e) => cargo.setGrossVolume(e.target.value)} />
+                      <Input
+                        placeholder="m³"
+                        value={cargo.grossVolume}
+                        onChange={(e) => cargo.setGrossVolume(e.target.value)}
+                      />
                     </div>
                     <div>
                       <FieldLabel>Gross Weight</FieldLabel>
-                      <Input placeholder="kg" value={cargo.grossWeight} onChange={(e) => cargo.setGrossWeight(e.target.value)} />
+                      <Input
+                        placeholder="kg"
+                        value={cargo.grossWeight}
+                        onChange={(e) => cargo.setGrossWeight(e.target.value)}
+                      />
                     </div>
                     <div>
                       <FieldLabel>Chargeable Wt</FieldLabel>
-                      <Input placeholder="kg" value={cargo.chargeableWeight} onChange={(e) => cargo.setChargeableWeight(e.target.value)} />
+                      <Input
+                        placeholder="kg"
+                        value={cargo.chargeableWeight}
+                        onChange={(e) => cargo.setChargeableWeight(e.target.value)}
+                      />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <FieldLabel>Commodity Type</FieldLabel>
-                      <select className={selectCls} value={cargo.commodityType} onChange={(e) => cargo.setCommodityType(e.target.value)}>
+                      <select
+                        className={selectCls}
+                        value={cargo.commodityType}
+                        onChange={(e) => cargo.setCommodityType(e.target.value)}
+                      >
                         <option value=""></option>
-                        {COMMODITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                        {COMMODITY_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
                       <FieldLabel>HS Code</FieldLabel>
-                      <Input placeholder="0000.00" value={cargo.hsCode} onChange={(e) => cargo.setHsCode(e.target.value)} />
+                      <Input
+                        placeholder="0000.00"
+                        value={cargo.hsCode}
+                        onChange={(e) => cargo.setHsCode(e.target.value)}
+                      />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <FieldLabel>Package Count</FieldLabel>
-                      <Input placeholder="0" type="text" inputMode="numeric" value={cargo.packageCount} onChange={(e) => cargo.setPackageCount(e.target.value)} />
+                      <Input
+                        placeholder="0"
+                        type="text"
+                        inputMode="numeric"
+                        value={cargo.packageCount}
+                        onChange={(e) => cargo.setPackageCount(e.target.value)}
+                      />
                     </div>
                     <div>
                       <FieldLabel>Package Type</FieldLabel>
-                      <select className={selectCls} value={cargo.packageType} onChange={(e) => cargo.setPackageType(e.target.value)}>
+                      <select
+                        className={selectCls}
+                        value={cargo.packageType}
+                        onChange={(e) => cargo.setPackageType(e.target.value)}
+                      >
                         <option value=""></option>
-                        {PACKAGE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                        {PACKAGE_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
                   <div>
                     <FieldLabel>Short Cargo Description</FieldLabel>
-                    <Input placeholder="Describe the cargo..." value={cargo.cargoDescription} onChange={(e) => cargo.setCargoDescription(e.target.value)} />
+                    <Input
+                      placeholder="Describe the cargo..."
+                      value={cargo.cargoDescription}
+                      onChange={(e) => cargo.setCargoDescription(e.target.value)}
+                    />
                   </div>
                 </div>
               </section>
@@ -138,13 +186,21 @@ export function ShipmentDetailsForm({ open, onClose, form }: ShipmentDetailsForm
               <ContainerFields containers={form.containers} />
 
               {submit.error && (
-                <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{submit.error}</p>
+                <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {submit.error}
+                </p>
               )}
             </div>
 
             {/* Footer */}
             <div className="mt-auto flex gap-3 border-t border-border px-6 py-4">
-              <Button type="button" variant="outline" className="flex-1" onClick={() => form.setStep("select-type")} disabled={submit.loading}>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => form.setStep("select-type")}
+                disabled={submit.loading}
+              >
                 ← Change Details
               </Button>
               <Button type="submit" className="flex-1" disabled={submit.loading}>

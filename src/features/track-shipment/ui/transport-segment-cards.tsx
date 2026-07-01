@@ -1,12 +1,8 @@
 "use client";
 
-import type {
-  AirEvent,
-  RailwayEvent,
-  SeaPosition,
-  ShipmentSegment,
-} from "@entities/tracking";
 import type { Shipment } from "@entities/shipment";
+import type { AirEvent, RailwayEvent, SeaPosition, ShipmentSegment } from "@entities/tracking";
+
 import { useShipmentLegs } from "../model/use-shipment-legs";
 import { LegCard } from "./leg-card";
 import { LegTracking } from "./leg-tracking";

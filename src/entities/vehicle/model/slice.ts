@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+
 import type { Vehicle } from "./types";
 
 interface VehicleState {
@@ -20,7 +21,7 @@ export const vehicleSlice = createSlice({
   selectors: {
     selectVehicles: (state) => state.items,
     selectVehicleById: (state, id: string | null) =>
-      id ? state.items.find((v) => v.id === id) ?? null : null,
+      id ? (state.items.find((v) => v.id === id) ?? null) : null,
   },
 });
 

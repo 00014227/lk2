@@ -1,11 +1,15 @@
 "use client";
 
-import { memo, useState } from "react";
 import Link from "next/link";
+import { memo, useState } from "react";
+
 import { ChevronRight, MapPin } from "lucide-react";
+
+import type { Shipment } from "@entities/shipment";
+
 import { Button } from "@shared/ui/button";
 import { StarRating } from "@shared/ui/star-rating";
-import type { Shipment } from "@entities/shipment";
+
 import { submitDeliveryRating } from "../api/rate-delivery";
 import { markDeliveryRated } from "../lib/rated-storage";
 
@@ -17,7 +21,10 @@ interface UnratedDeliveryRowProps {
 // memo: rendered in a list in RatingShell; when one delivery is rated and
 // filtered out, memo lets the remaining rows skip re-render (their `shipment`
 // is unchanged and `onRated` is kept stable by the React Compiler).
-export const UnratedDeliveryRow = memo(function UnratedDeliveryRow({ shipment, onRated }: UnratedDeliveryRowProps) {
+export const UnratedDeliveryRow = memo(function UnratedDeliveryRow({
+  shipment,
+  onRated,
+}: UnratedDeliveryRowProps) {
   const [rating, setRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
@@ -59,12 +66,7 @@ export const UnratedDeliveryRow = memo(function UnratedDeliveryRow({ shipment, o
       {/* Right: star selector + rate button */}
       <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
         <StarRating value={rating} onChange={setRating} size={28} />
-        <Button
-          type="button"
-          size="sm"
-          disabled={rating < 1 || submitting}
-          onClick={handleRate}
-        >
+        <Button type="button" size="sm" disabled={rating < 1 || submitting} onClick={handleRate}>
           Оценить
         </Button>
       </div>

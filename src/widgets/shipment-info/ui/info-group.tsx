@@ -1,5 +1,6 @@
-import type { InfoGroupData } from "../model/config";
 import { InfoRow } from "./info-row";
+
+import type { InfoGroupData } from "../model/config";
 
 export function InfoGroup({ group }: { group: InfoGroupData }) {
   return (

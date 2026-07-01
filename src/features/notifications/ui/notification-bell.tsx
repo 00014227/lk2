@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+
 import { Bell, X } from "lucide-react";
+
 import { fetchUnreadNotifications } from "@entities/order-message";
 import type { UnreadNotification } from "@entities/order-message";
 
 const TOPIC_COLORS: Record<string, string> = {
   Перевозка: "bg-sky-100 text-sky-700",
   Документы: "bg-violet-100 text-violet-700",
-  Финансы:   "bg-emerald-100 text-emerald-700",
-  Таможня:   "bg-orange-100 text-orange-700",
-  Склад:     "bg-amber-100 text-amber-700",
-  Общее:     "bg-slate-100 text-slate-500",
+  Финансы: "bg-emerald-100 text-emerald-700",
+  Таможня: "bg-orange-100 text-orange-700",
+  Склад: "bg-amber-100 text-amber-700",
+  Общее: "bg-slate-100 text-slate-500",
 };
 
 function timeAgo(date: string): string {
@@ -89,14 +91,14 @@ export function NotificationBell() {
       >
         <Bell className="h-5 w-5" />
         {count > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow">
+          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow">
             {count > 9 ? "9+" : count}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="fixed inset-x-3 top-[5.5rem] z-50 ml-auto w-auto max-w-sm origin-top overflow-hidden rounded-2xl border border-border bg-white shadow-[0_24px_80px_rgba(16,35,48,0.18)] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:ml-0 sm:mt-2 sm:w-80 sm:max-w-none sm:origin-top-right">
+        <div className="fixed inset-x-3 top-[5.5rem] z-50 ml-auto w-auto max-w-sm origin-top overflow-hidden rounded-2xl border border-border bg-white shadow-[0_24px_80px_rgba(16,35,48,0.18)] sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:ml-0 sm:w-80 sm:max-w-none sm:origin-top-right">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <p className="text-sm font-semibold text-slate-900">
@@ -151,14 +153,18 @@ export function NotificationBell() {
                           ) : (
                             <>
                               {first.senderName && (
-                                <span className="font-semibold text-slate-800">{first.senderName}: </span>
+                                <span className="font-semibold text-slate-800">
+                                  {first.senderName}:{" "}
+                                </span>
                               )}
                               {first.body}
                             </>
                           )}
                         </p>
                       </div>
-                      <span className={`shrink-0 rounded-full px-1.5 py-0 text-[9px] font-semibold leading-4 ${topicColor}`}>
+                      <span
+                        className={`shrink-0 rounded-full px-1.5 py-0 text-[9px] leading-4 font-semibold ${topicColor}`}
+                      >
                         {first.topic}
                       </span>
                     </div>

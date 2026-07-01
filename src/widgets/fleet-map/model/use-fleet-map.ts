@@ -1,17 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
+
 import {
   selectSelectedShipmentId,
   selectSelectedVehicleId,
   selectShipment,
   selectVehicle,
 } from "@features/orders";
-import { fetchRoute, geocodeCity } from "@shared/lib/geo";
+
 import { fetchMapOrders, selectShipments } from "@entities/shipment";
-import { selectVehicles } from "@entities/vehicle";
 import type { MapShipmentItem } from "@entities/shipment";
+import { selectVehicles } from "@entities/vehicle";
+
+import { fetchRoute, geocodeCity } from "@shared/lib/geo";
+import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
+
 import { buildIcon } from "../lib/leaflet-icons";
 
 export function useFleetMap() {
@@ -29,21 +33,21 @@ export function useFleetMap() {
       .catch(() => {});
   }, []);
 
-  const [traveledCoords, setTraveledCoords] = useState<[number, number][] | null>(null);
-  const [remainingCoords, setRemainingCoords] = useState<[number, number][] | null>(null);
-  const [routeLoading, setRouteLoading] = useState(false);
-  const [pinCoords, setPinCoords] = useState<{
+  // Raw fetched route + the shipment id it belongs to. The exposed values are
+  // derived from these keyed by the current selection (see below), so a changed
+  // or cleared selection hides a stale route without resetting state in an effect.
+  const [traveled, setTraveled] = useState<[number, number][] | null>(null);
+  const [remaining, setRemaining] = useState<[number, number][] | null>(null);
+  const [pins, setPins] = useState<{
     origin: [number, number] | null;
     dest: [number, number] | null;
   }>({ origin: null, dest: null });
+  const [routeId, setRouteId] = useState<string | null>(null);
 
   const deselect = useCallback(() => {
     dispatch(selectVehicle(null));
     dispatch(selectShipment(null));
-    setTraveledCoords(null);
-    setRemainingCoords(null);
-    setRouteLoading(false);
-    setPinCoords({ origin: null, dest: null });
+    // No manual reset: the derived route below is null when nothing is selected.
   }, [dispatch]);
 
   const onVehicleClick = useCallback(
@@ -58,18 +62,11 @@ export function useFleetMap() {
     [dispatch, deselect],
   );
 
-  // Draw route whenever a shipment is selected (from table or vehicle click)
+  // Draw route whenever a shipment is selected (from table or vehicle click).
+  // Only fetches; clearing the stale route is handled by the derived values
+  // below, so there is no synchronous setState in this effect body.
   useEffect(() => {
-    // Data-fetch-on-change effect: clear the previously-drawn route immediately
-    // when the selection changes/resets, then fetch the new one asynchronously.
-    if (!selectedShipmentId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTraveledCoords(null);
-      setRemainingCoords(null);
-      setRouteLoading(false);
-      setPinCoords({ origin: null, dest: null });
-      return;
-    }
+    if (!selectedShipmentId) return;
 
     const shipment = shipments.find((s) => s.id === selectedShipmentId);
     if (!shipment) return;
@@ -77,45 +74,50 @@ export function useFleetMap() {
     const vehicle = vehicles.find((v) => v.shipmentId === selectedShipmentId);
 
     let cancelled = false;
-    setRouteLoading(true);
-    setTraveledCoords(null);
-    setRemainingCoords(null);
-    setPinCoords({ origin: null, dest: null });
-
-    Promise.all([
-      geocodeCity(shipment.origin),
-      geocodeCity(shipment.destination),
-    ]).then(async ([originCoords, destCoords]) => {
-      if (cancelled) return;
-
-      setPinCoords({ origin: originCoords, dest: destCoords });
-
-      if (!originCoords || !destCoords) {
-        setRouteLoading(false);
-        return;
-      }
-
-      if (vehicle) {
-        const [traveled, remaining] = await Promise.all([
-          fetchRoute([originCoords, vehicle.position]),
-          fetchRoute([vehicle.position, destCoords]),
-        ]);
+    Promise.all([geocodeCity(shipment.origin), geocodeCity(shipment.destination)]).then(
+      async ([originCoords, destCoords]) => {
         if (cancelled) return;
-        setTraveledCoords(traveled ?? [originCoords, vehicle.position]);
-        setRemainingCoords(remaining ?? [vehicle.position, destCoords]);
-      } else {
-        const road = await fetchRoute([originCoords, destCoords]);
-        if (cancelled) return;
-        setRemainingCoords(road ?? [originCoords, destCoords]);
-      }
 
-      setRouteLoading(false);
-    });
+        setPins({ origin: originCoords, dest: destCoords });
+
+        if (!originCoords || !destCoords) {
+          setTraveled(null);
+          setRemaining(null);
+          setRouteId(selectedShipmentId);
+          return;
+        }
+
+        if (vehicle) {
+          const [t, r] = await Promise.all([
+            fetchRoute([originCoords, vehicle.position]),
+            fetchRoute([vehicle.position, destCoords]),
+          ]);
+          if (cancelled) return;
+          setTraveled(t ?? [originCoords, vehicle.position]);
+          setRemaining(r ?? [vehicle.position, destCoords]);
+        } else {
+          const road = await fetchRoute([originCoords, destCoords]);
+          if (cancelled) return;
+          setTraveled(null);
+          setRemaining(road ?? [originCoords, destCoords]);
+        }
+
+        setRouteId(selectedShipmentId);
+      },
+    );
 
     return () => {
       cancelled = true;
     };
   }, [selectedShipmentId, vehicles, shipments]);
+
+  // Expose the route only while it belongs to the current selection; otherwise
+  // null, so a changed/cleared selection hides the stale route until the refetch.
+  const isFreshRoute = routeId === selectedShipmentId;
+  const traveledCoords = isFreshRoute ? traveled : null;
+  const remainingCoords = isFreshRoute ? remaining : null;
+  const pinCoords = isFreshRoute ? pins : { origin: null, dest: null };
+  const routeLoading = !!selectedShipmentId && !isFreshRoute;
 
   const markers = useMemo(
     () =>
@@ -134,7 +136,7 @@ export function useFleetMap() {
 
   const activeEntry = markers.find((m) => m.vehicle.id === selectedVehicleId) ?? null;
   const activeShipment = selectedShipmentId
-    ? shipments.find((s) => s.id === selectedShipmentId) ?? null
+    ? (shipments.find((s) => s.id === selectedShipmentId) ?? null)
     : null;
 
   return {

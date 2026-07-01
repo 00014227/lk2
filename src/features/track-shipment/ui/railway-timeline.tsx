@@ -1,6 +1,7 @@
 "use client";
 
 import { Train } from "lucide-react";
+
 import type { RailwayEvent } from "@entities/tracking";
 
 interface Props {
@@ -20,9 +21,7 @@ function formatTime(iso: string): string {
 export function RailwayTimeline({ events }: Props) {
   if (events.length === 0) {
     return (
-      <div className="px-5 py-4 text-xs text-muted-foreground">
-        Данные трекинга ещё не получены
-      </div>
+      <div className="px-5 py-4 text-xs text-muted-foreground">Данные трекинга ещё не получены</div>
     );
   }
 
@@ -33,7 +32,7 @@ export function RailwayTimeline({ events }: Props) {
       </p>
       <div className="relative">
         {/* vertical line */}
-        <div className="absolute left-2.75 top-2 bottom-2 w-px bg-border" />
+        <div className="absolute top-2 bottom-2 left-2.75 w-px bg-border" />
 
         <div className="flex flex-col gap-0">
           {events.map((e, idx) => (
@@ -41,9 +40,7 @@ export function RailwayTimeline({ events }: Props) {
               {/* dot */}
               <div
                 className={`relative z-10 mt-1 flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-full border-2 ${
-                  idx === 0
-                    ? "border-primary bg-primary"
-                    : "border-border bg-white"
+                  idx === 0 ? "border-primary bg-primary" : "border-border bg-white"
                 }`}
               >
                 <Train
@@ -53,12 +50,10 @@ export function RailwayTimeline({ events }: Props) {
 
               {/* content */}
               <div className={`pb-4 ${idx === events.length - 1 ? "pb-0" : ""}`}>
-                <p className="text-sm font-semibold leading-5 text-slate-900">
+                <p className="text-sm leading-5 font-semibold text-slate-900">
                   {e.stationName ?? "—"}
                 </p>
-                {e.status && (
-                  <p className="mt-0.5 text-xs text-muted-foreground">{e.status}</p>
-                )}
+                {e.status && <p className="mt-0.5 text-xs text-muted-foreground">{e.status}</p>}
                 <div className="mt-0.5 flex items-center gap-2 text-[10px] text-muted-foreground">
                   <span>{formatDate(e.trackingDate)}</span>
                   <span>{formatTime(e.trackingDate)}</span>

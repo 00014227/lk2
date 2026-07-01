@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useEffect } from "react";
+
 import {
   ArrowRight,
   ChevronRight,
@@ -13,10 +14,11 @@ import {
   Star,
   Truck,
 } from "lucide-react";
+
+import { ShipmentTable } from "@widgets/shipment-table";
+
 import { logout } from "@features/auth";
-import { getUnratedDeliveries } from "@features/rate-delivery";
 import { NotificationBell } from "@features/notifications";
-import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import {
   fetchMyOrders,
   setActiveTab,
@@ -24,19 +26,16 @@ import {
   selectOrdersLoading,
   selectOrdersError,
 } from "@features/orders";
+import { getUnratedDeliveries } from "@features/rate-delivery";
+
 import { selectShipments } from "@entities/shipment";
 import { selectVehicles } from "@entities/vehicle";
+
+import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { Badge } from "@shared/ui/badge";
 import { Button } from "@shared/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
 import { Logo } from "@shared/ui/logo";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@shared/ui/card";
-import { ShipmentTable } from "@widgets/shipment-table";
 
 const FleetMap = dynamic(() => import("@widgets/fleet-map"), {
   ssr: false,
@@ -106,12 +105,12 @@ export function DashboardShell() {
 
           <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
             <div className="min-w-0 space-y-5">
-              <h1 className="font-display text-2xl lg:text-4xl font-semibold tracking-tight">
+              <h1 className="font-display text-2xl font-semibold tracking-tight lg:text-4xl">
                 Центр управления клиентскими грузоперевозками
               </h1>
-              <p className="max-w-3xl text-sm leading-5 lg:leading-7 text-slate-200">
-                Визуальный MVP для отслеживания отправлений, прозрачности для клиентов
-                и последующей интеграции с ERP, GPS и внешними API сервисами.
+              <p className="max-w-3xl text-sm leading-5 text-slate-200 lg:leading-7">
+                Визуальный MVP для отслеживания отправлений, прозрачности для клиентов и последующей
+                интеграции с ERP, GPS и внешними API сервисами.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className="bg-white/14 text-white" variant="neutral">
@@ -192,9 +191,7 @@ export function DashboardShell() {
                   <p className="mt-3 font-display text-3xl font-semibold tracking-tight">
                     {item.value}
                   </p>
-                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                    {item.detail}
-                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{item.detail}</p>
                 </div>
                 <div className="rounded-2xl bg-secondary p-3 text-primary">
                   <item.icon className="h-5 w-5" />
@@ -246,8 +243,8 @@ export function DashboardShell() {
                 <div>
                   <CardTitle>Карта отслеживания транспорта</CardTitle>
                   <CardDescription>
-                    Наведите курсор на маркер транспорта, чтобы увидеть статус
-                    отправления, ETA и назначенного водителя.
+                    Наведите курсор на маркер транспорта, чтобы увидеть статус отправления, ETA и
+                    назначенного водителя.
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm text-secondary-foreground">

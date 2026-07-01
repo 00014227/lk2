@@ -3,20 +3,25 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect } from "react";
+
 import { ArrowLeft, MapPinned, Star } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
+
+import { ShipmentInfo } from "@widgets/shipment-info";
+
+import { CommunicationDock } from "@features/chat";
 import { fetchMyOrders, selectOrdersLoading, selectOrdersError } from "@features/orders";
-import { selectShipments } from "@entities/shipment";
 import { RateDeliveryModal, useDeliveryRating } from "@features/rate-delivery";
+import { useGPSProgress } from "@features/track-shipment";
+import { useShipmentTracking } from "@features/track-shipment";
+import { TransportSegmentCards } from "@features/track-shipment";
+
+import { selectShipments } from "@entities/shipment";
+import type { Shipment } from "@entities/shipment";
+
+import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { Badge } from "@shared/ui/badge";
 import { Button } from "@shared/ui/button";
 import { Progress } from "@shared/ui/progress";
-import { useGPSProgress } from "@features/track-shipment";
-import { useShipmentTracking } from "@features/track-shipment";
-import type { Shipment } from "@entities/shipment";
-import { TransportSegmentCards } from "@features/track-shipment";
-import { CommunicationDock } from "@features/chat";
-import { ShipmentInfo } from "@widgets/shipment-info";
 
 const ShipmentRouteMap = dynamic(() => import("@widgets/shipment-route-map"), {
   ssr: false,
@@ -118,118 +123,109 @@ export function ShipmentDetail({ id }: Props) {
 function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
   const progress = useGPSProgress(shipment);
   const rating = useDeliveryRating(shipment);
-  const {
-    isRailway,
-    railwayEvents,
-    segments,
-    airEvents,
-    seaPositions,
-    containerRoute,
-    airRoute,
-  } = useShipmentTracking(shipment);
+  const { isRailway, railwayEvents, segments, airEvents, seaPositions, containerRoute, airRoute } =
+    useShipmentTracking(shipment);
 
   return (
     <div
       className="transition-[padding] duration-200 ease-out"
       style={{ paddingRight: "var(--dock-w, 0px)" }}
     >
-    <main className="mx-auto min-h-screen max-w-app pb-12">
-      {/* ── Sticky header ─────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-border bg-white/95 px-4 py-3 backdrop-blur sm:px-5 sm:py-4 lg:px-8">
-        {/* Заголовок переносится на отдельную строку ниже на узких экранах,
+      <main className="mx-auto min-h-screen max-w-app pb-12">
+        {/* ── Sticky header ─────────────────────────────────────────────── */}
+        <header className="sticky top-0 z-30 border-b border-border bg-white/95 px-4 py-3 backdrop-blur sm:px-5 sm:py-4 lg:px-8">
+          {/* Заголовок переносится на отдельную строку ниже на узких экранах,
             где он не помещается между «Назад» и статусом; на sm+ — в один ряд. */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5">
-          <BackLink className="order-1 shrink-0" />
-          <div className="order-3 w-full min-w-0 sm:order-2 sm:w-auto sm:flex-1">
-            <p className="truncate font-display text-xl font-semibold leading-tight">
-              {shipment.id}
-            </p>
-            {shipment.customerName && (
-              <p className="truncate text-sm font-medium text-primary">
-                {shipment.customerName}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5">
+            <BackLink className="order-1 shrink-0" />
+            <div className="order-3 w-full min-w-0 sm:order-2 sm:w-auto sm:flex-1">
+              <p className="truncate font-display text-xl leading-tight font-semibold">
+                {shipment.id}
               </p>
-            )}
+              {shipment.customerName && (
+                <p className="truncate text-sm font-medium text-primary">{shipment.customerName}</p>
+              )}
+            </div>
+            <div className="order-2 ml-auto flex shrink-0 items-center gap-3 sm:order-3 sm:ml-0">
+              {shipment.status === "Доставлен" && (
+                <Button type="button" variant="ghost" size="sm" onClick={rating.open}>
+                  <Star className="h-4 w-4" />
+                  <span className="hidden sm:inline">Оценить доставку</span>
+                </Button>
+              )}
+              <Badge variant={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
+            </div>
           </div>
-          <div className="order-2 ml-auto flex shrink-0 items-center gap-3 sm:order-3 sm:ml-0">
-            {shipment.status === "Доставлен" && (
-              <Button type="button" variant="ghost" size="sm" onClick={rating.open}>
-                <Star className="h-4 w-4" />
-                <span className="hidden sm:inline">Оценить доставку</span>
-              </Button>
-            )}
-            <Badge variant={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
+
+          {/* Route progress */}
+          <div className="mt-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
+                Прогресс маршрута
+              </p>
+              <span className="text-sm font-bold text-primary">{progress}%</span>
+            </div>
+            <Progress className="mt-1.5" value={progress} />
           </div>
+
+          {/* Origin / destination */}
+          <div className="mt-2.5 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <MapPinned className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="text-muted-foreground">Откуда:</span>
+              <span className="truncate font-semibold text-slate-900">{shipment.origin}</span>
+            </div>
+            <div className="flex min-w-0 items-center gap-1.5 sm:justify-end">
+              <span className="text-muted-foreground">Куда:</span>
+              <span className="truncate font-semibold text-slate-900">{shipment.destination}</span>
+              <MapPinned className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </div>
+          </div>
+        </header>
+
+        {/* ── Body ──────────────────────────────────────────────────────── */}
+        <div className="flex flex-col gap-6 px-4 py-5 sm:px-5 sm:py-6 lg:px-8">
+          {/* Transport legs */}
+          <section>
+            <h2 className="mb-3 font-display text-lg font-semibold">Транспортировка</h2>
+            <TransportSegmentCards
+              segments={segments}
+              shipment={shipment}
+              railwayEvents={railwayEvents}
+              airEvents={airEvents}
+              seaPositions={seaPositions}
+            />
+          </section>
+
+          {/* Details */}
+          <ShipmentInfo shipment={shipment} isRailway={isRailway} />
+
+          {/* Map — full width */}
+          <section className="relative isolate h-[60vh] min-h-105 w-full overflow-hidden rounded-[28px] border border-white/70 shadow-[0_18px_60px_rgba(16,35,48,0.08)]">
+            <ShipmentRouteMap
+              key={shipment.id}
+              interactiveZoom
+              origin={shipment.origin}
+              destination={shipment.destination}
+              vehicleId={shipment.vehicleId || undefined}
+              departed={shipment.departed}
+              delivered={shipment.status === "Доставлен"}
+              airEvents={airEvents.length ? airEvents : undefined}
+              airRoute={airRoute}
+              seaRoute={containerRoute}
+              railwayEvents={railwayEvents.length ? railwayEvents : undefined}
+            />
+            <div className="absolute bottom-4 left-1/2 z-1000 max-w-[calc(100%-1.5rem)] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
+              <span className="block truncate text-sm font-semibold text-slate-800">
+                {shipment.origin} → {shipment.destination}
+              </span>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <p className="text-xs text-muted-foreground">Создан: {shipment.createdDate}</p>
         </div>
-
-        {/* Route progress */}
-        <div className="mt-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
-              Прогресс маршрута
-            </p>
-            <span className="text-sm font-bold text-primary">{progress}%</span>
-          </div>
-          <Progress className="mt-1.5" value={progress} />
-        </div>
-
-        {/* Origin / destination */}
-        <div className="mt-2.5 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <MapPinned className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <span className="text-muted-foreground">Откуда:</span>
-            <span className="truncate font-semibold text-slate-900">{shipment.origin}</span>
-          </div>
-          <div className="flex min-w-0 items-center gap-1.5 sm:justify-end">
-            <span className="text-muted-foreground">Куда:</span>
-            <span className="truncate font-semibold text-slate-900">{shipment.destination}</span>
-            <MapPinned className="h-4 w-4 shrink-0 text-muted-foreground" />
-          </div>
-        </div>
-      </header>
-
-      {/* ── Body ──────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-6 px-4 py-5 sm:px-5 sm:py-6 lg:px-8">
-        {/* Transport legs */}
-        <section>
-          <h2 className="mb-3 font-display text-lg font-semibold">Транспортировка</h2>
-          <TransportSegmentCards
-            segments={segments}
-            shipment={shipment}
-            railwayEvents={railwayEvents}
-            airEvents={airEvents}
-            seaPositions={seaPositions}
-          />
-        </section>
-
-        {/* Details */}
-        <ShipmentInfo shipment={shipment} isRailway={isRailway} />
-
-        {/* Map — full width */}
-        <section className="relative isolate h-[60vh] min-h-105 w-full overflow-hidden rounded-[28px] border border-white/70 shadow-[0_18px_60px_rgba(16,35,48,0.08)]">
-          <ShipmentRouteMap
-            key={shipment.id}
-            interactiveZoom
-            origin={shipment.origin}
-            destination={shipment.destination}
-            vehicleId={shipment.vehicleId || undefined}
-            departed={shipment.departed}
-            delivered={shipment.status === "Доставлен"}
-            airEvents={airEvents.length ? airEvents : undefined}
-            airRoute={airRoute}
-            seaRoute={containerRoute}
-            railwayEvents={railwayEvents.length ? railwayEvents : undefined}
-          />
-          <div className="absolute bottom-4 left-1/2 z-1000 max-w-[calc(100%-1.5rem)] -translate-x-1/2 rounded-full border border-white/70 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
-            <span className="block truncate text-sm font-semibold text-slate-800">
-              {shipment.origin} → {shipment.destination}
-            </span>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <p className="text-xs text-muted-foreground">Создан: {shipment.createdDate}</p>
-      </div>
-    </main>
+      </main>
 
       {/* Right dock — communication center for this shipment */}
       <CommunicationDock shipment={shipment} />

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+
 import { AppProvider } from "@app/providers/app-provider";
 import "@app/styles/globals.css";
 
@@ -71,8 +72,7 @@ const inter = localFont({
 
 export const metadata: Metadata = {
   title: "TransAsia Logistics Portal",
-  description:
-    "Client logistics dashboard for shipment visibility and tracking.",
+  description: "Client logistics dashboard for shipment visibility and tracking.",
 };
 
 export const viewport: Viewport = {

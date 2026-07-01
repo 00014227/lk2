@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import { Search } from "lucide-react";
-import { loginWithPassword } from "../api/auth";
+
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
+
+import { loginWithPassword } from "../api/auth";
 
 export function LoginForm() {
   const router = useRouter();

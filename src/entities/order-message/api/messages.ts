@@ -1,4 +1,5 @@
 import api from "@shared/api";
+
 import type { OrderMessage, UnreadNotification } from "../model/types";
 
 export async function fetchOrderMessages(orderNumber: string): Promise<OrderMessage[]> {
@@ -8,10 +9,7 @@ export async function fetchOrderMessages(orderNumber: string): Promise<OrderMess
   return res.data;
 }
 
-export async function sendOrderMessage(
-  orderNumber: string,
-  body: string,
-): Promise<OrderMessage> {
+export async function sendOrderMessage(orderNumber: string, body: string): Promise<OrderMessage> {
   // Topic is determined automatically by AI on the backend — the client never sends it.
   const res = await api.post<OrderMessage>(
     `/orders/my/${encodeURIComponent(orderNumber)}/messages`,
@@ -21,6 +19,6 @@ export async function sendOrderMessage(
 }
 
 export async function fetchUnreadNotifications(): Promise<UnreadNotification[]> {
-  const res = await api.get<UnreadNotification[]>('/orders/my/unread-notifications');
+  const res = await api.get<UnreadNotification[]>("/orders/my/unread-notifications");
   return res.data;
 }
