@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Input } from "@shared/ui/input";
+
 import { searchTariffLocations } from "@entities/tariff";
 import type { TariffLocation } from "@entities/tariff";
+
+import { Input } from "@shared/ui/input";
 
 /** City input with suggestions pulled from the tariff location dictionary. */
 export function LocationAutocomplete({
@@ -37,7 +39,10 @@ export function LocationAutocomplete({
         id={id}
         placeholder={placeholder}
         value={value}
-        onChange={(e) => { onChange(e.target.value); setOpen(true); }}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setOpen(true);
+        }}
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
       />
@@ -48,7 +53,11 @@ export function LocationAutocomplete({
               key={s.id}
               type="button"
               className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-              onMouseDown={(e) => { e.preventDefault(); onChange(s.name); setOpen(false); }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onChange(s.name);
+                setOpen(false);
+              }}
             >
               {s.name}
             </button>

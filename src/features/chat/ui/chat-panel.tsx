@@ -1,15 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import { Loader2, Send } from "lucide-react";
-import { Button } from "@shared/ui/button";
-import { Input } from "@shared/ui/input";
+
 import type { OrderMessage } from "@entities/order-message";
 import type { Shipment } from "@entities/shipment";
-import type { QuickGroup } from "../lib/quick-questions";
+
+import { Button } from "@shared/ui/button";
+import { Input } from "@shared/ui/input";
+
 import { ManagerContact } from "./manager-contact";
 import { MessageBubble } from "./message-bubble";
 import { QuickQuestions } from "./quick-questions";
+
+import type { QuickGroup } from "../lib/quick-questions";
 
 interface ChatPanelProps {
   shipment: Shipment;
@@ -22,7 +27,14 @@ interface ChatPanelProps {
   fill?: boolean;
 }
 
-export function ChatPanel({ shipment, messages, loading, onSend, showContacts = true, fill = false }: ChatPanelProps) {
+export function ChatPanel({
+  shipment,
+  messages,
+  loading,
+  onSend,
+  showContacts = true,
+  fill = false,
+}: ChatPanelProps) {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<QuickGroup | null>(null);
@@ -43,8 +55,11 @@ export function ChatPanel({ shipment, messages, loading, onSend, showContacts = 
       await onSend(body);
       setText("");
       setSelectedGroup(null);
-    } catch { /* ignore */ }
-    finally { setSending(false); }
+    } catch {
+      /* ignore */
+    } finally {
+      setSending(false);
+    }
   }
 
   const hasContacts = showContacts && (shipment.responsibleName || shipment.kamName);
@@ -55,10 +70,20 @@ export function ChatPanel({ shipment, messages, loading, onSend, showContacts = 
       {hasContacts && (
         <div className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-2">
           {shipment.responsibleName && (
-            <ManagerContact role="Ответственный" name={shipment.responsibleName} phone={shipment.responsiblePhone} email={shipment.responsibleEmail} />
+            <ManagerContact
+              role="Ответственный"
+              name={shipment.responsibleName}
+              phone={shipment.responsiblePhone}
+              email={shipment.responsibleEmail}
+            />
           )}
           {shipment.kamName && (
-            <ManagerContact role="Менеджер" name={shipment.kamName} phone={shipment.kamPhone} email={shipment.kamEmail} />
+            <ManagerContact
+              role="Менеджер"
+              name={shipment.kamName}
+              phone={shipment.kamPhone}
+              email={shipment.kamEmail}
+            />
           )}
         </div>
       )}
@@ -86,8 +111,13 @@ export function ChatPanel({ shipment, messages, loading, onSend, showContacts = 
       {/* CHAT WITH HISTORY — no topic selection anywhere */}
       {hasMessages && (
         <>
-          <div ref={listRef} className={`flex flex-col gap-2 overflow-y-auto rounded-2xl bg-slate-50/60 p-3 ${fill ? "min-h-0 flex-1" : "h-64"}`}>
-            {messages.map((m) => <MessageBubble key={m.id} message={m} />)}
+          <div
+            ref={listRef}
+            className={`flex flex-col gap-2 overflow-y-auto rounded-2xl bg-slate-50/60 p-3 ${fill ? "min-h-0 flex-1" : "h-64"}`}
+          >
+            {messages.map((m) => (
+              <MessageBubble key={m.id} message={m} />
+            ))}
           </div>
 
           <form className="flex gap-2" onSubmit={handleSend}>
@@ -97,8 +127,17 @@ export function ChatPanel({ shipment, messages, loading, onSend, showContacts = 
               placeholder="Сообщение..."
               disabled={sending}
             />
-            <Button type="submit" size="icon" disabled={sending || !text.trim()} className="h-12 w-12 shrink-0">
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            <Button
+              type="submit"
+              size="icon"
+              disabled={sending || !text.trim()}
+              className="h-12 w-12 shrink-0"
+            >
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </form>
         </>

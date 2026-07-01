@@ -1,8 +1,10 @@
 "use client";
 
 import { Plane, Ship, Train, Truck } from "lucide-react";
-import { cn } from "@shared/lib/utils";
+
 import type { ShipmentSegment } from "@entities/tracking";
+
+import { cn } from "@shared/lib/utils";
 
 function transportIcon(type: string) {
   if (type === "railway") return Train;
@@ -45,16 +47,13 @@ export function MultimodalProgress({ segments }: MultimodalProgressProps) {
             )}
 
             {/* Segment node */}
-            <div className="flex flex-col items-center gap-1 shrink-0">
+            <div className="flex shrink-0 flex-col items-center gap-1">
               <div
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors",
-                  state === "done" &&
-                    "border-emerald-500 bg-emerald-50 text-emerald-600",
-                  state === "active" &&
-                    "border-primary bg-primary/10 text-primary",
-                  state === "upcoming" &&
-                    "border-slate-200 bg-white text-slate-400",
+                  state === "done" && "border-emerald-500 bg-emerald-50 text-emerald-600",
+                  state === "active" && "border-primary bg-primary/10 text-primary",
+                  state === "upcoming" && "border-slate-200 bg-white text-slate-400",
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -63,13 +62,13 @@ export function MultimodalProgress({ segments }: MultimodalProgressProps) {
                 {seg.transportType === "railway"
                   ? "ЖД"
                   : seg.transportType === "sea"
-                  ? "Море"
-                  : seg.transportType === "air"
-                  ? "Авиа"
-                  : "Авто"}
+                    ? "Море"
+                    : seg.transportType === "air"
+                      ? "Авиа"
+                      : "Авто"}
               </span>
               {seg.officeName && (
-                <span className="text-[9px] text-muted-foreground/70 max-w-15 text-center leading-tight">
+                <span className="max-w-15 text-center text-[9px] leading-tight text-muted-foreground/70">
                   {seg.officeName}
                 </span>
               )}

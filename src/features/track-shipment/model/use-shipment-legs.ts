@@ -1,23 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import type { ShipmentSegment } from "@entities/tracking";
+
 import type { Shipment } from "@entities/shipment";
-import {
-  type Leg,
-  type LegType,
-  segmentState,
-  shipmentLegType,
-} from "../lib/leg";
+import type { ShipmentSegment } from "@entities/tracking";
+
+import { type Leg, type LegType, segmentState, shipmentLegType } from "../lib/leg";
 
 /**
  * Normalize a shipment's transport legs: prefer explicit segments (sorted by
  * sequence), otherwise synthesize a single leg from the shipment itself.
  */
-export function useShipmentLegs(
-  segments: ShipmentSegment[],
-  shipment: Shipment,
-): Leg[] {
+export function useShipmentLegs(segments: ShipmentSegment[], shipment: Shipment): Leg[] {
   return useMemo<Leg[]>(() => {
     if (segments.length > 0) {
       return [...segments]
@@ -45,12 +39,7 @@ export function useShipmentLegs(
         office: null,
         departure: null,
         arrival: null,
-        state:
-          shipment.status === "Доставлен"
-            ? "done"
-            : shipment.departed
-              ? "active"
-              : "upcoming",
+        state: shipment.status === "Доставлен" ? "done" : shipment.departed ? "active" : "upcoming",
       },
     ];
   }, [segments, shipment]);

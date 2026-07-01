@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+
 import { MAX_COL_WIDTH, MIN_COL_WIDTH, type ColKey } from "../lib/columns";
 
 interface ColumnResizerProps {
@@ -10,7 +11,12 @@ interface ColumnResizerProps {
   onResetWidth: (key: ColKey) => void;
 }
 
-export function ColumnResizer({ colKey, onResize, onResizeCommit, onResetWidth }: ColumnResizerProps) {
+export function ColumnResizer({
+  colKey,
+  onResize,
+  onResizeCommit,
+  onResetWidth,
+}: ColumnResizerProps) {
   const startX = useRef(0);
   const startW = useRef(0);
   const lastW = useRef(0);

@@ -1,4 +1,11 @@
-export const CHAT_TOPICS = ['Перевозка', 'Документы', 'Финансы', 'Таможня', 'Склад', 'Общее'] as const;
+export const CHAT_TOPICS = [
+  "Перевозка",
+  "Документы",
+  "Финансы",
+  "Таможня",
+  "Склад",
+  "Общее",
+] as const;
 export type ChatTopic = (typeof CHAT_TOPICS)[number];
 
 export interface OrderMessage {

@@ -2,18 +2,29 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+
 import { Container, Gauge, MapPinned, ShieldCheck, Truck, Weight } from "lucide-react";
-import { Badge } from "@shared/ui/badge";
-import { Progress } from "@shared/ui/progress";
+
 import { useGPSProgress } from "@features/track-shipment";
-import { fetchRailwayEvents, fetchShipmentSegments, fetchPublicTracking } from "@entities/tracking";
-import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent, SeaPosition, ShipmentSegment } from "@entities/tracking";
-import { formatEta } from "@entities/shipment";
-import type { Shipment } from "@entities/shipment";
 import { AirTimeline } from "@features/track-shipment";
 import { RailwayTimeline } from "@features/track-shipment";
 import { MultimodalProgress } from "@features/track-shipment";
 import { VesselCard } from "@features/track-shipment";
+
+import { formatEta } from "@entities/shipment";
+import type { Shipment } from "@entities/shipment";
+import { fetchRailwayEvents, fetchShipmentSegments, fetchPublicTracking } from "@entities/tracking";
+import type {
+  AirEvent,
+  AirRoute,
+  ContainerRoute,
+  RailwayEvent,
+  SeaPosition,
+  ShipmentSegment,
+} from "@entities/tracking";
+
+import { Badge } from "@shared/ui/badge";
+import { Progress } from "@shared/ui/progress";
 
 const ShipmentRouteMap = dynamic(() => import("@widgets/shipment-route-map"), {
   ssr: false,
@@ -135,7 +146,11 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
           isRailway
             ? { icon: Container, label: "Контейнер", value: shipment.vehicleNumber }
             : { icon: Truck, label: "Транспорт", value: shipment.vehicleNumber },
-          { icon: Gauge, label: "ETA", value: formatEta(shipment.estimatedArrival, shipment.status) },
+          {
+            icon: Gauge,
+            label: "ETA",
+            value: formatEta(shipment.estimatedArrival, shipment.status),
+          },
           { icon: ShieldCheck, label: "Тип груза", value: shipment.cargoType },
           { icon: Weight, label: "Вес", value: shipment.weight },
           { icon: MapPinned, label: "Откуда", value: shipment.origin },
@@ -146,7 +161,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
               <item.icon className="h-3.5 w-3.5 shrink-0" />
               <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">{item.label}</p>
             </div>
-            <p className="mt-1 text-sm font-semibold leading-5 text-slate-900">
+            <p className="mt-1 text-sm leading-5 font-semibold text-slate-900">
               {item.value || "—"}
             </p>
           </div>

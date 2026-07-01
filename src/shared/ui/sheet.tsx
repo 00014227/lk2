@@ -2,6 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
+
 import { cn } from "@shared/lib/utils";
 
 const Sheet = Dialog.Root;
@@ -48,17 +49,11 @@ function SheetContent({
   );
 }
 
-function SheetHeader({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("border-b border-border p-6", className)} {...props} />;
 }
 
-function SheetTitle({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<typeof Dialog.Title>) {
+function SheetTitle({ className, ...props }: React.ComponentPropsWithoutRef<typeof Dialog.Title>) {
   return (
     <Dialog.Title
       className={cn("font-display text-2xl font-semibold tracking-tight", className)}
@@ -79,12 +74,4 @@ function SheetDescription({
   );
 }
 
-export {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-};
+export { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger };

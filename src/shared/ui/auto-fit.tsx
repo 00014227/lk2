@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useMap } from "react-leaflet";
+
 import L from "leaflet";
+import { useMap } from "react-leaflet";
 
 interface AutoFitProps {
   coords: [number, number][];

@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, MapPin, X } from "lucide-react";
+
 import type { Shipment } from "@entities/shipment";
 
 interface RouteBadgeProps {

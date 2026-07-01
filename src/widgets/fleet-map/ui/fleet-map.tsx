@@ -1,7 +1,9 @@
 "use client";
 
 import { useMapEvents } from "react-leaflet";
+
 import BaseMap from "@shared/ui/base-map";
+
 import { useFleetMap } from "../model/use-fleet-map";
 import { FleetMapSidebar } from "./fleet-map-sidebar";
 import { ManualMarkers } from "./manual-markers";

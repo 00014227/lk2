@@ -1,11 +1,11 @@
 import L from "leaflet";
 
-export const TEAL       = "#0c3078";
-export const GRAY       = "#94a3b8";
+export const TEAL = "#0c3078";
+export const GRAY = "#94a3b8";
 export const LIGHT_GRAY = "#cbd5e1";
-export const GREEN      = "#16a34a";
-export const AIR_BLUE   = "#3b82f6";
-export const SEA_BLUE   = "#0ea5e9";
+export const GREEN = "#16a34a";
+export const AIR_BLUE = "#3b82f6";
+export const SEA_BLUE = "#0ea5e9";
 export const RAIL_PURPLE = "#7c3aed";
 
 export function buildTruckIcon(variant: "pending" | "moving") {

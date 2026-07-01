@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { TOKEN_KEY } from "@shared/config/storage-keys";
 
 export function getToken(): string | null {

@@ -1,6 +1,7 @@
 "use client";
 
 import { Ship, MapPin, Gauge } from "lucide-react";
+
 import type { SeaPosition } from "@entities/tracking";
 
 interface Props {
@@ -10,15 +11,19 @@ interface Props {
 function formatDate(iso: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
-  return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export function VesselCard({ positions }: Props) {
   if (positions.length === 0) {
     return (
-      <div className="px-5 py-4 text-xs text-muted-foreground">
-        Данные судна ещё не получены
-      </div>
+      <div className="px-5 py-4 text-xs text-muted-foreground">Данные судна ещё не получены</div>
     );
   }
 
@@ -35,9 +40,7 @@ export function VesselCard({ positions }: Props) {
             <Ship className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-900">
-              {latest.vesselName ?? "Судно"}
-            </p>
+            <p className="text-sm font-semibold text-slate-900">{latest.vesselName ?? "Судно"}</p>
             {latest.vesselImo && (
               <p className="text-[10px] text-muted-foreground">IMO {latest.vesselImo}</p>
             )}

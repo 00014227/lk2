@@ -15,9 +15,10 @@ export async function fetchRoute(
     const json = await res.json();
     if (json.code !== "Ok" || !json.routes?.[0]) return null;
     // GeoJSON uses [lng, lat] — swap to [lat, lng] for Leaflet
-    return (json.routes[0].geometry.coordinates as [number, number][]).map(
-      ([lng, lat]) => [lat, lng],
-    );
+    return (json.routes[0].geometry.coordinates as [number, number][]).map(([lng, lat]) => [
+      lat,
+      lng,
+    ]);
   } catch {
     return null;
   }

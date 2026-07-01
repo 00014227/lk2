@@ -2,9 +2,11 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, useStore } from "react-redux";
+
+import { ordersReducer } from "@features/orders";
+
 import { shipmentReducer } from "@entities/shipment";
 import { vehicleReducer } from "@entities/vehicle";
-import { ordersReducer } from "@features/orders";
 
 export const store = configureStore({
   reducer: {

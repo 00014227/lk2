@@ -1,7 +1,9 @@
 "use client";
 
 import { Marker, Popup } from "react-leaflet";
+
 import type { MapShipmentItem } from "@entities/shipment";
+
 import { buildManualIcon } from "../lib/leaflet-icons";
 
 interface ManualMarkersProps {
@@ -25,7 +27,9 @@ export function ManualMarkers({ orders }: ManualMarkersProps) {
                 {(o.departure || o.destination) && (
                   <>
                     <dt>Маршрут</dt>
-                    <dd>{o.departure ?? "—"} → {o.destination ?? "—"}</dd>
+                    <dd>
+                      {o.departure ?? "—"} → {o.destination ?? "—"}
+                    </dd>
                   </>
                 )}
                 {o.status && (

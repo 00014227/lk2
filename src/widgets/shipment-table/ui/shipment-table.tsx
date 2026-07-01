@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import {
   DndContext,
   KeyboardSensor,
@@ -12,11 +13,15 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { useAppSelector } from "@shared/lib/store-hooks";
-import { selectShipments } from "@entities/shipment";
-import { ACTIONS_COL_WIDTH, DEFAULT_WIDTHS, type ColKey } from "../lib/columns";
-import { selectSelectedShipmentId } from "@features/orders";
+
 import { CreateShipmentSheet } from "@features/create-shipment";
+import { selectSelectedShipmentId } from "@features/orders";
+
+import { selectShipments } from "@entities/shipment";
+
+import { useAppSelector } from "@shared/lib/store-hooks";
+
+import { ACTIONS_COL_WIDTH, DEFAULT_WIDTHS, type ColKey } from "../lib/columns";
 import { PAGE_SIZE, useTableFilters } from "../model/use-table-filters";
 import { useTablePreferences } from "../model/use-table-preferences";
 import { TableBody } from "./table-body";
@@ -37,7 +42,10 @@ export function ShipmentTable() {
 
   // Filter/search changes reset pagination; row hiding lives in the prefs hook
   // but also resets the page, so the shell composes the two concerns here.
-  const setSearch = (v: string) => { filters.setSearch(v); filters.resetPage(); };
+  const setSearch = (v: string) => {
+    filters.setSearch(v);
+    filters.resetPage();
+  };
   const toggleCompany = (name: string) => {
     const next = filters.companyFilter.includes(name)
       ? filters.companyFilter.filter((c) => c !== name)
@@ -45,12 +53,30 @@ export function ShipmentTable() {
     filters.setCompanyFilter(next);
     filters.resetPage();
   };
-  const clearCompanies = () => { filters.setCompanyFilter([]); filters.resetPage(); };
-  const setStatusFilter: typeof filters.setStatusFilter = (v) => { filters.setStatusFilter(v); filters.resetPage(); };
-  const setTransportFilter = (v: string) => { filters.setTransportFilter(v); filters.resetPage(); };
-  const hideRow = (id: string) => { prefs.hideRow(id); filters.resetPage(); };
-  const restoreRows = () => { prefs.restoreRows(); filters.resetPage(); };
-  const onToggleSort = (key: ColKey) => { filters.toggleSort(key); filters.resetPage(); };
+  const clearCompanies = () => {
+    filters.setCompanyFilter([]);
+    filters.resetPage();
+  };
+  const setStatusFilter: typeof filters.setStatusFilter = (v) => {
+    filters.setStatusFilter(v);
+    filters.resetPage();
+  };
+  const setTransportFilter = (v: string) => {
+    filters.setTransportFilter(v);
+    filters.resetPage();
+  };
+  const hideRow = (id: string) => {
+    prefs.hideRow(id);
+    filters.resetPage();
+  };
+  const restoreRows = () => {
+    prefs.restoreRows();
+    filters.resetPage();
+  };
+  const onToggleSort = (key: ColKey) => {
+    filters.toggleSort(key);
+    filters.resetPage();
+  };
 
   // DnD-колонок: DndContext должен оборачивать <table> снаружи, т.к. он рендерит
   // скрытый служебный div для a11y — внутри <table> это был бы невалидный HTML.

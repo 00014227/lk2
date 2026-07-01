@@ -1,4 +1,5 @@
 import { Plane, Ship, Train, Truck } from "lucide-react";
+
 import type { ShipmentSegment } from "@entities/tracking";
 
 export type LegType = "auto" | "railway" | "sea" | "air";

@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { cn } from "@shared/lib/utils";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
@@ -8,7 +9,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         type={type}
         className={cn(
           // text-base на мобильных (≥16px) — иначе iOS зумит при фокусе.
-          "flex h-12 w-full rounded-2xl border border-border bg-input px-4 py-3 text-base text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] outline-none transition placeholder:text-muted-foreground focus-visible:ring-4 focus-visible:ring-ring sm:text-sm",
+          "flex h-12 w-full rounded-2xl border border-border bg-input px-4 py-3 text-base text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] transition outline-none placeholder:text-muted-foreground focus-visible:ring-4 focus-visible:ring-ring sm:text-sm",
           className,
         )}
         ref={ref}

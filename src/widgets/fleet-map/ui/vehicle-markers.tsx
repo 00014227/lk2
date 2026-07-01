@@ -2,6 +2,7 @@
 
 import L from "leaflet";
 import { Marker, Popup } from "react-leaflet";
+
 import type { FleetMapMarker } from "../model/use-fleet-map";
 
 interface VehicleMarkersProps {

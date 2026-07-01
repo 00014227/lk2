@@ -1,13 +1,20 @@
 "use client";
 
 import { useMemo } from "react";
+
 import { CircleMarker, Marker, Polyline, Tooltip } from "react-leaflet";
+
 import { AutoFit } from "@shared/ui/auto-fit";
+
 import { AIR_BLUE, buildDeliveredIcon, buildPlaneIcon } from "../lib/leaflet-icons";
+
 import type { RouteModes } from "../model/use-route-modes";
 
 export function AirRouteLayer({ coords, airports, delivered }: RouteModes["air"]) {
-  const planeIcon = useMemo(() => (delivered ? buildDeliveredIcon() : buildPlaneIcon()), [delivered]);
+  const planeIcon = useMemo(
+    () => (delivered ? buildDeliveredIcon() : buildPlaneIcon()),
+    [delivered],
+  );
 
   return (
     <>
@@ -16,8 +23,14 @@ export function AirRouteLayer({ coords, airports, delivered }: RouteModes["air"]
       {/* Flight path */}
       {coords.length >= 2 && (
         <>
-          <Polyline positions={coords} pathOptions={{ color: AIR_BLUE, weight: 6, opacity: 0.15 }} />
-          <Polyline positions={coords} pathOptions={{ color: AIR_BLUE, weight: 2, opacity: 0.9, dashArray: "8 6" }} />
+          <Polyline
+            positions={coords}
+            pathOptions={{ color: AIR_BLUE, weight: 6, opacity: 0.15 }}
+          />
+          <Polyline
+            positions={coords}
+            pathOptions={{ color: AIR_BLUE, weight: 2, opacity: 0.9, dashArray: "8 6" }}
+          />
         </>
       )}
 
@@ -41,7 +54,9 @@ export function AirRouteLayer({ coords, airports, delivered }: RouteModes["air"]
       {coords.length > 0 && (
         <Marker position={coords[coords.length - 1]} icon={planeIcon}>
           <Tooltip direction="top" offset={[0, -22]}>
-            <span className="text-xs font-semibold">{delivered ? "Доставлено" : "Последнее местоположение"}</span>
+            <span className="text-xs font-semibold">
+              {delivered ? "Доставлено" : "Последнее местоположение"}
+            </span>
           </Tooltip>
         </Marker>
       )}

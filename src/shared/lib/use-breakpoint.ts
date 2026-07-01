@@ -51,10 +51,7 @@ export function useMediaQuery(query: string, serverDefault = false): boolean {
   );
 
   const getSnapshot = useCallback(
-    () =>
-      typeof window === "undefined"
-        ? serverDefault
-        : window.matchMedia(query).matches,
+    () => (typeof window === "undefined" ? serverDefault : window.matchMedia(query).matches),
     [query, serverDefault],
   );
 
@@ -72,9 +69,7 @@ export function useMediaQuery(query: string, serverDefault = false): boolean {
 export function useBreakpoint(serverDefault: Breakpoint = "base"): Breakpoint {
   const subscribe = useCallback((onChange: () => void) => {
     if (typeof window === "undefined") return () => {};
-    const mqls = Object.values(BREAKPOINTS).map((px) =>
-      window.matchMedia(`(min-width: ${px}px)`),
-    );
+    const mqls = Object.values(BREAKPOINTS).map((px) => window.matchMedia(`(min-width: ${px}px)`));
     mqls.forEach((m) => m.addEventListener("change", onChange));
     return () => mqls.forEach((m) => m.removeEventListener("change", onChange));
   }, []);

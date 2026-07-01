@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import { Settings2 } from "lucide-react";
+
 import { cn } from "@shared/lib/utils";
+
 import { ALL_COLUMNS, type ColKey } from "../lib/columns";
 
 interface TableColumnPickerProps {
@@ -16,8 +19,7 @@ export function TableColumnPicker({ hiddenCols, onToggleCol }: TableColumnPicker
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node))
-        setShowPicker(false);
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) setShowPicker(false);
     }
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -38,7 +40,7 @@ export function TableColumnPicker({ hiddenCols, onToggleCol }: TableColumnPicker
       </button>
 
       {showPicker && (
-        <div className="absolute right-0 top-11 z-50 min-w-48 max-h-80 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-xl">
+        <div className="absolute top-11 right-0 z-50 max-h-80 min-w-48 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-xl">
           <p className="px-2 py-1.5 text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
             Показать / скрыть
           </p>

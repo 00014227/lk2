@@ -1,15 +1,11 @@
 "use client";
 
-import {
-  CheckCircle2,
-  ChevronDown,
-  Clock3,
-  Info,
-  Shuffle,
-  XCircle,
-} from "lucide-react";
 import { memo } from "react";
+
+import { CheckCircle2, ChevronDown, Clock3, Info, Shuffle, XCircle } from "lucide-react";
+
 import type { TariffEstimate } from "@entities/tariff";
+
 import { transportVisual } from "../lib/transport-visual";
 
 interface EstimateItemProps {
@@ -22,7 +18,12 @@ interface EstimateItemProps {
 // memo: при открытии одного айтема `openIdx` пересоздаёт весь .map() в EstimateList;
 // memo отсекает айтемы, у которых пропсы не изменились (est/index/onToggle стабильны
 // благодаря React Compiler), поэтому перерисовываются только затронутые.
-export const EstimateItem = memo(function EstimateItem({ est, index, isOpen, onToggle }: EstimateItemProps) {
+export const EstimateItem = memo(function EstimateItem({
+  est,
+  index,
+  isOpen,
+  onToggle,
+}: EstimateItemProps) {
   const { Icon, tint } = transportVisual(est.transportType);
   const hasDetails = Boolean(
     est.breakdown || est.included || est.excluded || est.transitTime || est.conditions,
@@ -50,9 +51,11 @@ export const EstimateItem = memo(function EstimateItem({ est, index, isOpen, onT
           <div className="text-right">
             {est.total != null ? (
               <>
-                <p className="whitespace-nowrap text-base font-bold leading-tight text-slate-900">
+                <p className="text-base leading-tight font-bold whitespace-nowrap text-slate-900">
                   {est.total.toLocaleString("ru-RU")}
-                  <span className="ml-1 text-[11px] font-semibold text-muted-foreground">{est.currency}</span>
+                  <span className="ml-1 text-[11px] font-semibold text-muted-foreground">
+                    {est.currency}
+                  </span>
                 </p>
                 {est.basis && <p className="text-[10px] text-muted-foreground">{est.basis}</p>}
               </>
@@ -60,7 +63,9 @@ export const EstimateItem = memo(function EstimateItem({ est, index, isOpen, onT
               <p className="text-[11px] text-muted-foreground">по запросу</p>
             )}
             {est.freightOnly && (
-              <p className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-amber-600">только за фрахт</p>
+              <p className="mt-0.5 text-[10px] font-medium whitespace-nowrap text-amber-600">
+                только за фрахт
+              </p>
             )}
           </div>
           {hasDetails && (
@@ -77,13 +82,53 @@ export const EstimateItem = memo(function EstimateItem({ est, index, isOpen, onT
         >
           <div className="overflow-hidden">
             <div className="flex flex-col gap-1.5 border-t border-slate-100 px-4 py-2.5 text-[11px]">
-              {est.transitPoint && <DetailRow icon={<Shuffle className="h-3.5 w-3.5 text-slate-400" />} label="Транзит" value={est.transitPoint} />}
-              {est.breakdown && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Расчёт" value={est.breakdown} />}
-              {est.included && <DetailRow icon={<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />} label="Включено" value={est.included} />}
-              {est.excluded && <DetailRow icon={<XCircle className="h-3.5 w-3.5 text-rose-400" />} label="Не включено" value={est.excluded} />}
-              {est.transitTime && <DetailRow icon={<Clock3 className="h-3.5 w-3.5 text-slate-400" />} label="Срок" value={est.transitTime} />}
-              {est.conditions && <DetailRow icon={<Info className="h-3.5 w-3.5 text-slate-400" />} label="Условия" value={est.conditions} />}
-              {est.sourceName && <p className="mt-0.5 text-[10px] italic text-muted-foreground">Источник: {est.sourceName}</p>}
+              {est.transitPoint && (
+                <DetailRow
+                  icon={<Shuffle className="h-3.5 w-3.5 text-slate-400" />}
+                  label="Транзит"
+                  value={est.transitPoint}
+                />
+              )}
+              {est.breakdown && (
+                <DetailRow
+                  icon={<Info className="h-3.5 w-3.5 text-slate-400" />}
+                  label="Расчёт"
+                  value={est.breakdown}
+                />
+              )}
+              {est.included && (
+                <DetailRow
+                  icon={<CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
+                  label="Включено"
+                  value={est.included}
+                />
+              )}
+              {est.excluded && (
+                <DetailRow
+                  icon={<XCircle className="h-3.5 w-3.5 text-rose-400" />}
+                  label="Не включено"
+                  value={est.excluded}
+                />
+              )}
+              {est.transitTime && (
+                <DetailRow
+                  icon={<Clock3 className="h-3.5 w-3.5 text-slate-400" />}
+                  label="Срок"
+                  value={est.transitTime}
+                />
+              )}
+              {est.conditions && (
+                <DetailRow
+                  icon={<Info className="h-3.5 w-3.5 text-slate-400" />}
+                  label="Условия"
+                  value={est.conditions}
+                />
+              )}
+              {est.sourceName && (
+                <p className="mt-0.5 text-[10px] text-muted-foreground italic">
+                  Источник: {est.sourceName}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -92,7 +137,15 @@ export const EstimateItem = memo(function EstimateItem({ est, index, isOpen, onT
   );
 });
 
-function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function DetailRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="flex gap-2">
       <span className="mt-0.5 shrink-0">{icon}</span>
