@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAppSelector } from "@shared/lib/store-hooks";
+import { useEffect, useMemo, useState } from "react";
+
 import { selectShipments } from "@entities/shipment";
 import type { Shipment } from "@entities/shipment";
+
+import { useAppSelector } from "@shared/lib/store-hooks";
+
 import { submitDeliveryRating } from "../api/rate-delivery";
-import {
-  getUnratedDeliveries,
-  isDeliveryRated,
-  markDeliveryRated,
-} from "../lib/rated-storage";
+import { getUnratedDeliveries, isDeliveryRated, markDeliveryRated } from "../lib/rated-storage";
+
 import type { DeliveryRatingValue } from "./types";
 
 const DELIVERED_STATUS = "Доставлен";
@@ -39,7 +39,6 @@ export function useDeliveryRating(shipment: Shipment): UseDeliveryRating {
   const fromRating = searchParams.get("from") === "rating";
   const shipments = useAppSelector(selectShipments);
   const [isOpen, setIsOpen] = useState(false);
-  const [otherUnratedCount, setOtherUnratedCount] = useState(0);
 
   const isDelivered = shipment.status === DELIVERED_STATUS;
 
@@ -58,14 +57,14 @@ export function useDeliveryRating(shipment: Shipment): UseDeliveryRating {
     return () => clearTimeout(timer);
   }, [isDelivered, shipment.id, fromRating]);
 
-  // Count of other unrated deliveries (for the post-submit CTA). Reads
-  // localStorage, so it runs after mount and refreshes with the shipments list.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOtherUnratedCount(
-      getUnratedDeliveries(shipments).filter((s) => s.id !== shipment.id).length,
-    );
-  }, [shipments, shipment.id, isOpen]);
+  // Count of other unrated deliveries (for the post-submit CTA). Pure computation
+  // over the shipments list; it is only ever read inside the client-only modal
+  // (isOpen starts false), so computing it during render causes no hydration
+  // mismatch even though getUnratedDeliveries reads localStorage.
+  const otherUnratedCount = useMemo(
+    () => getUnratedDeliveries(shipments).filter((s) => s.id !== shipment.id).length,
+    [shipments, shipment.id],
+  );
 
   const submit = async (value: DeliveryRatingValue) => {
     await submitDeliveryRating(shipment.id, value);

@@ -1,9 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
+
 import { CircleMarker, Marker, Polyline, Tooltip } from "react-leaflet";
+
 import { AutoFit } from "@shared/ui/auto-fit";
+
 import { RAIL_PURPLE, buildDeliveredIcon, buildTrainIcon } from "../lib/leaflet-icons";
+
 import type { RouteModes } from "../model/use-route-modes";
 
 export function RailwayRouteLayer({
@@ -15,7 +19,10 @@ export function RailwayRouteLayer({
   destLabel,
   delivered,
 }: RouteModes["railway"]) {
-  const trainIcon = useMemo(() => (delivered ? buildDeliveredIcon() : buildTrainIcon()), [delivered]);
+  const trainIcon = useMemo(
+    () => (delivered ? buildDeliveredIcon() : buildTrainIcon()),
+    [delivered],
+  );
 
   if (!pos) return null;
 
@@ -25,7 +32,7 @@ export function RailwayRouteLayer({
       <Marker position={pos} icon={trainIcon}>
         <Tooltip direction="top" offset={[0, -22]}>
           <span className="text-xs font-semibold">
-            {delivered ? "Доставлено" : stationLabel ?? "Текущее положение"}
+            {delivered ? "Доставлено" : (stationLabel ?? "Текущее положение")}
           </span>
         </Tooltip>
       </Marker>

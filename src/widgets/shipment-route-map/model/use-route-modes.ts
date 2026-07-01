@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { fetchRoute, geocodeCity } from "@shared/lib/geo";
+
 import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent } from "@entities/tracking";
+
+import { fetchRoute, geocodeCity } from "@shared/lib/geo";
+
 import { GRAY, LIGHT_GRAY, TEAL } from "../lib/leaflet-icons";
 
 export interface RouteModeInput {
@@ -92,9 +95,15 @@ export function useRouteModes({
       // Find first and last point of segment as port markers
       if (seg.path.length > 0) {
         const key1 = `${seg.fromName}`;
-        if (!seen.has(key1) && seg.path[0]) { seen.add(key1); ports.push({ pos: seg.path[0], label: seg.fromName }); }
+        if (!seen.has(key1) && seg.path[0]) {
+          seen.add(key1);
+          ports.push({ pos: seg.path[0], label: seg.fromName });
+        }
         const key2 = `${seg.toName}`;
-        if (!seen.has(key2) && seg.path[seg.path.length - 1]) { seen.add(key2); ports.push({ pos: seg.path[seg.path.length - 1], label: seg.toName }); }
+        if (!seen.has(key2) && seg.path[seg.path.length - 1]) {
+          seen.add(key2);
+          ports.push({ pos: seg.path[seg.path.length - 1], label: seg.toName });
+        }
       }
     }
     return ports;
@@ -102,9 +111,10 @@ export function useRouteModes({
 
   const isSeaMode = seaCoords.length > 0;
   const shipPos: [number, number] | null =
-    seaRoute?.currentPosition ??
-    (seaCoords.length > 0 ? seaCoords[seaCoords.length - 1] : null);
-  const shipLabel = seaRoute?.currentPosition ? "Текущее положение судна" : "Последнее известное место";
+    seaRoute?.currentPosition ?? (seaCoords.length > 0 ? seaCoords[seaCoords.length - 1] : null);
+  const shipLabel = seaRoute?.currentPosition
+    ? "Текущее положение судна"
+    : "Последнее известное место";
 
   // ── Railway mode ─────────────────────────────────────────────────────────
   const railwayPos = useMemo<[number, number] | null>(() => {
@@ -161,73 +171,99 @@ export function useRouteModes({
       if (seg.path.length < 2) continue;
       const fromLabel = seg.fromIata ?? seg.fromName;
       const toLabel = seg.toIata ?? seg.toName;
-      if (fromLabel && !seen.has(fromLabel)) { seen.add(fromLabel); result.push({ pos: seg.path[0], label: fromLabel }); }
-      if (toLabel && !seen.has(toLabel)) { seen.add(toLabel); result.push({ pos: seg.path[seg.path.length - 1], label: toLabel }); }
+      if (fromLabel && !seen.has(fromLabel)) {
+        seen.add(fromLabel);
+        result.push({ pos: seg.path[0], label: fromLabel });
+      }
+      if (toLabel && !seen.has(toLabel)) {
+        seen.add(toLabel);
+        result.push({ pos: seg.path[seg.path.length - 1], label: toLabel });
+      }
     }
     return result;
   }, [airSegs, hasAirRoute]);
 
   const isAirMode = hasAirRoute || airWaypoints.length > 0;
-  const airCoords: [number, number][] = hasAirRoute ? airRouteCoords : airWaypoints.map((w) => w.pos);
+  const airCoords: [number, number][] = hasAirRoute
+    ? airRouteCoords
+    : airWaypoints.map((w) => w.pos);
   const airAirports = hasAirRoute ? airRouteAirports : airWaypoints;
 
   // ── Truck mode ───────────────────────────────────────────────────────────
-  const [traveledCoords, setTraveledCoords] = useState<[number, number][] | null>(null);
-  const [remainingCoords, setRemainingCoords] = useState<[number, number][] | null>(null);
-  const [vehiclePos, setVehiclePos] = useState<[number, number] | null>(null);
-  const [pins, setPins] = useState<{ origin: Pin; dest: Pin }>({ origin: null, dest: null });
+  const [traveled, setTraveled] = useState<[number, number][] | null>(null);
+  const [remaining, setRemaining] = useState<[number, number][] | null>(null);
+  const [fetchedPos, setFetchedPos] = useState<[number, number] | null>(null);
+  const [geoPins, setGeoPins] = useState<{ origin: Pin; dest: Pin }>({ origin: null, dest: null });
+  const [routeKeyDone, setRouteKeyDone] = useState<string | null>(null);
 
   useEffect(() => {
-    // Data-fetch-on-change effect: reset the vehicle position when it no longer
-    // applies, then fetch the latest position asynchronously.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (isAirMode || !vehicleId || notDeparted) { setVehiclePos(null); return; }
+    // Fetch the latest vehicle position while a departed truck route is active.
+    if (isAirMode || !vehicleId || notDeparted) return;
     let cancelled = false;
     fetch(`/api/tracking/${vehicleId}/latest`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
         if (!cancelled && data?.latitude && data?.longitude) {
-          setVehiclePos([data.latitude, data.longitude]);
+          setFetchedPos([data.latitude, data.longitude]);
         }
       })
       .catch(() => {});
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [vehicleId, notDeparted, isAirMode]);
 
+  // The fetched GPS point only applies to an active, departed truck route; derive
+  // the effective position instead of resetting state in an effect, so it clears
+  // itself when the mode changes (no synchronous setState-in-effect).
+  const vehiclePos: [number, number] | null =
+    isAirMode || !vehicleId || notDeparted ? null : fetchedPos;
+
+  // Geocode + build the truck/railway route. Stale data is hidden by the derived
+  // values below (keyed on routeKey), so the effect resets nothing synchronously;
+  // the resets live inside the async callback, where setState is not flagged.
+  const routeKey = `${origin}|${destination}|${notDeparted}|${vehiclePos ? vehiclePos.join(",") : ""}`;
   useEffect(() => {
     if (isAirMode || !origin || !destination) return;
-    // Always geocode for pins (used in railway mode too)
     let cancelled = false;
-    // Clear the stale route before re-geocoding (data-fetch-on-change effect).
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTraveledCoords(null);
-    setRemainingCoords(null);
-    setPins({ origin: null, dest: null });
 
     Promise.all([geocodeCity(origin), geocodeCity(destination)]).then(
       async ([originCoords, destCoords]) => {
         if (cancelled) return;
-        setPins({ origin: originCoords, dest: destCoords });
+        // Reset + publish pins right after geocoding (pins are used by railway too).
+        setTraveled(null);
+        setRemaining(null);
+        setGeoPins({ origin: originCoords, dest: destCoords });
+        setRouteKeyDone(routeKey);
         if (!originCoords || !destCoords) return;
 
         if (!notDeparted && vehiclePos) {
-          const [traveled, remaining] = await Promise.all([
+          const [t, r] = await Promise.all([
             fetchRoute([originCoords, vehiclePos]),
             fetchRoute([vehiclePos, destCoords]),
           ]);
           if (cancelled) return;
-          setTraveledCoords(traveled ?? [originCoords, vehiclePos]);
-          setRemainingCoords(remaining ?? [vehiclePos, destCoords]);
+          setTraveled(t ?? [originCoords, vehiclePos]);
+          setRemaining(r ?? [vehiclePos, destCoords]);
         } else {
           const road = await fetchRoute([originCoords, destCoords]);
           if (cancelled) return;
-          setRemainingCoords(road ?? [originCoords, destCoords]);
+          setRemaining(road ?? [originCoords, destCoords]);
         }
       },
     );
 
-    return () => { cancelled = true; };
-  }, [origin, destination, vehiclePos, notDeparted, isAirMode]);
+    return () => {
+      cancelled = true;
+    };
+  }, [origin, destination, vehiclePos, notDeparted, isAirMode, routeKey]);
+
+  // Expose route/pins only while they belong to the current inputs; otherwise
+  // null, so changed inputs hide stale data until the geocode/fetch completes.
+  const isFreshRoute = routeKeyDone === routeKey;
+  const traveledCoords = isFreshRoute ? traveled : null;
+  const remainingCoords = isFreshRoute ? remaining : null;
+  const pins = isFreshRoute ? geoPins : { origin: null, dest: null };
 
   const allTruckCoords: [number, number][] = [
     ...(traveledCoords ?? []),
@@ -248,7 +284,7 @@ export function useRouteModes({
     : notDeparted
       ? originPos
       : (vehiclePos ?? originPos);
-  const routeColor = notDeparted ? LIGHT_GRAY : (vehiclePos ? GRAY : TEAL);
+  const routeColor = notDeparted ? LIGHT_GRAY : vehiclePos ? GRAY : TEAL;
   const truckTooltip = notDeparted
     ? "Место отправления"
     : vehiclePos

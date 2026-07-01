@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+
 import L from "leaflet";
 import { GestureHandling } from "leaflet-gesture-handling";
 import { MapContainer, TileLayer } from "react-leaflet";

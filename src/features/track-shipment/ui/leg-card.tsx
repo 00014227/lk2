@@ -1,8 +1,11 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+
 import { ArrowDown, ArrowRight, Check, ChevronDown } from "lucide-react";
+
 import { cn } from "@shared/lib/utils";
+
 import {
   type Leg,
   CAPTION_STYLES,
@@ -33,8 +36,7 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
   useLayoutEffect(() => {
     const el = contentRef.current;
     if (!el) return;
-    const measure = () =>
-      setContentHeight(Math.min(el.scrollHeight, DROPDOWN_MAX_H));
+    const measure = () => setContentHeight(Math.min(el.scrollHeight, DROPDOWN_MAX_H));
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(el);
@@ -78,7 +80,7 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
               toggle();
             }
           }}
-          className="relative flex flex-1 flex-col cursor-pointer p-4 pb-7"
+          className="relative flex flex-1 cursor-pointer flex-col p-4 pb-7"
         >
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -91,9 +93,7 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
                 {transportIcon(leg.type, "h-5 w-5")}
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-900">
-                  {transportLabel(leg.type)}
-                </p>
+                <p className="text-sm font-semibold text-slate-900">{transportLabel(leg.type)}</p>
                 <p
                   className={cn(
                     "flex items-center gap-1 text-[11px] font-medium",
@@ -112,17 +112,12 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
 
           {(leg.from || leg.to) && (
             <p className="mt-3 text-sm font-medium text-slate-800">
-              {leg.from ?? "—"} <span className="text-slate-400">→</span>{" "}
-              {leg.to ?? "—"}
+              {leg.from ?? "—"} <span className="text-slate-400">→</span> {leg.to ?? "—"}
             </p>
           )}
 
-          {leg.vehicle && (
-            <p className="mt-1 text-xs text-muted-foreground">{leg.vehicle}</p>
-          )}
-          {leg.office && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{leg.office}</p>
-          )}
+          {leg.vehicle && <p className="mt-1 text-xs text-muted-foreground">{leg.vehicle}</p>}
+          {leg.office && <p className="mt-0.5 text-xs text-muted-foreground">{leg.office}</p>}
 
           {(departure || arrival) && (
             <div className="mt-3 flex flex-col gap-0.5 border-t border-black/5 pt-2 text-[11px] text-muted-foreground">
@@ -134,7 +129,7 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
           {/* Expand indicator */}
           <ChevronDown
             className={cn(
-              "absolute bottom-2.5 right-3 h-4 w-4 text-slate-400 transition-transform",
+              "absolute right-3 bottom-2.5 h-4 w-4 text-slate-400 transition-transform",
               isOpen && "rotate-180",
             )}
           />
@@ -142,7 +137,7 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
 
         <div
           className={cn(
-            "absolute left-0 right-0 top-full z-20 mt-2",
+            "absolute top-full right-0 left-0 z-20 mt-2",
             !isOpen && "pointer-events-none",
           )}
         >

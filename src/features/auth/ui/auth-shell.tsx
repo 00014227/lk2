@@ -1,12 +1,8 @@
 import { ReactNode } from "react";
+
 import { Box, ShieldCheck, Truck } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@shared/ui/card";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
 import { Logo } from "@shared/ui/logo";
 
 export function AuthShell({
@@ -32,8 +28,8 @@ export function AuthShell({
                 Контроль грузоперевозок для корпоративных клиентов.
               </h1>
               <p className="mt-6 max-w-lg text-base leading-7 text-slate-200">
-                Отслеживайте движение транспорта, контролируйте статусы доставки и
-                используйте портал как основу для интеграций с ERP и GPS.
+                Отслеживайте движение транспорта, контролируйте статусы доставки и используйте
+                портал как основу для интеграций с ERP и GPS.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -54,8 +50,8 @@ export function AuthShell({
             </div>
           </div>
           <p className="mt-12 max-w-md text-sm leading-6 text-slate-300">
-            На этом этапе реализован только frontend. Учетные данные хранятся в
-            local storage до подключения безопасной backend-аутентификации.
+            На этом этапе реализован только frontend. Учетные данные хранятся в local storage до
+            подключения безопасной backend-аутентификации.
           </p>
         </section>
 

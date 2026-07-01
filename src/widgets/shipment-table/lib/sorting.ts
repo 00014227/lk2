@@ -1,4 +1,5 @@
 import type { Shipment } from "@entities/shipment";
+
 import { ALL_COLUMNS, type ColKey, type SortType } from "./columns";
 import { ALL_STATUSES } from "./status";
 

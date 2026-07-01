@@ -1,8 +1,10 @@
 "use client";
 
 import { CircleMarker, Polyline, Tooltip } from "react-leaflet";
-import { AutoFit } from "@shared/ui/auto-fit";
+
 import type { Shipment } from "@entities/shipment";
+
+import { AutoFit } from "@shared/ui/auto-fit";
 
 interface RouteOverlayProps {
   traveledCoords: [number, number][] | null;
@@ -23,14 +25,26 @@ export function RouteOverlay({
       {/* ── Road route ──────────────────────────────────────────────── */}
       {traveledCoords && traveledCoords.length >= 2 && (
         <>
-          <Polyline positions={traveledCoords} pathOptions={{ color: "#0c3078", weight: 8, opacity: 0.18 }} />
-          <Polyline positions={traveledCoords} pathOptions={{ color: "#0c3078", weight: 3.5, opacity: 1 }} />
+          <Polyline
+            positions={traveledCoords}
+            pathOptions={{ color: "#0c3078", weight: 8, opacity: 0.18 }}
+          />
+          <Polyline
+            positions={traveledCoords}
+            pathOptions={{ color: "#0c3078", weight: 3.5, opacity: 1 }}
+          />
         </>
       )}
       {remainingCoords && remainingCoords.length >= 2 && (
         <>
-          <Polyline positions={remainingCoords} pathOptions={{ color: "#94a3b8", weight: 8, opacity: 0.12 }} />
-          <Polyline positions={remainingCoords} pathOptions={{ color: "#94a3b8", weight: 3.5, opacity: 0.7 }} />
+          <Polyline
+            positions={remainingCoords}
+            pathOptions={{ color: "#94a3b8", weight: 8, opacity: 0.12 }}
+          />
+          <Polyline
+            positions={remainingCoords}
+            pathOptions={{ color: "#94a3b8", weight: 3.5, opacity: 0.7 }}
+          />
         </>
       )}
       {(traveledCoords || remainingCoords) && (

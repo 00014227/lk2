@@ -1,21 +1,20 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import api from "@shared/api";
+
 import { setShipments, type Shipment } from "@entities/shipment";
 import { setVehicles, type Vehicle } from "@entities/vehicle";
+
+import api from "@shared/api";
 
 export type DashboardTab = "map" | "shipments";
 
 // Loads the client's orders (shipments + vehicles) and fans the result out
 // into the shipment and vehicle entity slices.
-export const fetchMyOrders = createAsyncThunk(
-  "orders/fetchMyOrders",
-  async (_, { dispatch }) => {
-    const { data } = await api.get<{ shipments: Shipment[]; vehicles: Vehicle[] }>("/orders/my");
-    console.log("Fetched my orders:", data);
-    dispatch(setShipments(data.shipments));
-    dispatch(setVehicles(data.vehicles));
-  },
-);
+export const fetchMyOrders = createAsyncThunk("orders/fetchMyOrders", async (_, { dispatch }) => {
+  const { data } = await api.get<{ shipments: Shipment[]; vehicles: Vehicle[] }>("/orders/my");
+  console.log("Fetched my orders:", data);
+  dispatch(setShipments(data.shipments));
+  dispatch(setVehicles(data.vehicles));
+});
 
 interface OrdersState {
   loading: boolean;

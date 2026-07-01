@@ -1,12 +1,11 @@
 "use client";
 
-import {
-  SortableContext,
-  horizontalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
+
 import { type ColKey } from "../lib/columns";
-import type { SortState } from "../model/use-table-filters";
 import { TableHeaderCell } from "./table-header-cell";
+
+import type { SortState } from "../model/use-table-filters";
 
 interface TableHeadProps {
   visibleCols: ColKey[];

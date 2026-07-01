@@ -1,11 +1,16 @@
 "use client";
 
 import { memo } from "react";
+
 import { X } from "lucide-react";
-import { cn } from "@shared/lib/utils";
+
 import type { Shipment } from "@entities/shipment";
-import type { ColKey } from "../lib/columns";
+
+import { cn } from "@shared/lib/utils";
+
 import { CellValue } from "./table-cell-value";
+
+import type { ColKey } from "../lib/columns";
 
 interface TableRowProps {
   shipment: Shipment;
@@ -41,8 +46,11 @@ export const TableRow = memo(function TableRow({
       {/* Hide row button */}
       <td className="w-8 px-2 py-4">
         <button
-          className="invisible flex h-6 w-6 items-center justify-center rounded-full text-slate-300 transition hover:bg-slate-100 hover:text-slate-600 group-hover:visible"
-          onClick={(e) => { e.stopPropagation(); onHideRow(shipment.id); }}
+          className="invisible flex h-6 w-6 items-center justify-center rounded-full text-slate-300 transition group-hover:visible hover:bg-slate-100 hover:text-slate-600"
+          onClick={(e) => {
+            e.stopPropagation();
+            onHideRow(shipment.id);
+          }}
           title="Скрыть строку"
           type="button"
         >

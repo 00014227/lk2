@@ -1,10 +1,13 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+
 import { Input } from "@shared/ui/input";
+
 import { ADDRESS_TYPES, selectCls } from "../lib/options";
-import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
 import { FieldLabel, SectionLabel } from "./form-labels";
+
+import type { UseCreateShipmentForm } from "../model/use-create-shipment-form";
 
 interface DestinationFieldsProps {
   origin: UseCreateShipmentForm["origin"];
@@ -22,9 +25,17 @@ export function DestinationFields({ origin, destinations }: DestinationFieldsPro
         <div className="grid grid-cols-2 gap-3">
           <div>
             <FieldLabel>Address Type</FieldLabel>
-            <select className={selectCls} value={origin.addressType} onChange={(e) => origin.setAddressType(e.target.value)}>
+            <select
+              className={selectCls}
+              value={origin.addressType}
+              onChange={(e) => origin.setAddressType(e.target.value)}
+            >
               <option value=""></option>
-              {ADDRESS_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              {ADDRESS_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
           </div>
           <div>
@@ -56,9 +67,17 @@ export function DestinationFields({ origin, destinations }: DestinationFieldsPro
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <FieldLabel>Address Type</FieldLabel>
-                <select className={selectCls} value={dest.addressType} onChange={(e) => destinations.update(idx, "addressType", e.target.value)}>
+                <select
+                  className={selectCls}
+                  value={dest.addressType}
+                  onChange={(e) => destinations.update(idx, "addressType", e.target.value)}
+                >
                   <option value=""></option>
-                  {ADDRESS_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {ADDRESS_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
@@ -74,7 +93,7 @@ export function DestinationFields({ origin, destinations }: DestinationFieldsPro
               <button
                 type="button"
                 onClick={() => destinations.remove(idx)}
-                className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-xl bg-red-50 text-red-400 transition hover:bg-red-100"
+                className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-xl bg-red-50 text-red-400 transition hover:bg-red-100"
               >
                 <X className="h-3.5 w-3.5" />
               </button>

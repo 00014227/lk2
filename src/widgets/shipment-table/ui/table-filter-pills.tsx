@@ -1,7 +1,9 @@
 "use client";
 
-import { cn } from "@shared/lib/utils";
 import type { ShipmentStatus } from "@entities/shipment";
+
+import { cn } from "@shared/lib/utils";
+
 import { ALL_STATUSES, TRANSPORT_LABELS, TRANSPORT_TYPES } from "../lib/status";
 
 interface TableFilterPillsProps {

@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import { MessageCircle, X } from "lucide-react";
-import { Button } from "@shared/ui/button";
-import { cn } from "@shared/lib/utils";
+
 import { fetchOrderMessages, sendOrderMessage } from "@entities/order-message";
 import type { OrderMessage } from "@entities/order-message";
 import type { Shipment } from "@entities/shipment";
+
+import { cn } from "@shared/lib/utils";
+import { Button } from "@shared/ui/button";
+
 import { ChatPanel } from "./chat-panel";
 
 function managerStatus(messages: OrderMessage[]): string {
@@ -50,8 +54,13 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
     const load = async () => {
       try {
         const data = await fetchOrderMessages(orderNumber);
-        if (active) { setMessages(data); setLoading(false); }
-      } catch { if (active) setLoading(false); }
+        if (active) {
+          setMessages(data);
+          setLoading(false);
+        }
+      } catch {
+        if (active) setLoading(false);
+      }
     };
     load();
     const interval = entered ? 5000 : 30000;
@@ -68,7 +77,10 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
   }
 
   function openChat() {
-    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
     setOpen(true);
     requestAnimationFrame(() => setEntered(true));
   }
@@ -78,15 +90,25 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
     closeTimer.current = setTimeout(() => setOpen(false), 300);
   }
 
-  function toggle() { if (entered) closeChat(); else openChat(); }
+  function toggle() {
+    if (entered) closeChat();
+    else openChat();
+  }
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && entered) closeChat(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && entered) closeChat();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [entered]);
 
-  useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
+  useEffect(
+    () => () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    },
+    [],
+  );
 
   const unreadCount = messages.filter(
     (m) => (m.senderType === "manager" || m.senderType === "system") && !m.readByClient,
@@ -95,7 +117,7 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
   const routeLabel = [shipment.origin, shipment.destination].filter(Boolean).join(" → ");
 
   return (
-    <div className="pointer-events-none fixed bottom-6 right-6 z-1100 flex flex-col items-end gap-3">
+    <div className="pointer-events-none fixed right-6 bottom-6 z-1100 flex flex-col items-end gap-3">
       {open && (
         <div
           role="dialog"
@@ -110,9 +132,13 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
           {/* Header */}
           <div className="flex items-start justify-between gap-3 bg-primary px-5 py-3 text-primary-foreground">
             <div className="min-w-0">
-              <p className="text-sm font-semibold leading-tight">
+              <p className="text-sm leading-tight font-semibold">
                 {routeLabel || "Чат с менеджером"}
-                {transport && <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold">{transport}</span>}
+                {transport && (
+                  <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold">
+                    {transport}
+                  </span>
+                )}
               </p>
               <p className="mt-0.5 truncate text-xs text-primary-foreground/70">
                 {shipment.status && <span className="mr-1">{shipment.status} ·</span>}
@@ -145,8 +171,14 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
       <div className="pointer-events-none relative h-14 w-14">
         {!entered && (
           <>
-            <span aria-hidden className="pointer-events-none absolute inset-0 z-0 rounded-full bg-primary/40 animate-pulsar motion-reduce:hidden" />
-            <span aria-hidden className="pointer-events-none absolute inset-0 z-0 rounded-full bg-primary/30 animate-pulsar [animation-delay:1.2s] motion-reduce:hidden" />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-0 animate-pulsar rounded-full bg-primary/40 motion-reduce:hidden"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-0 animate-pulsar rounded-full bg-primary/30 [animation-delay:1.2s] motion-reduce:hidden"
+            />
           </>
         )}
         <Button
@@ -162,7 +194,7 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
 
         {/* Unread badge */}
         {!entered && unreadCount > 0 && (
-          <span className="pointer-events-none absolute -right-1 -top-1 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow">
+          <span className="pointer-events-none absolute -top-1 -right-1 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}

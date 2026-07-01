@@ -1,4 +1,5 @@
 import api from "@shared/api";
+
 import type { TariffEstimate, TariffLocation } from "../model/types";
 
 export async function searchTariffLocations(search: string): Promise<TariffLocation[]> {

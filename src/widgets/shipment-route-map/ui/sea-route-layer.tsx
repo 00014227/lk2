@@ -1,9 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
+
 import { CircleMarker, Marker, Polyline, Tooltip } from "react-leaflet";
+
 import { AutoFit } from "@shared/ui/auto-fit";
+
 import { SEA_BLUE, buildDeliveredIcon, buildShipIcon } from "../lib/leaflet-icons";
+
 import type { RouteModes } from "../model/use-route-modes";
 
 export function SeaRouteLayer({ coords, ports, shipPos, shipLabel, delivered }: RouteModes["sea"]) {
@@ -16,8 +20,14 @@ export function SeaRouteLayer({ coords, ports, shipPos, shipLabel, delivered }: 
       {/* Sea route segments */}
       {coords.length >= 2 && (
         <>
-          <Polyline positions={coords} pathOptions={{ color: SEA_BLUE, weight: 6, opacity: 0.15 }} />
-          <Polyline positions={coords} pathOptions={{ color: SEA_BLUE, weight: 2.5, opacity: 0.9, dashArray: "10 6" }} />
+          <Polyline
+            positions={coords}
+            pathOptions={{ color: SEA_BLUE, weight: 6, opacity: 0.15 }}
+          />
+          <Polyline
+            positions={coords}
+            pathOptions={{ color: SEA_BLUE, weight: 2.5, opacity: 0.9, dashArray: "10 6" }}
+          />
         </>
       )}
 

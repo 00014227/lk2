@@ -1,7 +1,9 @@
 "use client";
 
-import BaseMap from "@shared/ui/base-map";
 import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent } from "@entities/tracking";
+
+import BaseMap from "@shared/ui/base-map";
+
 import { useRouteModes } from "../model/use-route-modes";
 import { AirRouteLayer } from "./air-route-layer";
 import { RailwayRouteLayer } from "./railway-route-layer";

@@ -1,4 +1,5 @@
 import api from "@shared/api";
+
 import type { MapShipmentItem } from "../model/types";
 
 export async function fetchMapOrders(): Promise<MapShipmentItem[]> {

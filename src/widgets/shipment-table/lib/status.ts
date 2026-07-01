@@ -9,11 +9,17 @@ export const ALL_STATUSES: ShipmentStatus[] = [
   "Доставлен",
 ];
 
-export const TRANSPORT_TYPES = ["Авто", "Железнодорожная", "Авиа", "Море", "Мультимодальная"] as const;
+export const TRANSPORT_TYPES = [
+  "Авто",
+  "Железнодорожная",
+  "Авиа",
+  "Море",
+  "Мультимодальная",
+] as const;
 
 export const TRANSPORT_LABELS: Record<string, string> = {
-  "Железнодорожная": "ЖД",
-  "Мультимодальная": "Мультимодал",
+  Железнодорожная: "ЖД",
+  Мультимодальная: "Мультимодал",
 };
 
 export function getStatusVariant(status: string) {

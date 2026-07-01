@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppSelector } from "@shared/lib/store-hooks";
-import { selectVehicles } from "@entities/vehicle";
-import { geocodeCity } from "@shared/lib/geo";
+
 import type { Shipment } from "@entities/shipment";
+import { selectVehicles } from "@entities/vehicle";
+
+import { geocodeCity } from "@shared/lib/geo";
+import { useAppSelector } from "@shared/lib/store-hooks";
 
 function haversine(a: [number, number], b: [number, number]): number {
   const R = 6371;
@@ -12,9 +14,7 @@ function haversine(a: [number, number], b: [number, number]): number {
   const dLon = ((b[1] - a[1]) * Math.PI) / 180;
   const lat1 = (a[0] * Math.PI) / 180;
   const lat2 = (b[0] * Math.PI) / 180;
-  const x =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
 }
 
@@ -37,19 +37,18 @@ export function useGPSProgress(shipment: Shipment): number {
     if (!vehicle) return;
 
     let cancelled = false;
-    Promise.all([
-      geocodeCity(shipment.origin),
-      geocodeCity(shipment.destination),
-    ]).then(([originCoords, destCoords]) => {
-      if (cancelled || !originCoords || !destCoords) return;
-      const total = haversine(originCoords, destCoords);
-      if (total === 0) return;
-      const traveled = haversine(originCoords, vehicle.position);
-      setGps({
-        id: shipment.id,
-        value: Math.min(99, Math.max(1, Math.round((traveled / total) * 100))),
-      });
-    });
+    Promise.all([geocodeCity(shipment.origin), geocodeCity(shipment.destination)]).then(
+      ([originCoords, destCoords]) => {
+        if (cancelled || !originCoords || !destCoords) return;
+        const total = haversine(originCoords, destCoords);
+        if (total === 0) return;
+        const traveled = haversine(originCoords, vehicle.position);
+        setGps({
+          id: shipment.id,
+          value: Math.min(99, Math.max(1, Math.round((traveled / total) * 100))),
+        });
+      },
+    );
 
     return () => {
       cancelled = true;

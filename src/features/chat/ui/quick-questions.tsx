@@ -1,8 +1,10 @@
 "use client";
 
 import { ArrowLeft, Loader2, Send } from "lucide-react";
+
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
+
 import { quickGroups, type QuickGroup } from "../lib/quick-questions";
 
 interface QuickQuestionsProps {
@@ -47,7 +49,10 @@ export function QuickQuestions({
         <>
           <button
             type="button"
-            onClick={() => { setSelectedGroup(null); setText(""); }}
+            onClick={() => {
+              setSelectedGroup(null);
+              setText("");
+            }}
             className="flex items-center gap-1 text-xs text-primary hover:underline"
           >
             <ArrowLeft className="h-3 w-3" /> Назад
@@ -81,8 +86,17 @@ export function QuickQuestions({
               disabled={sending}
               autoFocus
             />
-            <Button type="submit" size="icon" disabled={sending || !text.trim()} className="h-12 w-12 shrink-0">
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            <Button
+              type="submit"
+              size="icon"
+              disabled={sending || !text.trim()}
+              className="h-12 w-12 shrink-0"
+            >
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </form>
         </>

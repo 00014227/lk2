@@ -45,5 +45,7 @@ export function loadPrefs(): Prefs {
 }
 
 export function savePrefs(prefs: Prefs) {
-  try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch {}
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  } catch {}
 }

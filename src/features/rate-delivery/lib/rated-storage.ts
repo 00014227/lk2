@@ -1,5 +1,6 @@
-import { RATED_DELIVERIES_KEY } from "@shared/config";
 import type { Shipment } from "@entities/shipment";
+
+import { RATED_DELIVERIES_KEY } from "@shared/config";
 
 const DELIVERED_STATUS = "Доставлен";
 

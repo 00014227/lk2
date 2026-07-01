@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { Clock, MapPin } from "lucide-react";
+
 import { fetchStatusHistory } from "@entities/order-message";
 import type { StatusHistoryEntry } from "@entities/order-message";
 
@@ -32,10 +34,18 @@ export function AutoStatusTimeline({ orderNumber }: { orderNumber: string }) {
   useEffect(() => {
     let active = true;
     fetchStatusHistory(orderNumber)
-      .then((data) => { if (active) setEntries(data); })
-      .catch(() => { /* ignore */ })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .then((data) => {
+        if (active) setEntries(data);
+      })
+      .catch(() => {
+        /* ignore */
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [orderNumber]);
 
   if (loading) {
@@ -59,11 +69,18 @@ export function AutoStatusTimeline({ orderNumber }: { orderNumber: string }) {
           return (
             <li key={e.id} className="relative flex gap-3">
               {!isLast && (
-                <span className="absolute left-[5px] top-4 h-[calc(100%+4px)] w-px bg-slate-200" aria-hidden />
+                <span
+                  className="absolute top-4 left-[5px] h-[calc(100%+4px)] w-px bg-slate-200"
+                  aria-hidden
+                />
               )}
-              <span className={`relative z-10 mt-1 h-3 w-3 shrink-0 rounded-full ${dot} ${isLast ? "ring-4 ring-slate-100" : ""}`} />
+              <span
+                className={`relative z-10 mt-1 h-3 w-3 shrink-0 rounded-full ${dot} ${isLast ? "ring-4 ring-slate-100" : ""}`}
+              />
               <div className="min-w-0">
-                <p className={`text-sm font-semibold ${isLast ? "text-slate-900" : "text-slate-700"}`}>
+                <p
+                  className={`text-sm font-semibold ${isLast ? "text-slate-900" : "text-slate-700"}`}
+                >
                   {e.status}
                 </p>
                 <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">

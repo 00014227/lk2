@@ -1,17 +1,10 @@
 "use client";
 
-import {
-  Clock,
-  Mail,
-  MapPin,
-  Maximize2,
-  Minimize2,
-  Phone,
-  Truck,
-  X,
-} from "lucide-react";
-import { cn } from "@shared/lib/utils";
+import { Clock, Mail, MapPin, Maximize2, Minimize2, Phone, Truck, X } from "lucide-react";
+
 import type { Shipment } from "@entities/shipment";
+
+import { cn } from "@shared/lib/utils";
 
 function transportLabel(t: string | null | undefined): string {
   if (!t) return "";
@@ -54,7 +47,7 @@ export function ContextHeader({
   const dot = STATUS_DOT[shipment.status] ?? "bg-slate-400";
 
   return (
-    <div className="shrink-0 border-b border-border bg-white px-5 pb-3 pt-3">
+    <div className="shrink-0 border-b border-border bg-white px-5 pt-3 pb-3">
       {/* Row 1: number + controls */}
       <div className="flex items-center justify-between gap-2">
         <p className="truncate text-[15px] font-semibold text-slate-900">{shipment.id}</p>

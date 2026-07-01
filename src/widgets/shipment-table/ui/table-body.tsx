@@ -1,8 +1,10 @@
 "use client";
 
 import type { Shipment } from "@entities/shipment";
-import type { ColKey } from "../lib/columns";
+
 import { TableRow } from "./table-row";
+
+import type { ColKey } from "../lib/columns";
 
 interface TableBodyProps {
   rows: Shipment[];

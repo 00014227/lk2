@@ -1,12 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { estimateTariff } from "@entities/tariff";
 import type { TariffEstimate } from "@entities/tariff";
+
 import { createShipmentRequest, type ContainerEntry } from "../api/create-shipment";
 import { TRANSPORT_TO_TARIFF } from "../lib/options";
 
-export interface DestEntry { addressType: string; country: string }
+export interface DestEntry {
+  addressType: string;
+  country: string;
+}
 export type Step = "select-type" | "details";
 
 export interface UseCreateShipmentForm {
@@ -92,7 +97,9 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
   const [step, setStep] = useState<Step>("select-type");
 
   // Reset shipment type when transport changes
-  useEffect(() => { setShipmentType(""); }, [transportType]);
+  useEffect(() => {
+    setShipmentType("");
+  }, [transportType]);
 
   // Step 2 — Origin
   const [originAddressType, setOriginAddressType] = useState("");
@@ -135,15 +142,31 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
     if (!open) {
       const t = setTimeout(() => {
         setStep("select-type");
-        setTransportType(""); setDirection(""); setShipmentType("");
-        setOriginAddressType(""); setOriginCountry(""); setOriginMultiplePorts(false);
+        setTransportType("");
+        setDirection("");
+        setShipmentType("");
+        setOriginAddressType("");
+        setOriginCountry("");
+        setOriginMultiplePorts(false);
         setDestinations([{ addressType: "", country: "" }]);
-        setShippingDate(""); setShippingTerms("");
-        setGrossVolume(""); setGrossWeight(""); setChargeableWeight("");
-        setCommodityType(""); setHsCode(""); setPackageCount(""); setPackageType(""); setCargoDescription("");
+        setShippingDate("");
+        setShippingTerms("");
+        setGrossVolume("");
+        setGrossWeight("");
+        setChargeableWeight("");
+        setCommodityType("");
+        setHsCode("");
+        setPackageCount("");
+        setPackageType("");
+        setCargoDescription("");
         setContainers([{ qty: "", type: "" }]);
-        setEstOrigin(""); setEstDestination(""); setEstimating(false); setEstimates(null);
-        setLoading(false); setSuccess(false); setError(null);
+        setEstOrigin("");
+        setEstDestination("");
+        setEstimating(false);
+        setEstimates(null);
+        setLoading(false);
+        setSuccess(false);
+        setError(null);
       }, 300);
       return () => clearTimeout(t);
     }
@@ -182,7 +205,7 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
         originCountry: estOrigin.trim() || originCountry,
         originMultiplePorts,
         destinations: estDestination.trim()
-          ? [{ addressType: '', country: estDestination.trim() }]
+          ? [{ addressType: "", country: estDestination.trim() }]
           : destinations,
         shippingDate: shippingDate || null,
         shippingTerms: shippingTerms || null,
@@ -238,14 +261,20 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
     setStep,
     step1Valid,
     type: {
-      transportType, setTransportType,
-      direction, setDirection,
-      shipmentType, setShipmentType,
+      transportType,
+      setTransportType,
+      direction,
+      setDirection,
+      shipmentType,
+      setShipmentType,
     },
     origin: {
-      addressType: originAddressType, setAddressType: setOriginAddressType,
-      country: originCountry, setCountry: setOriginCountry,
-      multiplePorts: originMultiplePorts, setMultiplePorts: setOriginMultiplePorts,
+      addressType: originAddressType,
+      setAddressType: setOriginAddressType,
+      country: originCountry,
+      setCountry: setOriginCountry,
+      multiplePorts: originMultiplePorts,
+      setMultiplePorts: setOriginMultiplePorts,
     },
     destinations: {
       items: destinations,
@@ -254,18 +283,28 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
       add: addDest,
     },
     dates: {
-      shippingDate, setShippingDate,
-      shippingTerms, setShippingTerms,
+      shippingDate,
+      setShippingDate,
+      shippingTerms,
+      setShippingTerms,
     },
     cargo: {
-      grossVolume, setGrossVolume,
-      grossWeight, setGrossWeight,
-      chargeableWeight, setChargeableWeight,
-      commodityType, setCommodityType,
-      hsCode, setHsCode,
-      packageCount, setPackageCount,
-      packageType, setPackageType,
-      cargoDescription, setCargoDescription,
+      grossVolume,
+      setGrossVolume,
+      grossWeight,
+      setGrossWeight,
+      chargeableWeight,
+      setChargeableWeight,
+      commodityType,
+      setCommodityType,
+      hsCode,
+      setHsCode,
+      packageCount,
+      setPackageCount,
+      packageType,
+      setPackageType,
+      cargoDescription,
+      setCargoDescription,
     },
     containers: {
       items: containers,
@@ -274,8 +313,10 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
       add: addContainer,
     },
     estimate: {
-      origin: estOrigin, setOrigin: setEstOrigin,
-      destination: estDestination, setDestination: setEstDestination,
+      origin: estOrigin,
+      setOrigin: setEstOrigin,
+      destination: estDestination,
+      setDestination: setEstDestination,
       estimating,
       estimates,
       run: handleEstimate,

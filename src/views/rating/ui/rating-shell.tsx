@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
 import { ArrowLeft, Star } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
+
 import { fetchMyOrders, selectOrdersLoading, selectOrdersError } from "@features/orders";
+import { getUnratedDeliveries, UnratedDeliveryRow } from "@features/rate-delivery";
+
 import { selectShipments } from "@entities/shipment";
 import type { Shipment } from "@entities/shipment";
-import { getUnratedDeliveries, UnratedDeliveryRow } from "@features/rate-delivery";
+
+import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 
 export function RatingShell() {
   const dispatch = useAppDispatch();
@@ -66,11 +70,7 @@ export function RatingShell() {
           </div>
         ) : (
           list.map((shipment) => (
-            <UnratedDeliveryRow
-              key={shipment.id}
-              shipment={shipment}
-              onRated={handleRated}
-            />
+            <UnratedDeliveryRow key={shipment.id} shipment={shipment} onRated={handleRated} />
           ))
         )}
       </div>
