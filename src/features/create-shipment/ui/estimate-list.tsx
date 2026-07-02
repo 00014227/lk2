@@ -3,12 +3,14 @@
 import { useState } from "react";
 
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { TariffEstimate } from "@entities/tariff";
 
 import { EstimateItem } from "./estimate-item";
 
 export function EstimateList({ estimates }: { estimates: TariffEstimate[] | null }) {
+  const { t } = useTranslation();
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
@@ -17,7 +19,7 @@ export function EstimateList({ estimates }: { estimates: TariffEstimate[] | null
   if (estimates.length === 0) {
     return (
       <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
-        Точная ставка по запросу — отправьте заявку, менеджер свяжется с вами.
+        {t("createShipment.rateOnRequestFull")}
       </p>
     );
   }
@@ -37,7 +39,7 @@ export function EstimateList({ estimates }: { estimates: TariffEstimate[] | null
       {sorted.length > 1 && (
         <div className="flex items-center justify-between px-1">
           <span className="text-[11px] text-muted-foreground">
-            Найдено вариантов: {sorted.length}
+            {t("createShipment.variantsFound", { count: sorted.length })}
           </span>
           <button
             type="button"
@@ -49,7 +51,7 @@ export function EstimateList({ estimates }: { estimates: TariffEstimate[] | null
             ) : (
               <ArrowDownWideNarrow className="h-3.5 w-3.5" />
             )}
-            По цене
+            {t("createShipment.byPrice")}
           </button>
         </div>
       )}

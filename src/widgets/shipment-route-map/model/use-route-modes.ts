@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { useTranslation } from "react-i18next";
+
 import type { AirEvent, AirRoute, ContainerRoute, RailwayEvent } from "@entities/tracking";
 
 import { fetchRoute, geocodeCity } from "@shared/lib/geo";
@@ -75,6 +77,7 @@ export function useRouteModes({
   seaRoute,
   railwayEvents,
 }: RouteModeInput): RouteModes {
+  const { t } = useTranslation();
   const notDeparted = !departed;
 
   // ── Sea mode ──────────────────────────────────────────────────────────────
@@ -112,9 +115,7 @@ export function useRouteModes({
   const isSeaMode = seaCoords.length > 0;
   const shipPos: [number, number] | null =
     seaRoute?.currentPosition ?? (seaCoords.length > 0 ? seaCoords[seaCoords.length - 1] : null);
-  const shipLabel = seaRoute?.currentPosition
-    ? "Текущее положение судна"
-    : "Последнее известное место";
+  const shipLabel = seaRoute?.currentPosition ? t("routeMap.shipCurrent") : t("routeMap.shipLast");
 
   // ── Railway mode ─────────────────────────────────────────────────────────
   const railwayPos = useMemo<[number, number] | null>(() => {
@@ -286,10 +287,10 @@ export function useRouteModes({
       : (vehiclePos ?? originPos);
   const routeColor = notDeparted ? LIGHT_GRAY : vehiclePos ? GRAY : TEAL;
   const truckTooltip = notDeparted
-    ? "Место отправления"
+    ? t("routeMap.originPlace")
     : vehiclePos
-      ? "Текущее положение"
-      : "GPS недоступен";
+      ? t("routeMap.currentPosition")
+      : t("routeMap.gpsUnavailable");
 
   const mode: RouteMode = isSeaMode
     ? "sea"

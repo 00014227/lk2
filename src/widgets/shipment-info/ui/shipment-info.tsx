@@ -1,3 +1,7 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
+
 import type { Shipment } from "@entities/shipment";
 
 import { Card } from "@shared/ui/card";
@@ -11,11 +15,12 @@ interface Props {
 }
 
 export function ShipmentInfo({ shipment, isRailway }: Props) {
-  const groups = buildShipmentInfoGroups(shipment, isRailway);
+  const { t } = useTranslation();
+  const groups = buildShipmentInfoGroups(shipment, isRailway, t);
 
   return (
     <Card className="p-5 lg:p-6">
-      <h2 className="font-display text-lg font-semibold">Информация об отправлении</h2>
+      <h2 className="font-display text-lg font-semibold">{t("shipmentInfo.title")}</h2>
       <div className="mt-2 flex flex-col divide-y divide-border">
         {groups.map((group) => (
           <InfoGroup key={group.title} group={group} />

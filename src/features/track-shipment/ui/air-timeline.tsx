@@ -1,8 +1,11 @@
 "use client";
 
 import { Plane } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { AirEvent } from "@entities/tracking";
+
+import { i18n, intlLocale } from "@shared/i18n";
 
 interface Props {
   events: AirEvent[];
@@ -11,28 +14,31 @@ interface Props {
 function formatDate(iso: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
-  return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString(intlLocale(i18n.language), {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function formatTime(iso: string): string {
   if (!iso) return "";
   const d = new Date(iso);
-  return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString(intlLocale(i18n.language), { hour: "2-digit", minute: "2-digit" });
 }
 
 export function AirTimeline({ events }: Props) {
+  const { t } = useTranslation();
   if (events.length === 0) {
     return (
-      <div className="px-5 py-4 text-xs text-muted-foreground">
-        Данные авиа-трекинга ещё не получены
-      </div>
+      <div className="px-5 py-4 text-xs text-muted-foreground">{t("trackShipment.airNoData")}</div>
     );
   }
 
   return (
     <div className="px-5 py-4">
       <p className="mb-3 text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
-        Авиа-трекинг
+        {t("trackShipment.airTracking")}
       </p>
       <div className="relative">
         <div className="absolute top-2 bottom-2 left-2.75 w-px bg-border" />

@@ -1,8 +1,11 @@
 "use client";
 
 import { Ship, MapPin, Gauge } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { SeaPosition } from "@entities/tracking";
+
+import { i18n, intlLocale } from "@shared/i18n";
 
 interface Props {
   positions: SeaPosition[];
@@ -11,7 +14,7 @@ interface Props {
 function formatDate(iso: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
-  return d.toLocaleDateString("ru-RU", {
+  return d.toLocaleDateString(intlLocale(i18n.language), {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -21,9 +24,12 @@ function formatDate(iso: string): string {
 }
 
 export function VesselCard({ positions }: Props) {
+  const { t } = useTranslation();
   if (positions.length === 0) {
     return (
-      <div className="px-5 py-4 text-xs text-muted-foreground">Данные судна ещё не получены</div>
+      <div className="px-5 py-4 text-xs text-muted-foreground">
+        {t("trackShipment.vesselNoData")}
+      </div>
     );
   }
 
@@ -32,7 +38,7 @@ export function VesselCard({ positions }: Props) {
   return (
     <div className="px-5 py-4">
       <p className="mb-3 text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
-        Морской трекинг
+        {t("trackShipment.seaTracking")}
       </p>
       <div className="rounded-2xl border border-border bg-white p-4">
         <div className="flex items-center gap-2">
@@ -40,7 +46,9 @@ export function VesselCard({ positions }: Props) {
             <Ship className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-900">{latest.vesselName ?? "Судно"}</p>
+            <p className="text-sm font-semibold text-slate-900">
+              {latest.vesselName ?? t("trackShipment.vesselFallback")}
+            </p>
             {latest.vesselImo && (
               <p className="text-[10px] text-muted-foreground">IMO {latest.vesselImo}</p>
             )}
@@ -50,7 +58,9 @@ export function VesselCard({ positions }: Props) {
         <div className="mt-3 flex flex-col gap-1.5">
           {latest.status && (
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="font-medium text-muted-foreground">Статус:</span>
+              <span className="font-medium text-muted-foreground">
+                {t("trackShipment.statusLabel")}:
+              </span>
               <span className="text-slate-800">{latest.status}</span>
             </div>
           )}
@@ -66,7 +76,9 @@ export function VesselCard({ positions }: Props) {
           {latest.speed != null && (
             <div className="flex items-center gap-1.5 text-xs">
               <Gauge className="h-3 w-3 text-muted-foreground" />
-              <span className="text-slate-800">{latest.speed} уз</span>
+              <span className="text-slate-800">
+                {latest.speed} {t("trackShipment.speedUnit")}
+              </span>
             </div>
           )}
           {latest.latitude != null && latest.longitude != null && (
@@ -77,13 +89,13 @@ export function VesselCard({ positions }: Props) {
         </div>
 
         <p className="mt-3 text-[10px] text-muted-foreground">
-          Обновлено: {formatDate(latest.recordedAt)}
+          {t("trackShipment.updated")}: {formatDate(latest.recordedAt)}
         </p>
       </div>
 
       {positions.length > 1 && (
         <p className="mt-2 text-[10px] text-muted-foreground">
-          История: {positions.length} записей
+          {t("trackShipment.history", { count: positions.length })}
         </p>
       )}
     </div>

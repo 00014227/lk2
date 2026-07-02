@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import L from "leaflet";
 import { GestureHandling } from "leaflet-gesture-handling";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer } from "react-leaflet";
 
 // Register the gesture-handling behaviour on the same Leaflet instance
@@ -12,15 +13,6 @@ import { MapContainer, TileLayer } from "react-leaflet";
 // trap". The handler merely toggles Leaflet's native scrollWheelZoom, so this
 // is idempotent even though the plugin also self-registers on import.
 L.Map.addInitHook("addHandler", "gestureHandling", GestureHandling);
-
-const gestureHandlingOptions = {
-  text: {
-    touch: "Используйте два пальца для перемещения карты",
-    scroll: "Используйте Ctrl + прокрутку для масштабирования",
-    scrollMac: "Используйте ⌘ + прокрутку для масштабирования",
-  },
-  duration: 1500,
-};
 
 interface BaseMapProps {
   center: [number, number];
@@ -43,6 +35,15 @@ export default function BaseMap({
   zoomControl = true,
   children,
 }: BaseMapProps) {
+  const { t } = useTranslation();
+  const gestureHandlingOptions = {
+    text: {
+      touch: t("map.touch"),
+      scroll: t("map.scroll"),
+      scrollMac: t("map.scrollMac"),
+    },
+    duration: 1500,
+  };
   return (
     <MapContainer
       center={center}

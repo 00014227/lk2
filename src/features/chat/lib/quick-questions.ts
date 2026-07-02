@@ -1,48 +1,71 @@
 // Quick Questions — prefill only, never auto-send, no topic selection.
 
+import type { TFunction } from "i18next";
+
 export type QuickGroup = { label: string; icon: string; templates: string[] };
 
 // The "Груз и доставка" templates adapt to the shipment's current phase, so the
 // suggested questions always match the situation (no "когда доставка?" on a
-// delivered order). Other groups stay constant.
-function deliveryTemplates(status: string): string[] {
+// delivered order). The `switch` runs on canonical status values; only the
+// displayed text is translated. Other groups stay constant.
+function deliveryTemplates(status: string, t: TFunction): string[] {
   switch (status) {
     case "Доставлен":
-      return ["Пришлите закрывающие документы", "Нужна счёт-фактура", "Оставить отзыв о доставке"];
+      return [
+        t("chat.quick.tpl.delivered1"),
+        t("chat.quick.tpl.delivered2"),
+        t("chat.quick.tpl.delivered3"),
+      ];
     case "Прибывает":
       return [
-        "Куда прибудет груз?",
-        "Как организовать получение?",
-        "Какие документы нужны для приёмки?",
+        t("chat.quick.tpl.arriving1"),
+        t("chat.quick.tpl.arriving2"),
+        t("chat.quick.tpl.arriving3"),
       ];
     case "Таможенный контроль":
-      return ["Что с растаможкой груза?", "Нужны ли документы от меня?", "Когда выпустят груз?"];
+      return [
+        t("chat.quick.tpl.customs1"),
+        t("chat.quick.tpl.customs2"),
+        t("chat.quick.tpl.customs3"),
+      ];
     case "На границе":
-      return ["Что с грузом на границе?", "Когда продолжится перевозка?", "Есть ли задержка?"];
+      return [
+        t("chat.quick.tpl.border1"),
+        t("chat.quick.tpl.border2"),
+        t("chat.quick.tpl.border3"),
+      ];
     case "Задерживается":
-      return ["Почему задержка?", "Когда ожидать груз теперь?", "Что предпринимается?"];
+      return [
+        t("chat.quick.tpl.delayed1"),
+        t("chat.quick.tpl.delayed2"),
+        t("chat.quick.tpl.delayed3"),
+      ];
     default: // В пути
       return [
-        "Где мой груз сейчас?",
-        "Когда ожидается доставка?",
-        "Есть ли задержка по перевозке?",
+        t("chat.quick.tpl.transit1"),
+        t("chat.quick.tpl.transit2"),
+        t("chat.quick.tpl.transit3"),
       ];
   }
 }
 
-export function quickGroups(status: string): QuickGroup[] {
+export function quickGroups(status: string, t: TFunction): QuickGroup[] {
   return [
-    { label: "Груз и доставка", icon: "🚛", templates: deliveryTemplates(status) },
+    { label: t("chat.quick.groupCargo"), icon: "🚛", templates: deliveryTemplates(status, t) },
     {
-      label: "Документы",
+      label: t("chat.quick.groupDocs"),
       icon: "📄",
-      templates: ["Пришлите документы по грузу", "Нужна накладная", "Пришлите счёт-фактуру"],
+      templates: [t("chat.quick.tpl.docs1"), t("chat.quick.tpl.docs2"), t("chat.quick.tpl.docs3")],
     },
     {
-      label: "Финансы и оплата",
+      label: t("chat.quick.groupFinance"),
       icon: "💰",
-      templates: ["Вопрос по оплате", "Уточнить стоимость доставки", "Пришлите счёт на оплату"],
+      templates: [
+        t("chat.quick.tpl.finance1"),
+        t("chat.quick.tpl.finance2"),
+        t("chat.quick.tpl.finance3"),
+      ],
     },
-    { label: "Другой вопрос", icon: "💬", templates: [] },
+    { label: t("chat.quick.groupOther"), icon: "💬", templates: [] },
   ];
 }

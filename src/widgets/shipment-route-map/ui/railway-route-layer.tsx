@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 
+import { useTranslation } from "react-i18next";
 import { CircleMarker, Marker, Polyline, Tooltip } from "react-leaflet";
 
 import { AutoFit } from "@shared/ui/auto-fit";
@@ -19,6 +20,7 @@ export function RailwayRouteLayer({
   destLabel,
   delivered,
 }: RouteModes["railway"]) {
+  const { t } = useTranslation();
   const trainIcon = useMemo(
     () => (delivered ? buildDeliveredIcon() : buildTrainIcon()),
     [delivered],
@@ -32,7 +34,7 @@ export function RailwayRouteLayer({
       <Marker position={pos} icon={trainIcon}>
         <Tooltip direction="top" offset={[0, -22]}>
           <span className="text-xs font-semibold">
-            {delivered ? "Доставлено" : (stationLabel ?? "Текущее положение")}
+            {delivered ? t("routeMap.delivered") : (stationLabel ?? t("routeMap.currentPosition"))}
           </span>
         </Tooltip>
       </Marker>

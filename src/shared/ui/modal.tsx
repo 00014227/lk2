@@ -4,6 +4,7 @@ import * as React from "react";
 
 import * as RDialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@shared/lib/utils";
 
@@ -34,10 +35,11 @@ export function Modal({
   title,
   hideTitle,
   placement = "center",
-  closeLabel = "Закрыть",
+  closeLabel,
   className,
   children,
 }: ModalProps) {
+  const { t } = useTranslation();
   return (
     <RDialog.Root open={open} onOpenChange={(v) => !v && onClose()}>
       <RDialog.Portal>
@@ -54,7 +56,7 @@ export function Modal({
           )}
         >
           <RDialog.Close
-            aria-label={closeLabel}
+            aria-label={closeLabel ?? t("common.close")}
             className="absolute top-5 right-5 rounded-full border border-border bg-white/90 p-2 text-slate-500 transition hover:text-slate-900 focus-visible:ring-4 focus-visible:ring-ring focus-visible:outline-none"
           >
             <X className="h-4 w-4" />

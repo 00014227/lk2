@@ -14,10 +14,12 @@ import {
   Star,
   Truck,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ShipmentTable } from "@widgets/shipment-table";
 
 import { logout } from "@features/auth";
+import { LanguageSwitcher } from "@features/language-switcher";
 import { NotificationBell } from "@features/notifications";
 import {
   fetchMyOrders,
@@ -31,6 +33,7 @@ import { getUnratedDeliveries } from "@features/rate-delivery";
 import { selectShipments } from "@entities/shipment";
 import { selectVehicles } from "@entities/vehicle";
 
+import { i18n } from "@shared/i18n";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { Badge } from "@shared/ui/badge";
 import { Button } from "@shared/ui/button";
@@ -41,12 +44,13 @@ const FleetMap = dynamic(() => import("@widgets/fleet-map"), {
   ssr: false,
   loading: () => (
     <div className="flex h-[clamp(20rem,50vh,40rem)] items-center justify-center rounded-[28px] bg-slate-100 text-sm font-semibold text-slate-500 lg:h-[clamp(30rem,60vh,48rem)]">
-      Загрузка карты транспорта...
+      {i18n.t("dashboard.mapLoading")}
     </div>
   ),
 });
 
 export function DashboardShell() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const activeTab = useAppSelector(selectActiveTab);
   const shipments = useAppSelector(selectShipments);
@@ -62,21 +66,21 @@ export function DashboardShell() {
 
   const stats = [
     {
-      label: "Live shipments",
+      label: t("dashboard.stats.liveLabel"),
       value: `${shipments.filter((shipment) => shipment.status !== "Доставлен").length}`,
-      detail: "Сейчас находятся в логистической сети",
+      detail: t("dashboard.stats.liveDetail"),
       icon: Container,
     },
     {
-      label: "Транспорт на карте",
+      label: t("dashboard.stats.vehiclesLabel"),
       value: `${vehicles.length}`,
-      detail: "Мок-данные GPS с текущими координатами",
+      detail: t("dashboard.stats.vehiclesDetail"),
       icon: MapPinned,
     },
     {
-      label: "Средний ETA",
+      label: t("dashboard.stats.etaLabel"),
       value: "6h 48m",
-      detail: "Рассчитан по активным отправлениям",
+      detail: t("dashboard.stats.etaDetail"),
       icon: Clock3,
     },
   ];
@@ -88,6 +92,7 @@ export function DashboardShell() {
           <div className="flex items-center justify-between gap-4">
             <Logo tone="white" className="h-8" />
             <div className="flex items-center gap-2 text-white">
+              <LanguageSwitcher />
               <NotificationBell />
               <Button
                 className="shrink-0 border-white/10 bg-white/10 text-white hover:bg-white/16"
@@ -98,7 +103,7 @@ export function DashboardShell() {
                 }}
               >
                 <LogOut className="h-4 w-4" />
-                Выйти
+                {t("common.logout")}
               </Button>
             </div>
           </div>
@@ -106,30 +111,29 @@ export function DashboardShell() {
           <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
             <div className="min-w-0 space-y-5">
               <h1 className="font-display text-2xl font-semibold tracking-tight lg:text-4xl">
-                Центр управления клиентскими грузоперевозками
+                {t("dashboard.title")}
               </h1>
               <p className="max-w-3xl text-sm leading-5 text-slate-200 lg:leading-7">
-                Визуальный MVP для отслеживания отправлений, прозрачности для клиентов и последующей
-                интеграции с ERP, GPS и внешними API сервисами.
+                {t("dashboard.subtitle")}
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className="bg-white/14 text-white" variant="neutral">
-                  Логистическая панель
+                  {t("dashboard.badgePanel")}
                 </Badge>
                 <Badge className="bg-white/14 text-white" variant="neutral">
-                  Backend API
+                  {t("dashboard.badgeBackend")}
                 </Badge>
                 {loading ? (
                   <Badge className="bg-amber-400/18 text-amber-100" variant="neutral">
-                    Загрузка данных...
+                    {t("dashboard.dataLoading")}
                   </Badge>
                 ) : error ? (
                   <Badge className="bg-rose-400/18 text-rose-200" variant="neutral">
-                    Ошибка загрузки
+                    {t("dashboard.dataError")}
                   </Badge>
                 ) : (
                   <Badge className="bg-green-400/18 text-green-200" variant="neutral">
-                    Данные актуальны
+                    {t("dashboard.dataFresh")}
                   </Badge>
                 )}
               </div>
@@ -138,7 +142,7 @@ export function DashboardShell() {
             <div className="grid min-w-0 content-start gap-3 self-start rounded-[28px] border border-white/10 bg-white/8 p-4 backdrop-blur">
               <div className="flex items-center justify-between gap-3 rounded-[22px] bg-white/8 px-4 py-3">
                 <p className="text-xs font-semibold tracking-[0.22em] text-white/55 uppercase">
-                  Всего перевозок
+                  {t("dashboard.totalShipments")}
                 </p>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-semibold">{shipments.length}</p>
@@ -148,7 +152,7 @@ export function DashboardShell() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="flex items-center justify-between gap-3 rounded-[22px] bg-white/8 px-4 py-3">
                   <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
-                    Доставлено
+                    {t("dashboard.delivered")}
                   </p>
                   <p className="text-lg font-semibold">
                     {shipments.filter((s) => s.status === "Доставлен").length}
@@ -156,7 +160,7 @@ export function DashboardShell() {
                 </div>
                 <div className="flex items-center justify-between gap-3 rounded-[22px] bg-white/8 px-4 py-3">
                   <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
-                    В пути
+                    {t("dashboard.inTransit")}
                   </p>
                   <p className="text-lg font-semibold">
                     {shipments.filter((s) => s.status !== "Доставлен").length}
@@ -170,7 +174,7 @@ export function DashboardShell() {
                 <div className="flex items-center gap-3">
                   <Star className="h-5 w-5 text-amber-300" />
                   <p className="text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
-                    Оценить поездки
+                    {t("dashboard.rateTrips")}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -205,10 +209,10 @@ export function DashboardShell() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold tracking-[0.24em] text-primary uppercase">
-                Операционный обзор
+                {t("dashboard.sectionEyebrow")}
               </p>
               <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight">
-                Видимость отправлений
+                {t("dashboard.sectionTitle")}
               </h2>
             </div>
             <div className="flex w-full rounded-full border border-white/70 bg-white/85 p-1 shadow-[0_14px_30px_rgba(16,35,48,0.06)] sm:inline-flex sm:w-auto">
@@ -221,7 +225,7 @@ export function DashboardShell() {
                 onClick={() => dispatch(setActiveTab("map"))}
                 type="button"
               >
-                Карта
+                {t("dashboard.tabMap")}
               </button>
               <button
                 className={`flex-1 rounded-full px-5 py-2.5 text-sm font-semibold transition sm:flex-none ${
@@ -232,7 +236,7 @@ export function DashboardShell() {
                 onClick={() => dispatch(setActiveTab("shipments"))}
                 type="button"
               >
-                Мои перевозки
+                {t("dashboard.myShipments")}
               </button>
             </div>
           </div>
@@ -241,15 +245,12 @@ export function DashboardShell() {
             <Card>
               <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <CardTitle>Карта отслеживания транспорта</CardTitle>
-                  <CardDescription>
-                    Наведите курсор на маркер транспорта, чтобы увидеть статус отправления, ETA и
-                    назначенного водителя.
-                  </CardDescription>
+                  <CardTitle>{t("dashboard.mapCardTitle")}</CardTitle>
+                  <CardDescription>{t("dashboard.mapCardDesc")}</CardDescription>
                 </div>
                 <div className="flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm text-secondary-foreground">
                   <Truck className="h-4 w-4" />
-                  {vehicles.length} ед. транспорта
+                  {t("dashboard.vehiclesCount", { count: vehicles.length })}
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
@@ -259,10 +260,8 @@ export function DashboardShell() {
           ) : (
             <Card className="overflow-hidden">
               <CardHeader>
-                <CardTitle>Мои перевозки</CardTitle>
-                <CardDescription>
-                  Выберите строку отправления, чтобы посмотреть маршрут и детали.
-                </CardDescription>
+                <CardTitle>{t("dashboard.myShipments")}</CardTitle>
+                <CardDescription>{t("dashboard.shipmentsCardDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="px-0 pb-0">
                 <ShipmentTable />

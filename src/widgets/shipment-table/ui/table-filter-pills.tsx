@@ -1,10 +1,13 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
+
 import type { ShipmentStatus } from "@entities/shipment";
 
+import { useDataLabels } from "@shared/i18n";
 import { cn } from "@shared/lib/utils";
 
-import { ALL_STATUSES, TRANSPORT_LABELS, TRANSPORT_TYPES } from "../lib/status";
+import { ALL_STATUSES, TRANSPORT_TYPES } from "../lib/status";
 
 interface TableFilterPillsProps {
   statusFilter: ShipmentStatus | "";
@@ -19,6 +22,8 @@ export function TableFilterPills({
   transportFilter,
   onTransportChange,
 }: TableFilterPillsProps) {
+  const { t } = useTranslation();
+  const dl = useDataLabels();
   return (
     <>
       {/* Status pills */}
@@ -33,7 +38,7 @@ export function TableFilterPills({
           onClick={() => onStatusChange("")}
           type="button"
         >
-          Все статусы
+          {t("table.allStatuses")}
         </button>
         {ALL_STATUSES.map((s) => (
           <button
@@ -47,7 +52,7 @@ export function TableFilterPills({
             onClick={() => onStatusChange(s)}
             type="button"
           >
-            {s}
+            {dl.status(s)}
           </button>
         ))}
       </div>
@@ -64,21 +69,21 @@ export function TableFilterPills({
           onClick={() => onTransportChange("")}
           type="button"
         >
-          Все типы
+          {t("table.allTypes")}
         </button>
-        {TRANSPORT_TYPES.map((t) => (
+        {TRANSPORT_TYPES.map((type) => (
           <button
-            key={t}
+            key={type}
             className={cn(
               "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
-              transportFilter === t
+              transportFilter === type
                 ? "border-slate-700 bg-slate-700 text-white"
                 : "border-border bg-white text-slate-600 hover:border-slate-400",
             )}
-            onClick={() => onTransportChange(t)}
+            onClick={() => onTransportChange(type)}
             type="button"
           >
-            {TRANSPORT_LABELS[t] ?? t}
+            {dl.transportShort(type)}
           </button>
         ))}
       </div>

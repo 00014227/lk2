@@ -3,43 +3,45 @@
 import { useEffect, useRef, useState } from "react";
 
 import { MessageCircle, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { fetchOrderMessages, sendOrderMessage } from "@entities/order-message";
 import type { OrderMessage } from "@entities/order-message";
 import type { Shipment } from "@entities/shipment";
 
+import { useDataLabels } from "@shared/i18n";
 import { cn } from "@shared/lib/utils";
 import { Button } from "@shared/ui/button";
 
 import { ChatPanel } from "./chat-panel";
 
-function managerStatus(messages: OrderMessage[]): string {
+import type { TFunction } from "i18next";
+
+function managerStatus(messages: OrderMessage[], t: TFunction): string {
   const last = [...messages].reverse().find((m) => m.senderType === "manager");
   if (!last) {
     const h = new Date().toLocaleString("ru-RU", { hour: "numeric", timeZone: "Asia/Tashkent" });
-    return Number(h) >= 9 && Number(h) < 18
-      ? "Ответит в ближайшее время"
-      : "⏰ Рабочее время: 09–18 (Ташкент)";
+    return Number(h) >= 9 && Number(h) < 18 ? t("chat.replySoon") : t("chat.workHours");
   }
   const mins = (Date.now() - new Date(last.createdAt).getTime()) / 60000;
-  if (mins < 30) return "🟢 Активен";
+  if (mins < 30) return t("chat.active");
   const h = new Date().toLocaleString("ru-RU", { hour: "numeric", timeZone: "Asia/Tashkent" });
-  return Number(h) >= 9 && Number(h) < 18
-    ? "Ответит в ближайшее время"
-    : "⏰ Рабочее время: 09–18 (Ташкент)";
+  return Number(h) >= 9 && Number(h) < 18 ? t("chat.replySoon") : t("chat.workHours");
 }
 
-function transportLabel(t: string | null | undefined): string {
-  if (!t) return "";
-  const l = t.toLowerCase();
-  if (l.includes("мор") || l.includes("sea")) return "Море";
-  if (l.includes("авиа") || l.includes("air")) return "Авиа";
-  if (l.includes("жел") || l.includes("rail")) return "Ж/Д";
-  if (l.includes("авто") || l.includes("truck")) return "Авто";
-  return t;
+function transportModeKey(v: string | null | undefined): "sea" | "air" | "rail" | "road" | null {
+  if (!v) return null;
+  const l = v.toLowerCase();
+  if (l.includes("мор") || l.includes("sea")) return "sea";
+  if (l.includes("авиа") || l.includes("air")) return "air";
+  if (l.includes("жел") || l.includes("rail")) return "rail";
+  if (l.includes("авто") || l.includes("truck")) return "road";
+  return null;
 }
 
 export function FloatingChat({ shipment }: { shipment: Shipment }) {
+  const { t } = useTranslation();
+  const dl = useDataLabels();
   const orderNumber = shipment.id;
   const [open, setOpen] = useState(false);
   const [entered, setEntered] = useState(false);
@@ -113,7 +115,8 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
   const unreadCount = messages.filter(
     (m) => (m.senderType === "manager" || m.senderType === "system") && !m.readByClient,
   ).length;
-  const transport = transportLabel(shipment.transportationType);
+  const modeKey = transportModeKey(shipment.transportationType);
+  const transport = modeKey ? t(`chat.transport.${modeKey}`) : (shipment.transportationType ?? "");
   const routeLabel = [shipment.origin, shipment.destination].filter(Boolean).join(" → ");
 
   return (
@@ -121,7 +124,7 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
       {open && (
         <div
           role="dialog"
-          aria-label="Чат с менеджером"
+          aria-label={t("chat.title")}
           className={cn(
             "w-[calc(100vw-3rem)] max-w-95 origin-bottom-right overflow-hidden rounded-2xl border border-border bg-white shadow-[0_24px_80px_rgba(16,35,48,0.24)] transition-all duration-300 ease-out",
             entered
@@ -133,7 +136,7 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
           <div className="flex items-start justify-between gap-3 bg-primary px-5 py-3 text-primary-foreground">
             <div className="min-w-0">
               <p className="text-sm leading-tight font-semibold">
-                {routeLabel || "Чат с менеджером"}
+                {routeLabel || t("chat.title")}
                 {transport && (
                   <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold">
                     {transport}
@@ -141,14 +144,14 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
                 )}
               </p>
               <p className="mt-0.5 truncate text-xs text-primary-foreground/70">
-                {shipment.status && <span className="mr-1">{shipment.status} ·</span>}
-                {managerStatus(messages)}
+                {shipment.status && <span className="mr-1">{dl.status(shipment.status)} ·</span>}
+                {managerStatus(messages, t)}
               </p>
             </div>
             <button
               type="button"
               onClick={closeChat}
-              aria-label="Закрыть чат"
+              aria-label={t("chat.closeChat")}
               className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-white/15"
             >
               <X className="h-4 w-4" />
@@ -185,7 +188,7 @@ export function FloatingChat({ shipment }: { shipment: Shipment }) {
           type="button"
           size="icon"
           onClick={toggle}
-          aria-label={entered ? "Закрыть чат" : "Открыть чат"}
+          aria-label={entered ? t("chat.closeChat") : t("chat.openChat")}
           aria-expanded={entered}
           className="pointer-events-auto relative z-10 h-14 w-14 shadow-[0_12px_30px_rgba(12,48,120,0.22)] hover:scale-110 hover:brightness-110"
         >

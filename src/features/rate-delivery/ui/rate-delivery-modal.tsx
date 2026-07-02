@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@shared/ui/button";
 import { Modal } from "@shared/ui/modal";
@@ -26,6 +27,7 @@ export function RateDeliveryModal({
   otherUnratedCount = 0,
   onRateOthers,
 }: RateDeliveryModalProps) {
+  const { t } = useTranslation();
   const [rating, setRating] = useState(0);
   const [phase, setPhase] = useState<"form" | "done">("form");
   const [submitting, setSubmitting] = useState(false);
@@ -55,14 +57,12 @@ export function RateDeliveryModal({
       open={isOpen}
       onClose={onClose}
       placement="bottom"
-      title="Вам всё понравилось?"
+      title={t("rateDelivery.title")}
       hideTitle={phase === "done"}
     >
       {phase === "form" ? (
         <div className="flex flex-col items-center gap-6 px-6 pt-4 pb-8">
-          <p className="text-center text-sm text-muted-foreground">
-            Оцените качество доставки от 1 до 5 звёзд.
-          </p>
+          <p className="text-center text-sm text-muted-foreground">{t("rateDelivery.subtitle")}</p>
           <StarRating value={rating} onChange={setRating} />
           <Button
             type="button"
@@ -70,7 +70,7 @@ export function RateDeliveryModal({
             disabled={rating < 1 || submitting}
             onClick={handleSubmit}
           >
-            Отправить
+            {t("rateDelivery.submit")}
           </Button>
         </div>
       ) : (
@@ -79,16 +79,18 @@ export function RateDeliveryModal({
             <CheckCircle2 className="h-8 w-8 text-emerald-600" />
           </div>
           <div>
-            <p className="font-display text-lg font-semibold text-slate-900">Спасибо за оценку!</p>
-            <p className="mt-1 text-sm text-muted-foreground">Ваш отзыв поможет нам стать лучше.</p>
+            <p className="font-display text-lg font-semibold text-slate-900">
+              {t("rateDelivery.thanksTitle")}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("rateDelivery.thanksBody")}</p>
           </div>
           {otherUnratedCount > 0 && onRateOthers && (
             <Button type="button" variant="outline" className="w-full" onClick={onRateOthers}>
-              Оценить другие поездки ({otherUnratedCount})
+              {t("rateDelivery.rateOthers", { count: otherUnratedCount })}
             </Button>
           )}
           <Button type="button" variant="ghost" className="w-full" onClick={onClose}>
-            Закрыть
+            {t("common.close")}
           </Button>
         </div>
       )}

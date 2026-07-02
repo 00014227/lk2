@@ -1,6 +1,7 @@
 import { formatEta } from "@entities/shipment";
 import type { Shipment } from "@entities/shipment";
 
+import { useDataLabels } from "@shared/i18n";
 import { Badge } from "@shared/ui/badge";
 
 import { getStatusVariant } from "../lib/status";
@@ -8,8 +9,9 @@ import { getStatusVariant } from "../lib/status";
 import type { ColKey } from "../lib/columns";
 
 export function CellValue({ shipment, colKey }: { shipment: Shipment; colKey: ColKey }) {
+  const dl = useDataLabels();
   if (colKey === "status")
-    return <Badge variant={getStatusVariant(shipment.status)}>{shipment.status}</Badge>;
+    return <Badge variant={getStatusVariant(shipment.status)}>{dl.status(shipment.status)}</Badge>;
   if (colKey === "id") return <span className="font-semibold text-slate-900">{shipment.id}</span>;
   if (colKey === "customerName")
     return <span className="text-sm text-slate-500">{shipment.customerName}</span>;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { memo, useState } from "react";
 
 import { ChevronRight, MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { Shipment } from "@entities/shipment";
 
@@ -25,6 +26,7 @@ export const UnratedDeliveryRow = memo(function UnratedDeliveryRow({
   shipment,
   onRated,
 }: UnratedDeliveryRowProps) {
+  const { t } = useTranslation();
   const [rating, setRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
@@ -52,13 +54,15 @@ export const UnratedDeliveryRow = memo(function UnratedDeliveryRow({
           </span>
         </div>
         {shipment.arrivalDateActual && (
-          <p className="text-xs text-muted-foreground">Прибыл: {shipment.arrivalDateActual}</p>
+          <p className="text-xs text-muted-foreground">
+            {t("common.arrived")}: {shipment.arrivalDateActual}
+          </p>
         )}
         <Link
           href={`/dashboard/${encodeURIComponent(shipment.id)}?from=rating`}
           className="inline-flex items-center gap-0.5 text-sm font-semibold text-primary hover:underline"
         >
-          Подробнее
+          {t("common.showMore")}
           <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
@@ -67,7 +71,7 @@ export const UnratedDeliveryRow = memo(function UnratedDeliveryRow({
       <div className="flex shrink-0 flex-col items-start gap-3 sm:items-end">
         <StarRating value={rating} onChange={setRating} size={28} />
         <Button type="button" size="sm" disabled={rating < 1 || submitting} onClick={handleRate}>
-          Оценить
+          {t("rateDelivery.rateButton")}
         </Button>
       </div>
     </div>
