@@ -1,30 +1,32 @@
+"use client";
+
 import { Truck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function FleetMapSidebar() {
+  const { t } = useTranslation();
+  const legend = [
+    { label: t("fleetMap.legendMoving"), className: "vehicle-marker--moving" },
+    { label: t("fleetMap.legendBorder"), className: "vehicle-marker--border" },
+    { label: t("fleetMap.legendDelayed"), className: "vehicle-marker--delayed" },
+    { label: t("fleetMap.legendArriving"), className: "vehicle-marker--arriving" },
+  ];
   return (
     <div className="grid content-start gap-4">
       <div className="rounded-[28px] border border-border bg-secondary/70 p-5">
         <p className="text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-          Покрытие
+          {t("fleetMap.coverage")}
         </p>
-        <h3 className="mt-3 font-display text-2xl font-semibold">Карта маршрутов</h3>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          Наведите на иконку транспорта для информации. Нажмите — чтобы увидеть маршрут по дорогам
-          от точки отправления до назначения.
-        </p>
+        <h3 className="mt-3 font-display text-2xl font-semibold">{t("fleetMap.routesTitle")}</h3>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("fleetMap.routesDesc")}</p>
       </div>
       <div className="rounded-[28px] border border-border bg-white p-5">
         <p className="text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-          Обозначения
+          {t("fleetMap.legendTitle")}
         </p>
         <div className="mt-4 space-y-3">
-          {[
-            { label: "В пути", className: "vehicle-marker--moving" },
-            { label: "На границе", className: "vehicle-marker--border" },
-            { label: "Задержка / таможня", className: "vehicle-marker--delayed" },
-            { label: "Прибывает", className: "vehicle-marker--arriving" },
-          ].map((item) => (
-            <div className="flex items-center gap-3" key={item.label}>
+          {legend.map((item) => (
+            <div className="flex items-center gap-3" key={item.className}>
               <div className={`vehicle-marker ${item.className} relative h-10 w-10`}>
                 <Truck className="h-4 w-4" />
               </div>
@@ -34,11 +36,13 @@ export function FleetMapSidebar() {
           <div className="mt-2 flex items-center gap-4 border-t border-border pt-3">
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full border-2 border-white bg-primary shadow" />
-              <span className="text-xs text-muted-foreground">Откуда</span>
+              <span className="text-xs text-muted-foreground">{t("shipment.fields.origin")}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full border-2 border-white bg-accent shadow" />
-              <span className="text-xs text-muted-foreground">Куда</span>
+              <span className="text-xs text-muted-foreground">
+                {t("shipment.fields.destination")}
+              </span>
             </div>
           </div>
           <div className="mt-3 flex items-center gap-3 border-t border-border pt-3">
@@ -54,7 +58,7 @@ export function FleetMapSidebar() {
                 strokeDasharray="4 3"
               />
             </svg>
-            <span className="text-xs text-muted-foreground">Ручное местоположение</span>
+            <span className="text-xs text-muted-foreground">{t("fleetMap.manualLocation")}</span>
           </div>
         </div>
       </div>

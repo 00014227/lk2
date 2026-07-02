@@ -1,6 +1,7 @@
 "use client";
 
 import { Plane, Ship, Train, Truck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { ShipmentSegment } from "@entities/tracking";
 
@@ -24,6 +25,7 @@ interface MultimodalProgressProps {
 }
 
 export function MultimodalProgress({ segments }: MultimodalProgressProps) {
+  const { t } = useTranslation();
   if (segments.length === 0) return null;
 
   return (
@@ -59,13 +61,17 @@ export function MultimodalProgress({ segments }: MultimodalProgressProps) {
                 <Icon className="h-4 w-4" />
               </div>
               <span className="text-[10px] font-medium text-muted-foreground capitalize">
-                {seg.transportType === "railway"
-                  ? "ЖД"
-                  : seg.transportType === "sea"
-                    ? "Море"
-                    : seg.transportType === "air"
-                      ? "Авиа"
-                      : "Авто"}
+                {t(
+                  `trackShipment.mode.${
+                    seg.transportType === "railway"
+                      ? "railway"
+                      : seg.transportType === "sea"
+                        ? "sea"
+                        : seg.transportType === "air"
+                          ? "air"
+                          : "auto"
+                  }`,
+                )}
               </span>
               {seg.officeName && (
                 <span className="max-w-15 text-center text-[9px] leading-tight text-muted-foreground/70">

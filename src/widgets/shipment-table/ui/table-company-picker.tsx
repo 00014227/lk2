@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { Building2, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@shared/lib/utils";
 
@@ -19,6 +20,7 @@ export function TableCompanyPicker({
   onToggle,
   onClear,
 }: TableCompanyPickerProps) {
+  const { t } = useTranslation();
   const [showPicker, setShowPicker] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +47,7 @@ export function TableCompanyPicker({
         type="button"
       >
         <Building2 className="h-3.5 w-3.5" />
-        Все компании
+        {t("table.allCompanies")}
         {count > 0 && (
           <span className="ml-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-none font-bold text-primary-foreground">
             {count}
@@ -57,7 +59,7 @@ export function TableCompanyPicker({
         <div className="absolute top-11 right-0 z-50 max-h-80 min-w-56 overflow-y-auto rounded-2xl border border-border bg-white p-2 shadow-xl">
           <div className="flex items-center justify-between gap-2 px-2 py-1.5">
             <p className="text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-              Фильтр по компании
+              {t("table.companyFilter")}
             </p>
             {count > 0 && (
               <button
@@ -65,7 +67,7 @@ export function TableCompanyPicker({
                 onClick={onClear}
                 type="button"
               >
-                Сбросить
+                {t("common.reset")}
               </button>
             )}
           </div>

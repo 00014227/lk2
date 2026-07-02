@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
@@ -21,6 +22,7 @@ interface ShipmentDetailsFormProps {
 }
 
 export function ShipmentDetailsForm({ open, onClose, form }: ShipmentDetailsFormProps) {
+  const { t } = useTranslation();
   const { type, dates, cargo, submit } = form;
 
   return (
@@ -40,13 +42,15 @@ export function ShipmentDetailsForm({ open, onClose, form }: ShipmentDetailsForm
               <CheckCircle2 className="h-8 w-8 text-emerald-600" />
             </div>
             <div>
-              <p className="text-lg font-semibold text-slate-800">Заявка отправлена!</p>
+              <p className="text-lg font-semibold text-slate-800">
+                {t("createShipment.successTitle")}
+              </p>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Менеджер свяжется с вами в ближайшее время.
+                {t("createShipment.successBody")}
               </p>
             </div>
             <Button className="w-full" onClick={onClose}>
-              Закрыть
+              {t("common.close")}
             </Button>
           </div>
         ) : (

@@ -1,8 +1,11 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
 import { Marker, Popup } from "react-leaflet";
 
 import type { MapShipmentItem } from "@entities/shipment";
+
+import { useDataLabels } from "@shared/i18n";
 
 import { buildManualIcon } from "../lib/leaflet-icons";
 
@@ -11,6 +14,8 @@ interface ManualMarkersProps {
 }
 
 export function ManualMarkers({ orders }: ManualMarkersProps) {
+  const { t } = useTranslation();
+  const dl = useDataLabels();
   return (
     <>
       {orders.map((o) => (
@@ -22,11 +27,11 @@ export function ManualMarkers({ orders }: ManualMarkersProps) {
           <Popup>
             <div className="marker-popup">
               <dl>
-                <dt>Накладная</dt>
+                <dt>{t("fleetMap.popupWaybill")}</dt>
                 <dd>{o.number}</dd>
                 {(o.departure || o.destination) && (
                   <>
-                    <dt>Маршрут</dt>
+                    <dt>{t("fleetMap.popupRoute")}</dt>
                     <dd>
                       {o.departure ?? "—"} → {o.destination ?? "—"}
                     </dd>
@@ -34,13 +39,13 @@ export function ManualMarkers({ orders }: ManualMarkersProps) {
                 )}
                 {o.status && (
                   <>
-                    <dt>Статус</dt>
-                    <dd>{o.status}</dd>
+                    <dt>{t("fleetMap.popupStatus")}</dt>
+                    <dd>{dl.status(o.status)}</dd>
                   </>
                 )}
                 {o.currentLocation && (
                   <>
-                    <dt>Местоположение</dt>
+                    <dt>{t("fleetMap.popupLocation")}</dt>
                     <dd className="italic">{o.currentLocation}</dd>
                   </>
                 )}

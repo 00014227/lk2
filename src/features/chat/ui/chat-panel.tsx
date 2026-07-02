@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { Loader2, Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { OrderMessage } from "@entities/order-message";
 import type { Shipment } from "@entities/shipment";
@@ -35,6 +36,7 @@ export function ChatPanel({
   showContacts = true,
   fill = false,
 }: ChatPanelProps) {
+  const { t } = useTranslation();
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<QuickGroup | null>(null);
@@ -71,7 +73,7 @@ export function ChatPanel({
         <div className="flex flex-col gap-2 rounded-2xl bg-slate-50 p-2">
           {shipment.responsibleName && (
             <ManagerContact
-              role="Ответственный"
+              role={t("chat.roleResponsible")}
               name={shipment.responsibleName}
               phone={shipment.responsiblePhone}
               email={shipment.responsibleEmail}
@@ -79,7 +81,7 @@ export function ChatPanel({
           )}
           {shipment.kamName && (
             <ManagerContact
-              role="Менеджер"
+              role={t("chat.roleManager")}
               name={shipment.kamName}
               phone={shipment.kamPhone}
               email={shipment.kamEmail}
@@ -104,7 +106,7 @@ export function ChatPanel({
       {/* Loading state */}
       {loading && (
         <div className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Загрузка...
+          <Loader2 className="h-4 w-4 animate-spin" /> {t("common.loading")}
         </div>
       )}
 
@@ -124,7 +126,7 @@ export function ChatPanel({
             <Input
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Сообщение..."
+              placeholder={t("chat.messagePlaceholder")}
               disabled={sending}
             />
             <Button

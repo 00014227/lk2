@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 import { ArrowLeft, MapPinned, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ShipmentInfo } from "@widgets/shipment-info";
 
@@ -18,6 +19,7 @@ import { TransportSegmentCards } from "@features/track-shipment";
 import { selectShipments } from "@entities/shipment";
 import type { Shipment } from "@entities/shipment";
 
+import { i18n, useDataLabels } from "@shared/i18n";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 import { Badge } from "@shared/ui/badge";
 import { Button } from "@shared/ui/button";
@@ -27,7 +29,7 @@ const ShipmentRouteMap = dynamic(() => import("@widgets/shipment-route-map"), {
   ssr: false,
   loading: () => (
     <div className="flex h-full w-full items-center justify-center bg-slate-100 text-sm text-muted-foreground">
-      Загрузка карты...
+      {i18n.t("common.mapLoading")}
     </div>
   ),
 });
@@ -49,13 +51,14 @@ function CenteredState({ children }: { children: React.ReactNode }) {
 }
 
 function BackLink({ className = "" }: { className?: string }) {
+  const { t } = useTranslation();
   return (
     <Link
       href="/dashboard"
       className={`flex items-center gap-1.5 rounded-sm bg-blue-100 p-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-600 hover:text-white ${className}`}
     >
       <ArrowLeft className="h-4 w-4" />
-      Назад
+      {t("common.back")}
     </Link>
   );
 }
@@ -65,6 +68,7 @@ interface Props {
 }
 
 export function ShipmentDetail({ id }: Props) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const shipments = useAppSelector(selectShipments);
   const loading = useAppSelector(selectOrdersLoading);
@@ -84,7 +88,7 @@ export function ShipmentDetail({ id }: Props) {
     return (
       <CenteredState>
         <div className="rounded-full border border-white/70 bg-white/80 px-5 py-2 text-sm font-semibold tracking-[0.24em] text-slate-600 uppercase shadow-[0_16px_40px_rgba(16,35,48,0.08)]">
-          Загрузка отправления
+          {t("shipmentDetail.loading")}
         </div>
       </CenteredState>
     );
@@ -93,7 +97,7 @@ export function ShipmentDetail({ id }: Props) {
   if (error) {
     return (
       <CenteredState>
-        <p className="font-display text-2xl font-semibold">Не удалось загрузить данные</p>
+        <p className="font-display text-2xl font-semibold">{t("shipmentDetail.loadError")}</p>
         <p className="max-w-md text-sm text-muted-foreground">{error}</p>
         <div className="flex items-center gap-4">
           <button
@@ -101,7 +105,7 @@ export function ShipmentDetail({ id }: Props) {
             onClick={() => dispatch(fetchMyOrders())}
             type="button"
           >
-            Повторить
+            {t("common.retry")}
           </button>
           <BackLink />
         </div>
@@ -111,9 +115,9 @@ export function ShipmentDetail({ id }: Props) {
 
   return (
     <CenteredState>
-      <p className="font-display text-2xl font-semibold">Перевозка не найдена</p>
+      <p className="font-display text-2xl font-semibold">{t("shipmentDetail.notFound")}</p>
       <p className="max-w-md text-sm text-muted-foreground">
-        Отправление с номером «{id}» не найдено среди ваших перевозок.
+        {t("shipmentDetail.notFoundBody", { id })}
       </p>
       <BackLink />
     </CenteredState>
@@ -121,6 +125,8 @@ export function ShipmentDetail({ id }: Props) {
 }
 
 function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
+  const { t } = useTranslation();
+  const dl = useDataLabels();
   const progress = useGPSProgress(shipment);
   const rating = useDeliveryRating(shipment);
   const { isRailway, railwayEvents, segments, airEvents, seaPositions, containerRoute, airRoute } =
@@ -150,10 +156,12 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
               {shipment.status === "Доставлен" && (
                 <Button type="button" variant="ghost" size="sm" onClick={rating.open}>
                   <Star className="h-4 w-4" />
-                  <span className="hidden sm:inline">Оценить доставку</span>
+                  <span className="hidden sm:inline">{t("shipmentDetail.rate")}</span>
                 </Button>
               )}
-              <Badge variant={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
+              <Badge variant={getStatusVariant(shipment.status)}>
+                {dl.status(shipment.status)}
+              </Badge>
             </div>
           </div>
 
@@ -161,7 +169,7 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
           <div className="mt-3">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
-                Прогресс маршрута
+                {t("common.routeProgress")}
               </p>
               <span className="text-sm font-bold text-primary">{progress}%</span>
             </div>
@@ -172,11 +180,11 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
           <div className="mt-2.5 flex flex-col gap-1.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex min-w-0 items-center gap-1.5">
               <MapPinned className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <span className="text-muted-foreground">Откуда:</span>
+              <span className="text-muted-foreground">{t("shipment.fields.origin")}:</span>
               <span className="truncate font-semibold text-slate-900">{shipment.origin}</span>
             </div>
             <div className="flex min-w-0 items-center gap-1.5 sm:justify-end">
-              <span className="text-muted-foreground">Куда:</span>
+              <span className="text-muted-foreground">{t("shipment.fields.destination")}:</span>
               <span className="truncate font-semibold text-slate-900">{shipment.destination}</span>
               <MapPinned className="h-4 w-4 shrink-0 text-muted-foreground" />
             </div>
@@ -187,7 +195,9 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
         <div className="flex flex-col gap-6 px-4 py-5 sm:px-5 sm:py-6 lg:px-8">
           {/* Transport legs */}
           <section>
-            <h2 className="mb-3 font-display text-lg font-semibold">Транспортировка</h2>
+            <h2 className="mb-3 font-display text-lg font-semibold">
+              {t("shipmentDetail.transportSection")}
+            </h2>
             <TransportSegmentCards
               segments={segments}
               shipment={shipment}
@@ -223,7 +233,9 @@ function ShipmentDetailView({ shipment }: { shipment: Shipment }) {
           </section>
 
           {/* Footer */}
-          <p className="text-xs text-muted-foreground">Создан: {shipment.createdDate}</p>
+          <p className="text-xs text-muted-foreground">
+            {t("shipment.fields.createdAt")}: {shipment.createdDate}
+          </p>
         </div>
       </main>
 

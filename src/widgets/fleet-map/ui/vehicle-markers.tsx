@@ -1,7 +1,10 @@
 "use client";
 
 import L from "leaflet";
+import { useTranslation } from "react-i18next";
 import { Marker, Popup } from "react-leaflet";
+
+import { useDataLabels } from "@shared/i18n";
 
 import type { FleetMapMarker } from "../model/use-fleet-map";
 
@@ -11,6 +14,8 @@ interface VehicleMarkersProps {
 }
 
 export function VehicleMarkers({ markers, onVehicleClick }: VehicleMarkersProps) {
+  const { t } = useTranslation();
+  const dl = useDataLabels();
   return (
     <>
       {markers.map(({ vehicle, shipment, icon, selected }) => (
@@ -30,19 +35,19 @@ export function VehicleMarkers({ markers, onVehicleClick }: VehicleMarkersProps)
           <Popup closeButton={false}>
             <div className="marker-popup">
               <dl>
-                <dt>Отправление</dt>
+                <dt>{t("fleetMap.popupShipment")}</dt>
                 <dd>{shipment?.id ?? vehicle.shipmentId}</dd>
-                <dt>Маршрут</dt>
+                <dt>{t("fleetMap.popupRoute")}</dt>
                 <dd>{shipment ? `${shipment.origin} → ${shipment.destination}` : "—"}</dd>
-                <dt>Транспорт</dt>
+                <dt>{t("fleetMap.popupTransport")}</dt>
                 <dd>{vehicle.vehicleNumber}</dd>
-                <dt>Статус</dt>
-                <dd>{vehicle.status}</dd>
+                <dt>{t("fleetMap.popupStatus")}</dt>
+                <dd>{dl.status(vehicle.status)}</dd>
                 <dt>ETA</dt>
                 <dd>{vehicle.eta}</dd>
               </dl>
               <p className="mt-2 text-xs text-slate-400">
-                {selected ? "Маршрут активен" : "Кликните для маршрута"}
+                {selected ? t("fleetMap.popupRouteActive") : t("fleetMap.popupClickForRoute")}
               </p>
             </div>
           </Popup>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { ArrowLeft, Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { fetchMyOrders, selectOrdersLoading, selectOrdersError } from "@features/orders";
 import { getUnratedDeliveries, UnratedDeliveryRow } from "@features/rate-delivery";
@@ -14,6 +15,7 @@ import type { Shipment } from "@entities/shipment";
 import { useAppDispatch, useAppSelector } from "@shared/lib/store-hooks";
 
 export function RatingShell() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const shipments = useAppSelector(selectShipments);
   const loading = useAppSelector(selectOrdersLoading);
@@ -45,13 +47,13 @@ export function RatingShell() {
           className="flex items-center gap-1.5 rounded-sm bg-blue-100 p-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-600 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
-          Назад
+          {t("common.back")}
         </Link>
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">Оценить поездки</h1>
-          <p className="text-sm text-muted-foreground">
-            Завершённые перевозки, которые ещё не были оценены.
-          </p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
+            {t("rating.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground">{t("rating.subtitle")}</p>
         </div>
       </header>
 
@@ -62,11 +64,9 @@ export function RatingShell() {
               <Star className="h-6 w-6" />
             </div>
             <p className="font-display text-lg font-semibold text-slate-900">
-              Нет неоценённых поездок
+              {t("rating.emptyTitle")}
             </p>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Все завершённые перевозки уже оценены. Спасибо за ваши отзывы!
-            </p>
+            <p className="max-w-sm text-sm text-muted-foreground">{t("rating.emptyBody")}</p>
           </div>
         ) : (
           list.map((shipment) => (

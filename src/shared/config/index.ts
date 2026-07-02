@@ -1,1 +1,1 @@
-export { TOKEN_KEY, SESSION_KEY, RATED_DELIVERIES_KEY } from "./storage-keys";
+export { TOKEN_KEY, SESSION_KEY, RATED_DELIVERIES_KEY, APP_LANGUAGE_KEY } from "./storage-keys";

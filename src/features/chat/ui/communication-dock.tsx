@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { useTranslation } from "react-i18next";
+
 import {
   fetchOrderMessages,
   sendOrderMessage,
@@ -17,6 +19,8 @@ import { cn } from "@shared/lib/utils";
 import { ChatPanel } from "./chat-panel";
 import { ContextHeader } from "./context-header";
 import { DockCollapsedRail } from "./dock-collapsed-rail";
+
+import type { TFunction } from "i18next";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -61,7 +65,7 @@ function inTashkentWorkHours(): boolean {
 }
 
 /** Average response time from history median, with a work-hours-aware fallback. */
-function avgReplyLabel(messages: OrderMessage[]): string {
+function avgReplyLabel(messages: OrderMessage[], t: TFunction): string {
   const latencies: number[] = [];
   for (let i = 0; i < messages.length; i++) {
     if (messages[i].senderType !== "manager") continue;
@@ -78,17 +82,16 @@ function avgReplyLabel(messages: OrderMessage[]): string {
   if (latencies.length >= 2) {
     latencies.sort((a, b) => a - b);
     const med = latencies[Math.floor(latencies.length / 2)];
-    if (med < 60) return `Обычно отвечает за ~${Math.max(5, Math.round(med / 5) * 5)} мин`;
-    return `Обычно отвечает за ~${Math.round(med / 60)} ч`;
+    if (med < 60) return t("chat.avgMin", { count: Math.max(5, Math.round(med / 5) * 5) });
+    return t("chat.avgHour", { count: Math.round(med / 60) });
   }
-  return inTashkentWorkHours()
-    ? "Обычно отвечает в течение 15–30 минут"
-    : "Ответит утром, с 09:00 (Ташкент)";
+  return inTashkentWorkHours() ? t("chat.avgDefault") : t("chat.avgOffHours");
 }
 
 // ── Dock ─────────────────────────────────────────────────────────────────────
 
 export function CommunicationDock({ shipment }: { shipment: Shipment }) {
+  const { t } = useTranslation();
   const orderNumber = shipment.id;
 
   // Lazy initializer reads localStorage on the client, default on the server.
@@ -273,7 +276,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
 
       <aside
         role="dialog"
-        aria-label="Связь с TransAsia"
+        aria-label={t("chat.dockAria")}
         style={{ width: isSheet ? "100%" : effectiveWidth }}
         className={cn(
           "fixed top-0 right-0 z-1100 flex h-dvh flex-col border-l border-border bg-white shadow-[-4px_0_24px_rgba(16,35,48,0.10)]",
@@ -287,7 +290,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
             onDoubleClick={() => setPrefs((p) => ({ ...p, width: DEFAULT_WIDTH, expanded: false }))}
             className="absolute top-0 left-0 z-10 hidden h-full w-2.5 cursor-col-resize touch-none md:block"
             role="separator"
-            aria-label="Изменить ширину панели"
+            aria-label={t("chat.resizePanel")}
           >
             <div className="mx-auto h-full w-px bg-transparent transition group-hover:bg-primary/20 hover:bg-primary/40" />
           </div>
@@ -295,7 +298,7 @@ export function CommunicationDock({ shipment }: { shipment: Shipment }) {
 
         <ContextHeader
           shipment={shipment}
-          avgReply={avgReplyLabel(messages)}
+          avgReply={avgReplyLabel(messages, t)}
           expanded={expanded}
           onToggleExpand={toggleExpand}
           onClose={() => setOpen(false)}

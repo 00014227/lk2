@@ -1,7 +1,9 @@
 "use client";
 
 import { Calculator, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
+import { i18n, intlLocale } from "@shared/i18n";
 import { Button } from "@shared/ui/button";
 
 import { FieldLabel, SectionLabel } from "./form-labels";
@@ -14,27 +16,31 @@ interface TariffEstimatePanelProps {
 }
 
 export function TariffEstimatePanel({ estimate }: TariffEstimatePanelProps) {
+  const { t } = useTranslation();
   const { origin, setOrigin, destination, setDestination, estimating, estimates, run } = estimate;
 
   return (
     <section>
-      <SectionLabel>Оценка стоимости</SectionLabel>
+      <SectionLabel>{t("createShipment.estimateTitle")}</SectionLabel>
       <div className="rounded-2xl border border-border bg-white p-4">
         <p className="mb-3 text-xs leading-5 text-muted-foreground">
-          Укажите города из справочника тарифов для предварительного расчёта. Окончательную ставку
-          подтверждает менеджер.
+          {t("createShipment.estimateHint")}
         </p>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <FieldLabel>Город отправления</FieldLabel>
-            <LocationAutocomplete value={origin} onChange={setOrigin} placeholder="напр. Ташкент" />
+            <FieldLabel>{t("createShipment.originCity")}</FieldLabel>
+            <LocationAutocomplete
+              value={origin}
+              onChange={setOrigin}
+              placeholder={t("createShipment.originPlaceholder")}
+            />
           </div>
           <div>
-            <FieldLabel>Город назначения</FieldLabel>
+            <FieldLabel>{t("createShipment.destinationCity")}</FieldLabel>
             <LocationAutocomplete
               value={destination}
               onChange={setDestination}
-              placeholder="напр. Стамбул"
+              placeholder={t("createShipment.destinationPlaceholder")}
             />
           </div>
         </div>
@@ -50,14 +56,14 @@ export function TariffEstimatePanel({ estimate }: TariffEstimatePanelProps) {
           ) : (
             <Calculator className="h-4 w-4" />
           )}
-          Рассчитать стоимость
+          {t("createShipment.calculate")}
         </Button>
 
         {estimates !== null && (
           <div className="mt-3 flex flex-col gap-2">
             {estimates.length === 0 ? (
               <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                Точная ставка по запросу — менеджер свяжется с вами.
+                {t("createShipment.rateOnRequestShort")}
               </p>
             ) : (
               estimates.map((est, i) => (
@@ -74,7 +80,7 @@ export function TariffEstimatePanel({ estimate }: TariffEstimatePanelProps) {
                   </div>
                   {est.total != null ? (
                     <p className="mt-1 text-lg font-semibold text-slate-900">
-                      ≈ {est.total.toLocaleString("ru-RU")} {est.currency}
+                      ≈ {est.total.toLocaleString(intlLocale(i18n.language))} {est.currency}
                       {est.basis ? (
                         <span className="text-xs font-normal text-muted-foreground">
                           {" "}
@@ -83,7 +89,9 @@ export function TariffEstimatePanel({ estimate }: TariffEstimatePanelProps) {
                       ) : null}
                     </p>
                   ) : (
-                    <p className="mt-1 text-sm text-muted-foreground">Точная ставка по запросу.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("createShipment.rateOnRequestDot")}
+                    </p>
                   )}
                   {est.breakdown && (
                     <p className="mt-1 text-xs whitespace-pre-wrap text-muted-foreground">

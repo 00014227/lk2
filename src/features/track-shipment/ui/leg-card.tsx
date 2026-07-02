@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
 import { ArrowDown, ArrowRight, Check, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@shared/lib/utils";
 
@@ -12,10 +13,8 @@ import {
   CARD_STYLES,
   CHIP_STYLES,
   DROPDOWN_MAX_H,
-  STATE_CAPTION,
   formatDate,
   transportIcon,
-  transportLabel,
 } from "../lib/leg";
 
 interface LegCardProps {
@@ -26,6 +25,7 @@ interface LegCardProps {
 }
 
 export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
@@ -93,7 +93,9 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
                 {transportIcon(leg.type, "h-5 w-5")}
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-900">{transportLabel(leg.type)}</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  {t(`trackShipment.mode.${leg.type}`)}
+                </p>
                 <p
                   className={cn(
                     "flex items-center gap-1 text-[11px] font-medium",
@@ -101,7 +103,7 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
                   )}
                 >
                   {leg.state === "done" && <Check className="h-3 w-3" />}
-                  {STATE_CAPTION[leg.state]}
+                  {t(`trackShipment.state.${leg.state}`)}
                 </p>
               </div>
             </div>
@@ -121,8 +123,16 @@ export function LegCard({ leg, index, prevDone, tracking }: LegCardProps) {
 
           {(departure || arrival) && (
             <div className="mt-3 flex flex-col gap-0.5 border-t border-black/5 pt-2 text-[11px] text-muted-foreground">
-              {departure && <span>Отправлен: {departure}</span>}
-              {arrival && <span>Прибыл: {arrival}</span>}
+              {departure && (
+                <span>
+                  {t("common.departed")}: {departure}
+                </span>
+              )}
+              {arrival && (
+                <span>
+                  {t("common.arrived")}: {arrival}
+                </span>
+              )}
             </div>
           )}
 

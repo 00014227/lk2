@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 
+import { useTranslation } from "react-i18next";
 import { CircleMarker, Marker, Polyline, Tooltip } from "react-leaflet";
 
 import { AutoFit } from "@shared/ui/auto-fit";
@@ -11,6 +12,7 @@ import { AIR_BLUE, buildDeliveredIcon, buildPlaneIcon } from "../lib/leaflet-ico
 import type { RouteModes } from "../model/use-route-modes";
 
 export function AirRouteLayer({ coords, airports, delivered }: RouteModes["air"]) {
+  const { t } = useTranslation();
   const planeIcon = useMemo(
     () => (delivered ? buildDeliveredIcon() : buildPlaneIcon()),
     [delivered],
@@ -55,7 +57,7 @@ export function AirRouteLayer({ coords, airports, delivered }: RouteModes["air"]
         <Marker position={coords[coords.length - 1]} icon={planeIcon}>
           <Tooltip direction="top" offset={[0, -22]}>
             <span className="text-xs font-semibold">
-              {delivered ? "Доставлено" : "Последнее местоположение"}
+              {delivered ? t("routeMap.delivered") : t("routeMap.lastLocation")}
             </span>
           </Tooltip>
         </Marker>

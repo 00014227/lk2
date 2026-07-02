@@ -5,6 +5,7 @@ import { memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ChevronDown, ChevronUp, ChevronsUpDown, GripVertical } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@shared/lib/utils";
 
@@ -34,7 +35,9 @@ export const TableHeaderCell = memo(function TableHeaderCell({
   onResizeCommit,
   onResetWidth,
 }: TableHeaderCellProps) {
+  const { t } = useTranslation();
   const col = ALL_COLUMNS.find((c) => c.key === colKey)!;
+  const label = t(`shipment.columns.${col.key}`);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: colKey,
   });
@@ -57,7 +60,7 @@ export const TableHeaderCell = memo(function TableHeaderCell({
         <button
           type="button"
           className="shrink-0 cursor-grab touch-none text-slate-300 active:cursor-grabbing"
-          aria-label={`Переместить столбец «${col.label}»`}
+          aria-label={t("table.moveColumn", { col: label })}
           {...attributes}
           {...listeners}
         >
@@ -69,9 +72,9 @@ export const TableHeaderCell = memo(function TableHeaderCell({
           type="button"
           className="flex min-w-0 flex-1 items-center gap-1 uppercase hover:text-slate-700"
           onClick={() => onToggleSort(colKey)}
-          aria-label={`Сортировать по «${col.label}»`}
+          aria-label={t("table.sortBy", { col: label })}
         >
-          <span className="truncate">{col.label}</span>
+          <span className="truncate">{label}</span>
           <SortIcon
             className={cn("h-3 w-3 shrink-0", sortDir ? "text-primary" : "text-slate-300")}
           />

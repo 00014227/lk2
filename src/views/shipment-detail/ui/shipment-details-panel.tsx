@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
 import { Container, Gauge, MapPinned, ShieldCheck, Truck, Weight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useGPSProgress } from "@features/track-shipment";
 import { AirTimeline } from "@features/track-shipment";
@@ -23,6 +24,7 @@ import type {
   ShipmentSegment,
 } from "@entities/tracking";
 
+import { i18n, useDataLabels } from "@shared/i18n";
 import { Badge } from "@shared/ui/badge";
 import { Progress } from "@shared/ui/progress";
 
@@ -30,7 +32,7 @@ const ShipmentRouteMap = dynamic(() => import("@widgets/shipment-route-map"), {
   ssr: false,
   loading: () => (
     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-      Загрузка карты...
+      {i18n.t("common.mapLoading")}
     </div>
   ),
 });
@@ -48,6 +50,8 @@ interface Props {
 }
 
 export function ShipmentDetailsPanel({ shipment }: Props) {
+  const { t } = useTranslation();
+  const dl = useDataLabels();
   const progress = useGPSProgress(shipment);
   const isRailway = shipment.transportationType === "Железнодорожная";
   const isMultimodal = shipment.transportationType?.includes("Мультимодальн") ?? false;
@@ -86,6 +90,21 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
       .catch(() => {});
   }, [shipment.id, isAir, isSea, isMultimodal]);
 
+  const detailRows = [
+    isRailway
+      ? { icon: Container, label: t("shipment.fields.container"), value: shipment.vehicleNumber }
+      : { icon: Truck, label: t("shipment.fields.transport"), value: shipment.vehicleNumber },
+    {
+      icon: Gauge,
+      label: t("shipment.fields.eta"),
+      value: formatEta(shipment.estimatedArrival, shipment.status),
+    },
+    { icon: ShieldCheck, label: t("shipment.fields.cargoType"), value: shipment.cargoType },
+    { icon: Weight, label: t("shipment.fields.weight"), value: shipment.weight },
+    { icon: MapPinned, label: t("shipment.fields.origin"), value: shipment.origin },
+    { icon: MapPinned, label: t("shipment.fields.destination"), value: shipment.destination },
+  ];
+
   return (
     <div className="flex flex-col gap-0">
       {/* ── Map ──────────────────────────────────────────────────────── */}
@@ -107,7 +126,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
       {/* ── Header ───────────────────────────────────────────────────── */}
       <div className="border-b border-border px-5 py-4">
         <div className="flex items-center gap-2">
-          <Badge variant={getStatusVariant(shipment.status)}>{shipment.status}</Badge>
+          <Badge variant={getStatusVariant(shipment.status)}>{dl.status(shipment.status)}</Badge>
           {shipment.customerName && (
             <span className="text-xs text-muted-foreground">{shipment.customerName}</span>
           )}
@@ -122,7 +141,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
       <div className="border-b border-border px-5 py-4">
         <div className="flex items-center justify-between">
           <p className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
-            Прогресс маршрута
+            {t("common.routeProgress")}
           </p>
           <span className="text-sm font-bold text-primary">{progress}%</span>
         </div>
@@ -142,21 +161,8 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
 
       {/* ── Details grid ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-px bg-border">
-        {[
-          isRailway
-            ? { icon: Container, label: "Контейнер", value: shipment.vehicleNumber }
-            : { icon: Truck, label: "Транспорт", value: shipment.vehicleNumber },
-          {
-            icon: Gauge,
-            label: "ETA",
-            value: formatEta(shipment.estimatedArrival, shipment.status),
-          },
-          { icon: ShieldCheck, label: "Тип груза", value: shipment.cargoType },
-          { icon: Weight, label: "Вес", value: shipment.weight },
-          { icon: MapPinned, label: "Откуда", value: shipment.origin },
-          { icon: MapPinned, label: "Куда", value: shipment.destination },
-        ].map((item) => (
-          <div className="bg-white px-4 py-3" key={item.label}>
+        {detailRows.map((item, i) => (
+          <div className="bg-white px-4 py-3" key={i}>
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <item.icon className="h-3.5 w-3.5 shrink-0" />
               <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">{item.label}</p>
@@ -191,7 +197,7 @@ export function ShipmentDetailsPanel({ shipment }: Props) {
 
       {/* ── Date ─────────────────────────────────────────────────────── */}
       <div className="rounded-b-[28px] bg-white px-5 py-3 text-xs text-muted-foreground">
-        Создан: {shipment.createdDate}
+        {t("shipment.fields.createdAt")}: {shipment.createdDate}
       </div>
     </div>
   );

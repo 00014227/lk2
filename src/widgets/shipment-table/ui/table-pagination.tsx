@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@shared/lib/utils";
 import { Button } from "@shared/ui/button";
@@ -20,12 +21,17 @@ export function TablePagination({
   pageSize,
   onPageChange,
 }: TablePaginationProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-start gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6">
       <p className="text-sm text-muted-foreground">
         {totalCount === 0
-          ? "Нет результатов"
-          : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, totalCount)} из ${totalCount}`}
+          ? t("table.noResults")
+          : t("table.paginationRange", {
+              from: (safePage - 1) * pageSize + 1,
+              to: Math.min(safePage * pageSize, totalCount),
+              total: totalCount,
+            })}
       </p>
 
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">

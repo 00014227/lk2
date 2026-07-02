@@ -13,6 +13,7 @@ import {
   Send,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
@@ -35,6 +36,7 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
   onClose,
   form,
 }: TransportSelectDialogProps) {
+  const { t } = useTranslation();
   const { transportType } = form.type;
   const { origin, setOrigin, destination, setDestination, estimating, estimates, run } =
     form.estimate;
@@ -62,14 +64,14 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
               </div>
               <div>
                 <RDialog.Title className="font-display text-lg font-semibold text-slate-900">
-                  Заявка отправлена!
+                  {t("createShipment.successTitle")}
                 </RDialog.Title>
                 <RDialog.Description className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Менеджер свяжется с вами в ближайшее время.
+                  {t("createShipment.successBody")}
                 </RDialog.Description>
               </div>
               <Button className="w-full" onClick={onClose} type="button">
-                Закрыть
+                {t("common.close")}
               </Button>
             </div>
           ) : (
@@ -80,27 +82,29 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
                   <Package className="h-5 w-5 text-primary" />
                 </div>
                 <RDialog.Title className="font-display text-lg font-semibold text-slate-900">
-                  Расчёт стоимости перевозки
+                  {t("createShipment.calcTitle")}
                 </RDialog.Title>
                 <RDialog.Description className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Выберите параметры и укажите маршрут для предварительной оценки.
+                  {t("createShipment.calcSubtitle")}
                 </RDialog.Description>
               </div>
 
               <div className="flex flex-col gap-5 px-7 pt-5 pb-7">
                 {/* Route + cargo */}
                 <div>
-                  <SectionLabel>Маршрут и груз</SectionLabel>
+                  <SectionLabel>{t("createShipment.routeAndCargo")}</SectionLabel>
 
                   {/* Маршрут: ↓ на узких экранах, → на широких */}
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
                     <div className="flex-1">
-                      <FieldLabel htmlFor="origin-city">Город отправления</FieldLabel>
+                      <FieldLabel htmlFor="origin-city">
+                        {t("createShipment.originCity")}
+                      </FieldLabel>
                       <LocationAutocomplete
                         id="origin-city"
                         value={origin}
                         onChange={setOrigin}
-                        placeholder="напр. Ташкент"
+                        placeholder={t("createShipment.originPlaceholder")}
                       />
                     </div>
                     <div
@@ -111,12 +115,14 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
                       <ArrowRight className="hidden h-5 w-5 sm:block" />
                     </div>
                     <div className="flex-1">
-                      <FieldLabel htmlFor="destination-city">Город назначения</FieldLabel>
+                      <FieldLabel htmlFor="destination-city">
+                        {t("createShipment.destinationCity")}
+                      </FieldLabel>
                       <LocationAutocomplete
                         id="destination-city"
                         value={destination}
                         onChange={setDestination}
-                        placeholder="напр. Стамбул"
+                        placeholder={t("createShipment.destinationPlaceholder")}
                       />
                     </div>
                   </div>
@@ -124,14 +130,16 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
                   {isContainerMode ? (
                     <div className="mt-3 grid grid-cols-2 gap-3">
                       <div>
-                        <FieldLabel htmlFor="container-type">Тип контейнера</FieldLabel>
+                        <FieldLabel htmlFor="container-type">
+                          {t("createShipment.containerType")}
+                        </FieldLabel>
                         <select
                           id="container-type"
                           className={selectCls}
                           value={containers[0]?.type ?? ""}
                           onChange={(e) => updateContainer(0, "type", e.target.value)}
                         >
-                          <option value="">Выберите...</option>
+                          <option value="">{t("createShipment.select")}</option>
                           {CONTAINER_TYPES.map((t) => (
                             <option key={t} value={t}>
                               {t}
@@ -140,12 +148,14 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
                         </select>
                       </div>
                       <div>
-                        <FieldLabel htmlFor="container-qty">Кол-во контейнеров</FieldLabel>
+                        <FieldLabel htmlFor="container-qty">
+                          {t("createShipment.containerQty")}
+                        </FieldLabel>
                         <Input
                           id="container-qty"
                           type="number"
                           inputMode="numeric"
-                          placeholder="напр. 1"
+                          placeholder={t("createShipment.qtyPlaceholder")}
                           value={containers[0]?.qty ?? ""}
                           onChange={(e) => updateContainer(0, "qty", e.target.value)}
                         />
@@ -154,21 +164,21 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
                   ) : (
                     <>
                       <div className="hidden">
-                        <FieldLabel>Вес, кг</FieldLabel>
+                        <FieldLabel>{t("createShipment.weightKg")}</FieldLabel>
                         <Input
                           type="number"
                           inputMode="decimal"
-                          placeholder="напр. 1000"
+                          placeholder={t("createShipment.weightPlaceholder")}
                           value={grossWeight}
                           onChange={(e) => setGrossWeight(e.target.value)}
                         />
                       </div>
                       <div className="hidden">
-                        <FieldLabel>Объём, м³</FieldLabel>
+                        <FieldLabel>{t("createShipment.volumeM3")}</FieldLabel>
                         <Input
                           type="number"
                           inputMode="decimal"
-                          placeholder="напр. 12"
+                          placeholder={t("createShipment.volumePlaceholder")}
                           value={grossVolume}
                           onChange={(e) => setGrossVolume(e.target.value)}
                         />
@@ -197,11 +207,11 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
                     ) : (
                       <Calculator className="h-4 w-4" />
                     )}
-                    Рассчитать стоимость
+                    {t("createShipment.calculate")}
                   </Button>
                   <div className="grid grid-cols-2 gap-3">
                     <Button variant="ghost" onClick={onClose} type="button">
-                      Отмена
+                      {t("common.cancel")}
                     </Button>
                     <Button type="button" onClick={() => onSubmit()} disabled={!canSend || sending}>
                       {sending ? (
@@ -209,7 +219,7 @@ export const TransportSelectDialog = memo(function TransportSelectDialog({
                       ) : (
                         <Send className="h-4 w-4" />
                       )}
-                      Отправить заявку
+                      {t("createShipment.submit")}
                     </Button>
                   </div>
                 </div>
