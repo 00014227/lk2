@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
+
 import type { AirEvent, RailwayEvent, SeaPosition } from "@entities/tracking";
 
 import { AirTimeline } from "./air-timeline";
@@ -24,6 +26,7 @@ export function LegTracking({
   airEvents,
   seaPositions,
 }: LegTrackingProps) {
+  const { t } = useTranslation();
   if (type === "railway" && railwayEvents.length > 0) {
     return <RailwayTimeline events={railwayEvents} />;
   }
@@ -37,5 +40,5 @@ export function LegTracking({
   if (type === "auto") {
     return <AutoStatusTimeline orderNumber={orderNumber} />;
   }
-  return <p className="px-5 py-4 text-xs text-muted-foreground">Трекинг ещё не добавлен</p>;
+  return <p className="px-5 py-4 text-xs text-muted-foreground">{t("trackShipment.noTracking")}</p>;
 }

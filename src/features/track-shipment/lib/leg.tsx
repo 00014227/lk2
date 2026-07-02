@@ -2,6 +2,8 @@ import { Plane, Ship, Train, Truck } from "lucide-react";
 
 import type { ShipmentSegment } from "@entities/tracking";
 
+import { i18n, intlLocale } from "@shared/i18n";
+
 export type LegType = "auto" | "railway" | "sea" | "air";
 export type LegState = "done" | "active" | "upcoming";
 
@@ -24,13 +26,6 @@ export function transportIcon(type: LegType, className?: string) {
   return <Truck className={className} />;
 }
 
-export function transportLabel(type: LegType): string {
-  if (type === "railway") return "ЖД";
-  if (type === "sea") return "Море";
-  if (type === "air") return "Авиа";
-  return "Авто";
-}
-
 export function segmentState(seg: ShipmentSegment): LegState {
   if (seg.arrivalDateActual) return "done";
   if (seg.departureDateActual) return "active";
@@ -50,18 +45,12 @@ export function formatDate(iso: string | null): string | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("ru-RU", {
+  return d.toLocaleDateString(intlLocale(i18n.language), {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 }
-
-export const STATE_CAPTION: Record<LegState, string> = {
-  done: "Успешно выполнено",
-  active: "В пути",
-  upcoming: "Ожидается",
-};
 
 export const CARD_STYLES: Record<LegState, string> = {
   done: "border-emerald-500/40 bg-emerald-50",

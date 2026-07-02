@@ -2,9 +2,14 @@
 
 import { memo } from "react";
 
+import { useTranslation } from "react-i18next";
+
 import type { OrderMessage } from "@entities/order-message";
 
-// Topic colours (AI-assigned, shown as a passive badge).
+import { intlLocale, useDataLabels } from "@shared/i18n";
+
+// Topic colours (AI-assigned, shown as a passive badge). Keyed by the canonical
+// Russian topic value; only the label text is translated for display.
 const TOPIC_COLORS: Record<string, string> = {
   Перевозка: "bg-sky-100 text-sky-700",
   Документы: "bg-violet-100 text-violet-700",
@@ -15,11 +20,12 @@ const TOPIC_COLORS: Record<string, string> = {
 };
 
 function TopicBadge({ topic }: { topic: string }) {
+  const dl = useDataLabels();
   return (
     <span
       className={`inline-block rounded-full px-1.5 py-0 text-[9px] leading-4 font-semibold ${TOPIC_COLORS[topic] ?? "bg-slate-100 text-slate-500"}`}
     >
-      {topic}
+      {dl.topic(topic)}
     </span>
   );
 }
@@ -28,6 +34,7 @@ function TopicBadge({ topic }: { topic: string }) {
 // (parent `text` state). Each `message` reference is stable across those
 // renders, so memo lets unchanged bubbles bail out entirely.
 export const MessageBubble = memo(function MessageBubble({ message }: { message: OrderMessage }) {
+  const { i18n } = useTranslation();
   // System events (status updates, future doc/invoice notifications) render as a
   // centered divider — not a chat bubble.
   if (message.senderType === "system") {
@@ -60,7 +67,7 @@ export const MessageBubble = memo(function MessageBubble({ message }: { message:
         <div className={`mt-1 flex items-center gap-2 ${mine ? "justify-end" : "justify-between"}`}>
           {!mine && <TopicBadge topic={topic} />}
           <p className={mine ? "text-[10px] text-white/70" : "text-[10px] text-muted-foreground"}>
-            {new Date(message.createdAt).toLocaleString("ru-RU", {
+            {new Date(message.createdAt).toLocaleString(intlLocale(i18n.language), {
               day: "2-digit",
               month: "2-digit",
               hour: "2-digit",

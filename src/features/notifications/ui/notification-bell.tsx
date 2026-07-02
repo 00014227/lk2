@@ -4,9 +4,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { Bell, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { fetchUnreadNotifications } from "@entities/order-message";
 import type { UnreadNotification } from "@entities/order-message";
+
+import { useDataLabels } from "@shared/i18n";
+
+import type { TFunction } from "i18next";
 
 const TOPIC_COLORS: Record<string, string> = {
   Перевозка: "bg-sky-100 text-sky-700",
@@ -17,12 +22,12 @@ const TOPIC_COLORS: Record<string, string> = {
   Общее: "bg-slate-100 text-slate-500",
 };
 
-function timeAgo(date: string): string {
+function timeAgo(date: string, t: TFunction): string {
   const diff = (Date.now() - new Date(date).getTime()) / 1000;
-  if (diff < 60) return "только что";
-  if (diff < 3600) return `${Math.floor(diff / 60)} мин назад`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} ч назад`;
-  return `${Math.floor(diff / 86400)} дн назад`;
+  if (diff < 60) return t("time.justNow");
+  if (diff < 3600) return t("time.minutesAgo", { count: Math.floor(diff / 60) });
+  if (diff < 86400) return t("time.hoursAgo", { count: Math.floor(diff / 3600) });
+  return t("time.daysAgo", { count: Math.floor(diff / 86400) });
 }
 
 function groupByOrder(items: UnreadNotification[]): Map<string, UnreadNotification[]> {
@@ -36,6 +41,8 @@ function groupByOrder(items: UnreadNotification[]): Map<string, UnreadNotificati
 }
 
 export function NotificationBell() {
+  const { t } = useTranslation();
+  const dl = useDataLabels();
   const router = useRouter();
   const [notifications, setNotifications] = useState<UnreadNotification[]>([]);
   const [open, setOpen] = useState(false);
@@ -83,7 +90,7 @@ export function NotificationBell() {
     <div className="relative" ref={panelRef}>
       <button
         type="button"
-        aria-label={count > 0 ? `${count} непрочитанных уведомлений` : "Уведомления"}
+        aria-label={count > 0 ? t("notifications.unreadAria", { count }) : t("notifications.title")}
         aria-haspopup="true"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
@@ -102,11 +109,11 @@ export function NotificationBell() {
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <p className="text-sm font-semibold text-slate-900">
-              {count > 0 ? `Новые ответы · ${count}` : "Уведомления"}
+              {count > 0 ? t("notifications.newReplies", { count }) : t("notifications.title")}
             </p>
             <button
               type="button"
-              aria-label="Закрыть"
+              aria-label={t("common.close")}
               onClick={() => setOpen(false)}
               className="flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition hover:bg-slate-100"
             >
@@ -118,7 +125,7 @@ export function NotificationBell() {
           <div className="max-h-80 overflow-y-auto">
             {count === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-muted-foreground">
-                Нет новых сообщений
+                {t("notifications.empty")}
               </p>
             ) : (
               Array.from(grouped.entries()).map(([orderId, items]) => {
@@ -165,10 +172,12 @@ export function NotificationBell() {
                       <span
                         className={`shrink-0 rounded-full px-1.5 py-0 text-[9px] leading-4 font-semibold ${topicColor}`}
                       >
-                        {first.topic}
+                        {dl.topic(first.topic)}
                       </span>
                     </div>
-                    <p className="mt-1 text-[10px] text-muted-foreground">{timeAgo(latestDate)}</p>
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      {timeAgo(latestDate, t)}
+                    </p>
                   </button>
                 );
               })

@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@shared/lib/utils";
 
@@ -28,6 +29,7 @@ export function StarRating({
   disabled = false,
   className,
 }: StarRatingProps) {
+  const { t } = useTranslation();
   const [hover, setHover] = React.useState(0);
   const isHovering = hover > 0;
   // While hovering we show a translucent preview; the solid fill only appears
@@ -39,7 +41,7 @@ export function StarRating({
       className={cn("flex items-center gap-1.5", className)}
       onMouseLeave={() => setHover(0)}
       role="radiogroup"
-      aria-label="Оценка доставки"
+      aria-label={t("star.ariaGroup")}
     >
       {Array.from({ length: count }, (_, i) => i + 1).map((star) => {
         const filled = star <= fillCount;
@@ -50,7 +52,7 @@ export function StarRating({
             disabled={disabled}
             role="radio"
             aria-checked={value === star}
-            aria-label={`Оценить на ${star} из ${count}`}
+            aria-label={t("star.rateAria", { star, count })}
             className={cn(
               "rounded-full p-0.5 transition-transform focus-visible:ring-4 focus-visible:ring-ring focus-visible:outline-none",
               !disabled && "hover:scale-110",

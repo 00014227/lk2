@@ -1,6 +1,8 @@
 import { formatEta } from "@entities/shipment";
 import type { Shipment } from "@entities/shipment";
 
+import type { TFunction } from "i18next";
+
 export interface InfoField {
   key: string;
   label: string;
@@ -13,34 +15,38 @@ export interface InfoGroupData {
   fields: InfoField[];
 }
 
-export function buildShipmentInfoGroups(shipment: Shipment, isRailway: boolean): InfoGroupData[] {
+export function buildShipmentInfoGroups(
+  shipment: Shipment,
+  isRailway: boolean,
+  t: TFunction,
+): InfoGroupData[] {
   return [
     {
-      title: "Груз",
+      title: t("shipmentInfo.groupCargo"),
       fields: [
-        { key: "cargoType", label: "Тип груза", value: shipment.cargoType },
-        { key: "weight", label: "Вес", value: shipment.weight },
+        { key: "cargoType", label: t("shipment.fields.cargoType"), value: shipment.cargoType },
+        { key: "weight", label: t("shipment.fields.weight"), value: shipment.weight },
       ],
     },
     {
-      title: "Перевозка",
+      title: t("shipmentInfo.groupShipping"),
       fields: [
         {
           key: "vehicleNumber",
-          label: isRailway ? "Контейнер" : "Транспорт",
+          label: isRailway ? t("shipment.fields.container") : t("shipment.fields.transport"),
           value: shipment.vehicleNumber,
           mono: true,
         },
         {
           key: "estimatedArrival",
-          label: "ETA",
+          label: t("shipment.fields.eta"),
           value: formatEta(shipment.estimatedArrival, shipment.status),
         },
       ],
     },
     {
-      title: "Ответственный",
-      fields: [{ key: "kamName", label: "Менеджер ТА", value: shipment.kamName }],
+      title: t("shipmentInfo.groupResponsible"),
+      fields: [{ key: "kamName", label: t("shipmentInfo.kam"), value: shipment.kamName }],
     },
   ];
 }

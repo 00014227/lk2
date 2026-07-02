@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { estimateTariff } from "@entities/tariff";
 import type { TariffEstimate } from "@entities/tariff";
 
+import { i18n } from "@shared/i18n";
+
 import { createShipmentRequest, type ContainerEntry } from "../api/create-shipment";
 import { TRANSPORT_TO_TARIFF } from "../lib/options";
 
@@ -219,13 +221,16 @@ export function useCreateShipmentForm(open: boolean): UseCreateShipmentForm {
         cargoDescription:
           cargoDescription ||
           (estOrigin.trim() && estDestination.trim()
-            ? `Расчёт по маршруту ${estOrigin.trim()} → ${estDestination.trim()}`
+            ? i18n.t("createShipment.routeCalc", {
+                origin: estOrigin.trim(),
+                destination: estDestination.trim(),
+              })
             : null),
         containers: containers.filter((c) => c.qty || c.type),
       });
       setSuccess(true);
     } catch {
-      setError("Не удалось отправить заявку. Попробуйте ещё раз.");
+      setError(i18n.t("createShipment.submitError"));
     } finally {
       setLoading(false);
     }

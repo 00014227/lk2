@@ -1,8 +1,11 @@
 "use client";
 
 import { Train } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { RailwayEvent } from "@entities/tracking";
+
+import { i18n, intlLocale } from "@shared/i18n";
 
 interface Props {
   events: RailwayEvent[];
@@ -10,25 +13,32 @@ interface Props {
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short", year: "numeric" });
+  return d.toLocaleDateString(intlLocale(i18n.language), {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString(intlLocale(i18n.language), { hour: "2-digit", minute: "2-digit" });
 }
 
 export function RailwayTimeline({ events }: Props) {
+  const { t } = useTranslation();
   if (events.length === 0) {
     return (
-      <div className="px-5 py-4 text-xs text-muted-foreground">Данные трекинга ещё не получены</div>
+      <div className="px-5 py-4 text-xs text-muted-foreground">
+        {t("trackShipment.railwayNoData")}
+      </div>
     );
   }
 
   return (
     <div className="px-5 py-4">
       <p className="mb-3 text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
-        ЖД-трекинг
+        {t("trackShipment.railwayTracking")}
       </p>
       <div className="relative">
         {/* vertical line */}
@@ -59,7 +69,7 @@ export function RailwayTimeline({ events }: Props) {
                   <span>{formatTime(e.trackingDate)}</span>
                   {e.distanceRemaining && e.distanceRemaining !== "0" && (
                     <span className="ml-auto font-medium text-primary">
-                      {e.distanceRemaining} км
+                      {e.distanceRemaining} {t("trackShipment.kmUnit")}
                     </span>
                   )}
                 </div>

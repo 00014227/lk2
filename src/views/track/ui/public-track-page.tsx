@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { ArrowLeft, Gauge, MapPinned, Package, Search, ShieldCheck, Weight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { RailwayTimeline } from "@features/track-shipment";
 import { AirTimeline } from "@features/track-shipment";
@@ -23,6 +24,7 @@ import type {
   ShipmentSegment,
 } from "@entities/tracking";
 
+import { i18n, useDataLabels } from "@shared/i18n";
 import { Badge } from "@shared/ui/badge";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
@@ -33,7 +35,7 @@ const ShipmentRouteMap = dynamic(() => import("@widgets/shipment-route-map"), {
   ssr: false,
   loading: () => (
     <div className="flex h-full w-full items-center justify-center bg-slate-100 text-sm text-muted-foreground">
-      Загрузка карты...
+      {i18n.t("common.mapLoading")}
     </div>
   ),
 });
@@ -47,14 +49,16 @@ function getStatusVariant(status: string) {
 }
 
 const DETAIL_ROWS = [
-  { icon: Gauge, label: "ETA", key: "estimatedArrival" },
-  { icon: ShieldCheck, label: "Тип груза", key: "cargoType" },
-  { icon: Weight, label: "Вес", key: "weight" },
-  { icon: MapPinned, label: "Откуда", key: "origin" },
-  { icon: MapPinned, label: "Куда", key: "destination" },
+  { icon: Gauge, labelKey: "eta", key: "estimatedArrival" },
+  { icon: ShieldCheck, labelKey: "cargoType", key: "cargoType" },
+  { icon: Weight, labelKey: "weight", key: "weight" },
+  { icon: MapPinned, labelKey: "origin", key: "origin" },
+  { icon: MapPinned, labelKey: "destination", key: "destination" },
 ] as const;
 
 export function PublicTrackPage() {
+  const { t } = useTranslation();
+  const dl = useDataLabels();
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,9 +85,9 @@ export function PublicTrackPage() {
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 404) {
-        setError(`Перевозка «${num}» не найдена. Проверьте номер и попробуйте снова.`);
+        setError(t("track.notFound", { num }));
       } else {
-        setError("Не удалось загрузить данные. Попробуйте позже.");
+        setError(t("track.loadError"));
       }
     } finally {
       setLoading(false);
@@ -101,7 +105,7 @@ export function PublicTrackPage() {
             className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition hover:text-primary"
           >
             <ArrowLeft className="h-4 w-4" />
-            Войти в портал
+            {t("track.login")}
           </Link>
         </div>
       </header>
@@ -110,16 +114,14 @@ export function PublicTrackPage() {
         {/* ── Search ─────────────────────────────────────────────────────── */}
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="font-display text-3xl font-semibold tracking-tight text-slate-900">
-            Отследить перевозку
+            {t("track.title")}
           </h1>
-          <p className="mt-2 text-base text-muted-foreground">
-            Введите номер перевозки для просмотра статуса и маршрута
-          </p>
+          <p className="mt-2 text-base text-muted-foreground">{t("track.subtitle")}</p>
 
           <form className="mt-6 flex flex-col gap-3 sm:flex-row" onSubmit={handleSearch}>
             <Input
               className="flex-1 text-base"
-              placeholder="Например: TLUZ-008618"
+              placeholder={t("track.placeholder")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               disabled={loading}
@@ -133,12 +135,12 @@ export function PublicTrackPage() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Поиск...
+                  {t("common.searching")}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
                   <Search className="h-4 w-4" />
-                  Найти
+                  {t("common.search")}
                 </span>
               )}
             </Button>
@@ -180,7 +182,7 @@ export function PublicTrackPage() {
                 {/* Header */}
                 <div className="border-b border-border bg-white px-6 py-5">
                   <Badge variant={getStatusVariant(result.shipment.status)}>
-                    {result.shipment.status}
+                    {dl.status(result.shipment.status)}
                   </Badge>
                   <p className="mt-3 font-display text-2xl leading-tight font-semibold">
                     {result.shipment.id}
@@ -196,7 +198,7 @@ export function PublicTrackPage() {
                 <div className="border-b border-border bg-white px-6 py-4">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-semibold tracking-[0.16em] text-muted-foreground uppercase">
-                      Прогресс маршрута
+                      {t("common.routeProgress")}
                     </p>
                     <span className="text-sm font-bold text-primary">
                       {result.shipment.progress}%
@@ -207,12 +209,12 @@ export function PublicTrackPage() {
 
                 {/* Detail rows */}
                 <div className="flex flex-col gap-px bg-border">
-                  {DETAIL_ROWS.map(({ icon: Icon, label, key }) => (
-                    <div className="bg-white px-6 py-3" key={label}>
+                  {DETAIL_ROWS.map(({ icon: Icon, labelKey, key }) => (
+                    <div className="bg-white px-6 py-3" key={key}>
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Icon className="h-3.5 w-3.5 shrink-0" />
                         <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">
-                          {label}
+                          {t(`shipment.fields.${labelKey}`)}
                         </p>
                       </div>
                       <p className="mt-1 text-sm font-semibold text-slate-900">
@@ -228,11 +230,11 @@ export function PublicTrackPage() {
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Package className="h-3.5 w-3.5 shrink-0" />
                         <p className="text-[10px] font-semibold tracking-[0.14em] uppercase">
-                          Тип перевозки
+                          {t("shipment.fields.transportType")}
                         </p>
                       </div>
                       <p className="mt-1 text-sm font-semibold text-slate-900">
-                        {result.shipment.transportationType}
+                        {dl.transport(result.shipment.transportationType)}
                       </p>
                     </div>
                   )}
@@ -270,7 +272,7 @@ export function PublicTrackPage() {
 
                 {/* Footer */}
                 <div className="mt-auto border-t border-border px-6 py-4 text-xs text-muted-foreground">
-                  Создан: {result.shipment.createdDate}
+                  {t("shipment.fields.createdAt")}: {result.shipment.createdDate}
                 </div>
               </div>
             </div>
@@ -283,7 +285,7 @@ export function PublicTrackPage() {
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/80 shadow-sm">
               <Search className="h-7 w-7 text-slate-300" />
             </div>
-            <p className="text-sm">Введите номер перевозки выше, чтобы увидеть статус и маршрут</p>
+            <p className="text-sm">{t("track.empty")}</p>
           </div>
         )}
       </div>

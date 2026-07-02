@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 
+import { useTranslation } from "react-i18next";
 import { CircleMarker, Marker, Polyline, Tooltip } from "react-leaflet";
 
 import { AutoFit } from "@shared/ui/auto-fit";
@@ -24,6 +25,7 @@ export function TruckRouteLayer({
   destLabel,
   delivered,
 }: RouteModes["truck"]) {
+  const { t } = useTranslation();
   const truckIcon = useMemo(
     () => (delivered ? buildDeliveredIcon() : buildTruckIcon(notDeparted ? "pending" : "moving")),
     [delivered, notDeparted],
@@ -77,7 +79,9 @@ export function TruckRouteLayer({
       {markerPos && (
         <Marker position={markerPos} icon={truckIcon}>
           <Tooltip direction="top" offset={[0, -22]}>
-            <span className="text-xs font-semibold">{delivered ? "Доставлено" : tooltip}</span>
+            <span className="text-xs font-semibold">
+              {delivered ? t("routeMap.delivered") : tooltip}
+            </span>
           </Tooltip>
         </Marker>
       )}

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 
+import { useTranslation } from "react-i18next";
 import { CircleMarker, Marker, Polyline, Tooltip } from "react-leaflet";
 
 import { AutoFit } from "@shared/ui/auto-fit";
@@ -11,6 +12,7 @@ import { SEA_BLUE, buildDeliveredIcon, buildShipIcon } from "../lib/leaflet-icon
 import type { RouteModes } from "../model/use-route-modes";
 
 export function SeaRouteLayer({ coords, ports, shipPos, shipLabel, delivered }: RouteModes["sea"]) {
+  const { t } = useTranslation();
   const shipIcon = useMemo(() => (delivered ? buildDeliveredIcon() : buildShipIcon()), [delivered]);
 
   return (
@@ -51,7 +53,9 @@ export function SeaRouteLayer({ coords, ports, shipPos, shipLabel, delivered }: 
       {shipPos && (
         <Marker position={shipPos} icon={shipIcon}>
           <Tooltip direction="top" offset={[0, -22]}>
-            <span className="text-xs font-semibold">{delivered ? "Доставлено" : shipLabel}</span>
+            <span className="text-xs font-semibold">
+              {delivered ? t("routeMap.delivered") : shipLabel}
+            </span>
           </Tooltip>
         </Marker>
       )}

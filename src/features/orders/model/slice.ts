@@ -4,6 +4,7 @@ import { setShipments, type Shipment } from "@entities/shipment";
 import { setVehicles, type Vehicle } from "@entities/vehicle";
 
 import api from "@shared/api";
+import { i18n } from "@shared/i18n";
 
 export type DashboardTab = "map" | "shipments";
 
@@ -57,7 +58,7 @@ export const ordersSlice = createSlice({
       })
       .addCase(fetchMyOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message ?? "Ошибка загрузки данных";
+        state.error = action.error.message ?? i18n.t("orders.loadError");
       });
   },
   selectors: {

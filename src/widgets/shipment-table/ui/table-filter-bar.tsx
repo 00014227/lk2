@@ -1,6 +1,7 @@
 "use client";
 
 import { Calculator, Eye, Search, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
@@ -41,6 +42,7 @@ export function TableFilterBar({
   hiddenCols,
   onToggleCol,
 }: TableFilterBarProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
       {/* Search */}
@@ -48,7 +50,7 @@ export function TableFilterBar({
         <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           className="h-9 rounded-xl pl-9 text-sm"
-          placeholder="Поиск по номеру, маршруту, транспорту..."
+          placeholder={t("table.searchPlaceholder")}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
         />
@@ -69,7 +71,7 @@ export function TableFilterBar({
           onClick={onClearAll}
           type="button"
         >
-          Сбросить
+          {t("common.reset")}
         </button>
       )}
 
@@ -81,7 +83,7 @@ export function TableFilterBar({
           type="button"
         >
           <Eye className="h-3.5 w-3.5" />
-          Скрыто: {hiddenRowsCount} — восстановить
+          {t("table.hiddenRows", { count: hiddenRowsCount })}
         </button>
       )}
 
@@ -89,7 +91,7 @@ export function TableFilterBar({
         {/* Calculate cost button (opens the estimate modal) */}
         <Button size="sm" className="h-9 gap-1.5 rounded-xl text-xs" onClick={onCreateClick}>
           <Calculator className="h-3.5 w-3.5" />
-          Рассчитать стоимость
+          {t("table.calculateCost")}
         </Button>
         <TableCompanyPicker
           companies={companies}

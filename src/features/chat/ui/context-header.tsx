@@ -1,19 +1,21 @@
 "use client";
 
 import { Clock, Mail, MapPin, Maximize2, Minimize2, Phone, Truck, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { Shipment } from "@entities/shipment";
 
+import { useDataLabels } from "@shared/i18n";
 import { cn } from "@shared/lib/utils";
 
-function transportLabel(t: string | null | undefined): string {
-  if (!t) return "";
-  const l = t.toLowerCase();
-  if (l.includes("мор") || l.includes("sea")) return "Море";
-  if (l.includes("авиа") || l.includes("air")) return "Авиа";
-  if (l.includes("жел") || l.includes("rail")) return "Ж/Д";
-  if (l.includes("авто") || l.includes("truck")) return "Авто";
-  return t;
+function transportModeKey(v: string | null | undefined): "sea" | "air" | "rail" | "road" | null {
+  if (!v) return null;
+  const l = v.toLowerCase();
+  if (l.includes("мор") || l.includes("sea")) return "sea";
+  if (l.includes("авиа") || l.includes("air")) return "air";
+  if (l.includes("жел") || l.includes("rail")) return "rail";
+  if (l.includes("авто") || l.includes("truck")) return "road";
+  return null;
 }
 
 const STATUS_DOT: Record<string, string> = {
@@ -40,7 +42,10 @@ export function ContextHeader({
   onToggleExpand,
   onClose,
 }: ContextHeaderProps) {
-  const transport = transportLabel(shipment.transportationType);
+  const { t } = useTranslation();
+  const dl = useDataLabels();
+  const modeKey = transportModeKey(shipment.transportationType);
+  const transport = modeKey ? t(`chat.transport.${modeKey}`) : (shipment.transportationType ?? "");
   const managerName = shipment.responsibleName || shipment.kamName;
   const managerPhone = shipment.responsiblePhone || shipment.kamPhone;
   const managerEmail = shipment.responsibleEmail || shipment.kamEmail;
@@ -55,7 +60,7 @@ export function ContextHeader({
           <button
             type="button"
             onClick={onToggleExpand}
-            aria-label={expanded ? "Свернуть панель" : "Развернуть панель"}
+            aria-label={expanded ? t("chat.collapse") : t("chat.expand")}
             className="hidden h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 lg:flex"
           >
             {expanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -63,7 +68,7 @@ export function ContextHeader({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Закрыть панель"
+            aria-label={t("chat.closePanel")}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
             <X className="h-4 w-4" />
@@ -88,7 +93,7 @@ export function ContextHeader({
       <div className="mt-1 flex items-center gap-2 text-[13px]">
         <span className="flex items-center gap-1.5">
           <span className={cn("h-2 w-2 rounded-full", dot)} />
-          <span className="font-medium text-slate-700">{shipment.status}</span>
+          <span className="font-medium text-slate-700">{dl.status(shipment.status)}</span>
         </span>
         {shipment.estimatedArrival && (
           <span className="text-slate-400">·&nbsp;ETA&nbsp;{shipment.estimatedArrival}</span>
@@ -112,7 +117,7 @@ export function ContextHeader({
             {managerPhone && (
               <a
                 href={`tel:${managerPhone}`}
-                aria-label="Позвонить"
+                aria-label={t("chat.call")}
                 className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-white text-slate-500 transition hover:border-primary/40 hover:text-primary"
               >
                 <Phone className="h-3.5 w-3.5" />
@@ -121,7 +126,7 @@ export function ContextHeader({
             {managerEmail && (
               <a
                 href={`mailto:${managerEmail}`}
-                aria-label="Написать на почту"
+                aria-label={t("chat.email")}
                 className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-white text-slate-500 transition hover:border-primary/40 hover:text-primary"
               >
                 <Mail className="h-3.5 w-3.5" />

@@ -3,6 +3,7 @@
 import { memo } from "react";
 
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { Shipment } from "@entities/shipment";
 
@@ -30,6 +31,7 @@ export const TableRow = memo(function TableRow({
   onRowClick,
   onHideRow,
 }: TableRowProps) {
+  const { t } = useTranslation();
   return (
     <tr
       className={cn(
@@ -51,7 +53,7 @@ export const TableRow = memo(function TableRow({
             e.stopPropagation();
             onHideRow(shipment.id);
           }}
-          title="Скрыть строку"
+          title={t("table.hideRow")}
           type="button"
         >
           <X className="h-3.5 w-3.5" />

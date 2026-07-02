@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
+
 import type { Shipment } from "@entities/shipment";
 
 import { TableRow } from "./table-row";
@@ -21,6 +23,7 @@ export function TableBody({
   onRowClick,
   onHideRow,
 }: TableBodyProps) {
+  const { t } = useTranslation();
   return (
     <tbody>
       {rows.length === 0 ? (
@@ -29,7 +32,7 @@ export function TableBody({
             className="px-5 py-10 text-center text-sm text-muted-foreground"
             colSpan={visibleCols.length + 1}
           >
-            Отправления не найдены
+            {t("table.notFound")}
           </td>
         </tr>
       ) : (

@@ -1,6 +1,9 @@
+"use client";
+
 import { ReactNode } from "react";
 
 import { Box, ShieldCheck, Truck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/ui/card";
 import { Logo } from "@shared/ui/logo";
@@ -16,6 +19,12 @@ export function AuthShell({
   description: string;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
+  const stats = [
+    { icon: Truck, label: t("auth.statTransportLabel"), value: t("auth.statTransportValue") },
+    { icon: Box, label: t("auth.statOrdersLabel"), value: t("auth.statOrdersValue") },
+    { icon: ShieldCheck, label: t("auth.statAccessLabel"), value: t("auth.statAccessValue") },
+  ];
   return (
     <main className="relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 sm:py-12 lg:px-10">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(12,48,120,0.2),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(239,63,34,0.14),transparent_28%),linear-gradient(180deg,#f7f9fd_0%,#eaeef7_100%)]" />
@@ -25,19 +34,14 @@ export function AuthShell({
             <div>
               <Logo tone="white" className="h-9" />
               <h1 className="mt-6 max-w-xl font-display text-2xl leading-tight font-semibold tracking-tight sm:mt-8 sm:text-3xl lg:text-4xl lg:leading-none">
-                Контроль грузоперевозок для корпоративных клиентов.
+                {t("auth.heroTitle")}
               </h1>
               <p className="mt-6 max-w-lg text-base leading-7 text-slate-200">
-                Отслеживайте движение транспорта, контролируйте статусы доставки и используйте
-                портал как основу для интеграций с ERP и GPS.
+                {t("auth.heroSubtitle")}
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
-              {[
-                { icon: Truck, label: "Транспорт онлайн", value: "10 машин" },
-                { icon: Box, label: "Отслеживаемые заказы", value: "15 отправлений" },
-                { icon: ShieldCheck, label: "Режим доступа", value: "Локальный MVP" },
-              ].map((item) => (
+              {stats.map((item) => (
                 <div
                   key={item.label}
                   className="rounded-[28px] border border-white/12 bg-white/8 p-5 backdrop-blur"
@@ -49,10 +53,7 @@ export function AuthShell({
               ))}
             </div>
           </div>
-          <p className="mt-12 max-w-md text-sm leading-6 text-slate-300">
-            На этом этапе реализован только frontend. Учетные данные хранятся в local storage до
-            подключения безопасной backend-аутентификации.
-          </p>
+          <p className="mt-12 max-w-md text-sm leading-6 text-slate-300">{t("auth.disclaimer")}</p>
         </section>
 
         <section className="flex min-w-0 items-center justify-center">

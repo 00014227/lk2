@@ -2,6 +2,8 @@
 
 import { useRef } from "react";
 
+import { useTranslation } from "react-i18next";
+
 import { MAX_COL_WIDTH, MIN_COL_WIDTH, type ColKey } from "../lib/columns";
 
 interface ColumnResizerProps {
@@ -17,6 +19,7 @@ export function ColumnResizer({
   onResizeCommit,
   onResetWidth,
 }: ColumnResizerProps) {
+  const { t } = useTranslation();
   const startX = useRef(0);
   const startW = useRef(0);
   const lastW = useRef(0);
@@ -55,8 +58,8 @@ export function ColumnResizer({
     <span
       role="separator"
       aria-orientation="vertical"
-      aria-label="Изменить ширину столбца"
-      title="Потяните, чтобы изменить ширину. Двойной клик — сброс."
+      aria-label={t("table.resizeColumn")}
+      title={t("table.resizeColumnHint")}
       className="absolute top-0 right-0 z-10 h-full w-1.5 cursor-col-resize touch-none border-r-4 border-dotted border-slate-300 bg-transparent transition-colors"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
